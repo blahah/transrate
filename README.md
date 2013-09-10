@@ -1,6 +1,11 @@
-# Transcriptome analysis tools #
+Transrate
+----
 
-Use this repo to co-ordinate work in progress (i.e. pre-publication) on transcriptome analysis tools.
+Deep quality analyis and comparison of transcriptome assemblies.
+
+## Development status
+
+This software is in pre-alpha development and is not yet ready for deployment. 
 
 ## Analysis pipeline ##
 
@@ -10,4 +15,4 @@ To run the analysis pipe on a set of assemblies:
 2. Run mergeassemblymetrics.R. This will parse the metrics for all analysed assemblies into a format suitable for use in the comparison webapp.
 3. Use RStudio to run the webapp.
 
-The pipeline is under active development and will ultimately be provided with a single script to run the entire pipeline and optionally launch the
+The pipeline is under active development and in the process of being rewritten with new metrics and shaped into a coherent application.
