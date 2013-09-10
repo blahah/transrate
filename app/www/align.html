@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" title="nucleotide" href="defaultdna.css" > 
+<link rel="stylesheet" type="text/css" title="protein" href="defaultamino.css" > 
+<link rel="stylesheet" type="text/css" title="fancy" href="fancyamino.css" > 
+<link rel="stylesheet" type="text/css" title="shape" href="shapeamino.css" >
+
+<style type="text/css">
+	div.simplecontainer{white-space:nowrap;width:auto;margin:0px;height:auto;overflow:hidden;font-size:12px;} 
+	div.simplenames{float:left;margin-left:2px; padding-left:.5em; border-right:1px solid gray; width:170px;overflow:hidden;line-height:120%;} 
+	div.name{font-family:monospace; letter-spacing:1px;}
+	div.simpleseqcontainer{white-space:nowrap;width:auto;margin:0px;overflow:auto; } 
+	div.simplesequences{white-space:nowrap;width:auto;margin:0px;height:auto;overflow:auto;line-height:120%;}
+	div.sequence {font-family:monospace;letter-spacing:1px; float:left; padding-left:1em; padding-right:1em; white-space:nowrap;}
+</style>
+
+
+<script type="text/javascript">
+function changeColour(scheme){ 
+	var link_tags = document.getElementsByTagName("link");
+	for ( var i=0 ; i<link_tags.length ; i++){
+		if( link_tags[i].rel == "stylesheet" ){
+			link_tags[i].disabled = true;
+			if ( link_tags[i].title == scheme ){
+				link_tags[i].disabled = false;
+			}
+		}
+	}
+}
+
+function changeFontSize(size){
+	var aligns = document.getElementsByTagName('div');
+	for ( var i=0 ; i<aligns.length ; i++){
+		if(aligns[i].className == "simplecontainer"){
+			aligns[i].style.fontSize = size;
+		}
+	}
+}
+
+function createSeq(c){
+	var elt = document.createElement('span');
+	if(c=='-' || c=='.') {
+	  elt.setAttribute('class','gap');
+	} else {
+	  elt.setAttribute('class',c);
+	}
+	var txt = document.createTextNode(c);
+	elt.appendChild(txt);
+	return elt;
+}
+
+function addAlignment(id){
+	var box = document.getElementById('simplenames');
+	var name_div = document.createElement('div');
+	name_div.setAttribute('class','name');
+	name_div.setAttribute('id',names[id]);
+	var txt = document.createTextNode(names[id]);
+	name_div.appendChild(txt);
+	box.appendChild(name_div);
+
+	var box2 = document.getElementById('simplesequences');
+	var seq_div = document.createElement('div');
+	seq_div.setAttribute('class','sequence');
+	seq_div.setAttribute('id',names[id]);
+	
+	for ( var i=0 ; i<seqs[id].length ; i++){
+		var nuc = seqs[id].charAt(i);
+		var newElt = createSeq(nuc);
+		seq_div.appendChild(newElt);
+	}
+	box2.appendChild(seq_div);
+}
+
+function addRuler(){
+	var box = document.getElementById('simplenames');
+	var name_div = document.createElement('div');
+	name_div.setAttribute('class','name');
+	name_div.setAttribute('id','ruler');
+	var txt = document.createTextNode('');
+	name_div.appendChild(txt);
+	box.appendChild(name_div);
+
+	var box2 = document.getElementById('simplesequences');
+	var seq_div = document.createElement('div');
+	seq_div.setAttribute('class','sequence');
+	seq_div.setAttribute('id',names[1]);
+
+	var txt = '|';
+	var len = seqs[1].length;
+	for ( var i=2 ; i<=len ; ){
+		if(i%20==0 && i+5<len)
+		{
+		    var lab = "|"+i;
+		    txt += lab;
+		    i+=lab.length;
+		} else {
+		    txt += ".";
+		    i++;
+		}
+	}
+	seq_div.appendChild(document.createTextNode(txt));
+	box2.appendChild(seq_div);
+}
+
+function setDataType() {
+	var menu = document.getElementById('changeColour');
+	menu.remove(0);
+	if(datatype=="protein"){
+	      var y=document.createElement('option');
+	      y.text='Default';
+	      y.value = 'protein';
+	      menu.add(y,null);
+	      var y=document.createElement('option');
+	      y.text='Rasmol';
+	      y.value = 'fancy';
+	      menu.add(y,null);
+	      var y=document.createElement('option');
+	      y.text='Shape';
+	      y.value = 'shape';
+	      menu.add(y,null);
+	      changeColour('protein');
+	  } else {
+	      var y=document.createElement('option');
+	      y.text='Default';
+	      y.value = 'nucleotide';
+	      menu.add(y,null);
+	      changeColour('nucleotide');
+	  }
+}
+var datatype = "nucleotide"
+var names = [  "AT1G45474.1_Flaveria_angu", "AT1G45474.1_Flaveria_angu", "AT1G45474.2_Flaveria_angu", "AT1G45474.2_Flaveria_angu" ];var seqs = [ "--------------------------------------------------------------------------------------------------------------------------------------GCGACCCACATGGCTTCCGGGGCTTGACCCTCCACCCCATCTTGATGGAACTCTTGCTGGAGATTTTGGATTTGACCCTCTTGGACTTGGAGAGGATCCAGCTAGCTTGAAGTGGTATGTGCAGGCTGAACTGGTTCATGCGCGTTTTGCTATGGCTGGGGGTGCTGGAATTCTTTTCACTGATTTGCTTCGTGTAACAGGAATAAGCAACCTACCAGTGTGGTATGAAGCAGGTGCAACTAAGTTTGATTTTGCCAGTACTAGAACTCTCTTCATTGTCCAACTACTTTTGATGGGATTCGTCGAGACGAAAAGATATATGGATTTTACTAATCCGGGTTCTCAAGCTAAGGAAGGGTCTTTTTTTTTTGGTTTGGAAGCTGCTCTAGAAGGCTTAGAACCAGGATATCCTGGTGGTCCTTTGCTTAATCCTCTTGGTCTTGCTAAAGACATAGCAAATGCTCATGAGTGGAAGCTGAAGGAGATTAAAAATGGCCGGCTTGCGATGGTAGCGATGCTTGGGATATTCGTGCAGGCTAATGTGACTCATGTAGGCCCTGTTGATAACCTAGTTAAGCACCTATCGGACCCATGGCATCAAACCATCATTCAAACTCTTGCTGGCTCTAGTTCTTGA","--------------------------------------------------------------------------------------------------------------------------------------GCGACCCACATGGCTTCCGGGGCTTGACCCTCCACCCCATCTTGATGGAACTCTTGCTGGAGATTTTGGATTTGACCCTCTTGGACTTGGAGAGGATCCAGCTAGCTTGAAGTGGTATGTGCAGGCTGAACTGGTTCATGCGCGTTTTGCTATGGCTGGGGTTGCTGGAATTCTTTTCACTGATTTGCTTCGTGTAACAGGAATAAGCAACCTACCAGTGTGGTATGAAGCAGGTGCAACTAAGTTTGATTTTGCCAGTACTAGAACTCTCTTCATTGTCCAACTACTTTTGATGGGATTCGTCGAGACGAAAAGATATATGGATTTTACTAATCCGGGTTCTCAAGCTAAGGAAGGGTCTTTTTTTTTTGGTTTGGAAGCTGCTCTAGAAGGCTTAGAACCAGGATATCCTGGTGGTCCTTTGCTTAATCCTCTTGGTCTTGCTAAAGACATAGCAAATGCTCATGAGTGGAAGCTGAAGGAGATTAAAAATGGCCGGCTTGCGATGGTAGCGATGCTTGGGATATTCGTGCAGGCTAATGTGACTCATGTAGGCCCTGTTGATAACCTAGTTAAGCACCTATCGGACCCATGGCATCAAACCATCATTCAAACTCTTGCTGGCTCTAGTTCTTGA","--------------------------------------------------------------------------------------------------------------------------------------GCGACCCACATGGCTTCCGGGGCTTGACCCTCCACCCCATCTTGATGGAACTCTTGCTGGAGATTTTGGATTTGACCCTCTTGGACTTGGAGAGGATCCAGCTAGCTTGAAGTGGTATGTGCAGGCTGAACTGGTTCATGCGCGTTTTGCTATGGCTGGGGGTGCTGGAATTCTTTTCACTGATTTGCTTCGTGTAACAGGAATAAGCAACCTACCAGTGTGGTATGAAGCAGGTGCAACTAAGTTTGATTTTGCCAGTACTAGAACTCTCTTCATTGTCCAACTACTTTTGATGGGATTCGTCGAGACGAAAAGATATATGGATTTTACTAATCCGGGTTCTCAAGCTAAGGAAGGGTCTTTTTTTTTTGGTTTGGAAGCTGCTCTAGAAGGCTTAGAACCAGGATATCCTGGTGGTCCTTTGCTTAATCCTCTTGGTCTTGCTAAAGACATAGCAAATGCTCATGAGTGGAAGCTGAAGGAGATTAAAAATGGCCGGCTTGCGATGGTAGCGATGCTTGGGATATTCGTGCAGGCTAATGTGACTCATGTAGGCCCTGTTGATAACCTAGTTAAGCACCTATCGGACCCATGGCATCAAACCATCATTCAAACTCTTGCTGGCTCTAGTTCTTGA","--------------------------------------------------------------------------------------------------------------------------------------GCGACCCACATGGCTTCCGGGGCTTGACCCTCCACCCCATCTTGATGGAACTCTTGCTGGAGATTTTGGATTTGACCCTCTTGGACTTGGAGAGGATCCAGCTAGCTTGAAGTGGTATGTGCAGGCTGAACTGGTTCATGCGCGTTTTGCTATGGCTGGGGTTGCTGGAATTCTTTTCACTGATTTGCTTCGTGTAACAGGAATAAGCAACCTACCAGTGTGGTATGAAGCAGGTGCAACTAAGTTTGATTTTGCCAGTACTAGAACTCTCTTCATTGTCCAACTACTTTTGATGGGATTCGTCGAGACGAAAAGATATATGGATTTTACTAATCCGGGTTCTCAAGCTAAGGAAGGGTCTTTTTTTTTTGGTTTGGAAGCTGCTCTAGAAGGCTTAGAACCAGGATATCCTGGTGGTCCTTTGCTTAATCCTCTTGGTCTTGCTAAAGACATAGCAAATGCTCATGAGTGGAAGCTGAAGGAGATTAAAAATGGCCGGCTTGCGATGGTAGCGATGCTTGGGATATTCGTGCAGGCTAATGTGACTCATGTAGGCCCTGTTGATAACCTAGTTAAGCACCTATCGGACCCATGGCATCAAACCATCATTCAAACTCTTGCTGGCTCTAGTTCTTGA" ];</script><title>AT1G45474</title>
+
+</head>
+<body onLoad="setDataType();for(var i=0 ; i<names.length ; i++){ addAlignment(i);};addRuler();">
+<div class="simplecontainer" id="simplecontainer">
+  <div class="simplenames" id="simplenames">
+  </div>
+  <div class="simpleseqcontainer" id="simpleseqcontainer">
+    <div class="simplesequences" id="simplesequences">
+    </div>
+  </div>
+</div>
+<div id="selectFonts">
+	Font color: <select onchange="changeColour(this.value)" id="changeColour">
+		<option value="dummy">Default</option>
+	</select>
+	&nbsp;size: <select onchange="changeFontSize(this.value)">
+		<option value="8px">8</option>
+		<option value="10px">10</option>
+		<option value="12px" selected="selected">12</option>
+		<option value="14px">14</option>
+		<option value="18px">18</option>
+		<option value="24px">24</option>
+	</select>
+</div>
+</body>
+</html>
