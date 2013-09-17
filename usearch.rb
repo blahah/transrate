@@ -40,6 +40,7 @@ class Usearch
   end
 
   def run subcmd
+    subcmd += " -quiet"
     `#{@cmd}#{subcmd}`
   end
 
