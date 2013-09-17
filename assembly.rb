@@ -4,14 +4,24 @@ require 'bio'
 require 'better_sam'
 require 'csv'
 require 'trollop'
+require 'forwardable'
 
 class Assembly
+
+  include Enumerable
+  extend Forwardable
+  def_delegators :@assembly, :each, :<<
+
+  attr_accessor :ublast_db
+  attr_accessor :orfs_ublast_db
+  attr_accessor :protein
 
   # number of bases in the assembly
   attr_writer :n_bases
 
   # assembly filename
-
+  attr_accessor :file
+  
   # Reuturn a new Assembly.
   #
   # - +:assembly+ - an array of Bio::Sequences
@@ -35,7 +45,8 @@ class Assembly
 
   # Return a hash of statistics about this assembly
   def basic_stats
-    cum = 0.0
+    cumulative_length = 0.0
+    # we'll calculate Nx for all these x
     x = [90, 70, 50, 30, 10]
     x2 = x.clone
     cutoff = x2.pop / 100.0
@@ -43,8 +54,8 @@ class Assembly
     n1k = 0
     n10k = 0
     @assembly.each do |s|
-      newcum = cum + s.length
-      prop = newcum / self.n_bases
+      new_cum_len = cumulative_length + s.length
+      prop = new_cum_len / self.n_bases
       n1k += 1 if s.length > 1_000
       n10k += 1 if s.length > 10_000
       if prop >= cutoff
@@ -52,7 +63,7 @@ class Assembly
         break if x2.empty?
         cutoff = x2.pop / 100.0
       end
-      cum = newcum
+      cumulative_length = new_cum_len
     end
     mean = cum / @assembly.size
     ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
