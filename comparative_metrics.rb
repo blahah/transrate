@@ -1,4 +1,4 @@
-require 'reciprocal_annotation'
+require_relative 'reciprocal_annotation'
 require 'set'
 
 class ComparativeMetrics
