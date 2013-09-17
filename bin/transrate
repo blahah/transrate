@@ -1,0 +1,95 @@
+#! /usr/bin/env ruby
+
+require 'trollop'
+require 'transrate'
+
+opts = Trollop::options do
+  version "v0.0.1a"
+  banner <<-EOS
+
+Transrate v0.0.1a by Richard Smith <rds45@cam.ac.uk>
+
+DESCRIPTION:
+Analyse a de-novo transcriptome
+assembly using three kinds of metrics:
+
+1. contig-based
+2. read-mapping
+3. reference-based
+
+Please make sure USEARCH and bowtie2 are both installed
+and in the PATH.
+
+Bug reports and feature requests at:
+http://github.com/blahah/transrate
+
+USAGE:
+transrate <options>
+
+OPTIONS:
+
+EOS
+  opt :assembly, "assembly file in FASTA format", :required => true, :type => String
+  opt :reference, "reference proteome file in FASTA format", :required => true, :type => String
+  opt :left, "left reads file in FASTQ format", :type => String
+  opt :right, "right reads file in FASTQ format", :type => String
+  opt :insertsize, "mean insert size",  :default => 200, :type => Integer
+  opt :insertsd, "insert size standard deviation", :default => 50, :type => Integer
+  opt :threads, "number of threads to use", :default => 8, :type => Integer
+end
+
+def pretty_print_hash hash, width
+  hash.map{ |k, v| "#{k.to_s}#{" " * (width - (k.length + v.to_i.to_s.length))}#{v.to_i}" }.join("\n")
+end
+
+include Transrate
+
+a = Assembly.new opts.assembly
+r = Assembly.new opts.reference
+
+puts "\n\nAnalysing assembly: #{opts.assembly}\n\n"
+
+puts "calculating contig stats..."
+t0 = Time.now
+contig_results = a.basic_stats
+puts "...done in #{Time.now - t0} seconds"
+
+read_results = nil
+if (opts.left && opts.right)
+  puts "\ncalculating read diagnostics..."
+  t0 = Time.now
+  read_metrics = ReadMetrics.new a
+  read_results = read_metrics.run(opts.left, opts.right)
+  puts "...done in #{Time.now - t0} seconds"
+else
+  puts "\nno reads provided, skipping read diagnostics"
+end
+
+puts "\ncalculating comparative metrics..."
+t0 = Time.now
+comparative_metrics = ComparativeMetrics.new(a, r)
+comparative_results = comparative_metrics.run
+puts "...done in #{Time.now - t0} seconds"
+
+report_width = 30
+
+if contig_results
+  puts "\n\n"
+  puts "Contig metrics:"
+  puts "-" *  report_width
+  puts pretty_print_hash(contig_results, report_width)
+end
+
+if read_results
+  puts "\n\n"
+  puts "Read mapping metrics:"
+  puts "-" *  report_width
+  puts pretty_print_hash(read_results, report_width)
+end
+
+if comparative_results
+  puts "\n\n"
+  puts "Comparative metrics:"
+  puts "-" *  report_width
+  puts pretty_print_hash(comparative_results, report_width)
+end
