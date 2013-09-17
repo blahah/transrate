@@ -35,7 +35,7 @@ Additionally, the software calculates whether there is any evidence in the read 
 ### Comparative metrics
 
 * **reciprocal hits** - the number of reciprocal best hits against the reference using ublast. A high score indicates that a large number of real transcripts have been assembled.
-* **ortholog hit ratio** - the mean ratio of alignment length to reference sequence length. A low score on this assembly indicates the assembly contains full-length transcripts.
+* **ortholog hit ratio** - the mean ratio of alignment length to reference sequence length. A low score on this metric indicates the assembly contains full-length transcripts.
 * **collapse factor** - the mean number of reference proteins mapping to each contig. A high score on this metric indicates the assembly contains chimeras.
 
 ## Installation
