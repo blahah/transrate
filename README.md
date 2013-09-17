@@ -5,7 +5,9 @@ Quality analysis and comparison of transcriptome assemblies.
 
 ## Transcriptome assembly quality metrics
 
-transrate implements a variety of established and new metrics. This list will be expanded with detailed explanations and a guide to interpreting the results.
+**transrate** implements a variety of established and new metrics. 
+
+note: this list will be expanded soon with detailed explanations and a guide to interpreting the results.
 
 ### Contig metrics
 
@@ -28,7 +30,7 @@ transrate implements a variety of established and new metrics. This list will be
 
 Conversely, 'bad' pairs are those where one of the conditions for being 'good' are not met.
 
-Additionally, the software calculates whether there is any evidence that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridge is shown in the **supported bridges** metric. The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to improve the assembly using this and other information.
+Additionally, the software calculates whether there is any evidence in the read mappings that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridges is shown in the **supported bridges** metric. The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to improve the assembly using this and other information.
 
 ### Comparative metrics
 
