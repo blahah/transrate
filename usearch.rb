@@ -41,6 +41,7 @@ class Usearch
     subcmd += " -xlat"
     subcmd += " -orfstyle 7"
     subcmd += " -threads #{@threads}"
+    self.run subcmd
   end
 
   def run subcmd
