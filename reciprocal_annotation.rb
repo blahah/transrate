@@ -1,5 +1,5 @@
-require 'usearch'
-require 'rb_hit'
+require_relative 'usearch'
+require_relative 'rb_hit'
 
 class ReciprocalAnnotation
 
@@ -10,6 +10,7 @@ class ReciprocalAnnotation
   def initialize assembly, reference
     @assembly = assembly
     @reference = reference
+    @usearch = Usearch.new
   end
 
   def run
@@ -26,7 +27,7 @@ class ReciprocalAnnotation
       assembly_orfs = assembly_base + ".orfs"
       @usearch.findorfs @assembly.file, assembly_orfs
       assembly_db = assembly_base + ".udb"
-      @usearch.make_udb_ublast assembly_orfs, assembly_db
+      @usearch.makeudb_ublast assembly_orfs, assembly_db
       @assembly.orfs_ublast_db = assembly_db
     end
   end
@@ -35,7 +36,7 @@ class ReciprocalAnnotation
     unless @reference.ublast_db
       reference_base = File.basename(@reference.file)
       reference_db = reference_base + ".udb"
-      @usearch.make_udb_ublast @reference.file, reference_db
+      @usearch.makeudb_ublast @reference.file, reference_db
       @reference.ublast_db = reference_db
     end
   end
