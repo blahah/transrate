@@ -8,18 +8,28 @@ opts = Trollop::options do
   version "v0.0.1a"
   banner <<-EOS
 
-------------------- score_assembly --------------------
+ScoreAssembly v0.0.1a by Richard Smith <rds45@cam.ac.uk>
 
-analyse a de-novo transcriptome assembly using three
-kinds of metrics:
+DESCRIPTION:
+This script analyses a de-novo transcriptome
+assembly using three kinds of metrics:
 
 1. contig-based
 2. read-mapping
 3. reference-based
 
-outputs a report to STDOUT
+Outputs a report to STDOUT
 
--------------------------------------------------------
+Please make sure USEARCH and bowtie2 are both installed
+and in the PATH.
+
+Bug reports and feature requests at:
+http://github.com/blahah/transrate
+
+USAGE:
+./score_assembly.rb <options>
+
+OPTIONS:
 
 EOS
   opt :assembly, "assembly file in FASTA format", :required => true, :type => String
@@ -28,7 +38,7 @@ EOS
   opt :right, "right reads file in FASTQ format", :required => true, :type => String
   opt :insertsize, "mean insert size",  :default => 200, :type => Integer
   opt :insertsd, "insert size standard deviation", :default => 50, :type => Integer
-  opt :threads, "number of threads to use for parallel steps", :default => 8, :type => Integer
+  opt :threads, "number of threads to use", :default => 8, :type => Integer
 end
 
 def pretty_print_hash hash, width
