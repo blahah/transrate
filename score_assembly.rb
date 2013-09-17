@@ -8,13 +8,16 @@ opts = Trollop::options do
   version "v0.0.1a"
   banner <<-EOS
 
---------------------- k-descender ---------------------
+------------------- score_assembly --------------------
 
-run assembler (by default, velvet-oases) with descending
-k-mers in a range (default, 90:25, step 6) for paired-end
-reads
+analyse a de-novo transcriptome assembly using three
+kinds of metrics:
 
-Richard Smith, April 2013
+1. contig-based
+2. read-mapping
+3. reference-based
+
+outputs a report to STDOUT
 
 -------------------------------------------------------
 
@@ -43,8 +46,8 @@ puts "   ...done in #{Time.now - t0} seconds"
 puts "\n2. calculating read diagnostics..."
 t0 = Time.now
 a.build_bowtie_index
-mapped_reads = a.map_reads opts.left, opts.right, opts.insertsize, opts.insertsd
-read_diagnostics = a.analyse_read_mappings mapped_reads, opts.insertsize, opts.insertsd
+mapped_reads = a.map_reads(opts.left, opts.right, opts.insertsize, opts.insertsd)
+read_diagnostics = a.analyse_read_mappings(mapped_reads, opts.insertsize, opts.insertsd)
 puts "   ...done in #{Time.now - t0} seconds"
 
 puts "\n2. calculating comparative metrics..."
@@ -58,14 +61,14 @@ puts "|" *  40
 puts "\n"
 puts "Basic assembly metrics:"
 puts "-" *  40
-puts pretty_print_hash basic_stats, 40
+puts pretty_print_hash(basic_stats, 40)
 puts "|" *  40
 puts "\n"
 puts "Read mapping metrics:"
 puts "-" *  40
-puts pretty_print_hash read_diagnostics, 40
+puts pretty_print_hash(read_diagnostics, 40)
 puts "|" *  40
 puts "\n"
 puts "Comparative metrics:"
 puts "-" *  40
-puts pretty_print_hash comparative_metrics, 40
+puts pretty_print_hash(comparative_metrics, 40)
