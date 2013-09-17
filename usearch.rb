@@ -1,11 +1,10 @@
 class Usearch
 
-  DB_EXT = '.udb'
-
   require 'which'
   include Which
 
-  def initialize
+  def initialize threads=8
+    @threads = threads
     paths = which('usearch')
     if paths.empty?
       raise "usearch not found in path. Please ensure usearch is installed and aliased as 'usearch' in your path."
@@ -22,6 +21,7 @@ class Usearch
       subcmd += " -blast6out #{blast6outfile}"
     end
     subcmd += " -strand both"
+    subcmd += " -threads #{@threads}"
     self.run subcmd
   end
 
@@ -29,6 +29,14 @@ class Usearch
     subcmd = " -makeudb_ublast #{filepath}"
     subcmd += " -output #{output}"
     self.run subcmd
+  end
+
+  def findorfs filepath, output
+    subcmd = " -findorfs #{filepath}"
+    subcmd += " -output #{output}"
+    subcmd += " -xlat"
+    subcmd += " -orfstyle 7"
+    subcmd += " -threads #{@threads}"
   end
 
   def run subcmd
