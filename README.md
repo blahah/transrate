@@ -1,7 +1,7 @@
 Transrate
 ----
 
-Quality analyis and comparison of transcriptome assemblies.
+Quality analysis and comparison of transcriptome assemblies.
 
 
 ## Installation
