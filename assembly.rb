@@ -96,7 +96,7 @@ class Assembly
     realistic_dist = insertsize + (3 * insertsd)
     unless File.exists? joinedname
       # construct bowtie command
-      bowtiecmd = "bowtie2 -k 3 -p 8 -X #{realistic_dist} --no-unal --local --quiet #{@filename} -1 #{left}"
+      bowtiecmd = "bowtie2 -k 3 -p 8 -X #{realistic_dist} --no-unal --local --quiet #{File.basename(@file)} -1 #{left}"
       # paired end?
       bowtiecmd += " -2 #{right}" if right
       # other functions may want the output, so we save it to file
@@ -104,11 +104,12 @@ class Assembly
       # run bowtie
       `#{bowtiecmd}`
     end
+    outputname
   end
 
   def build_bowtie_index
     unless File.exists?(@assembly + '.1.bt2')
-      `bowtie2-build --offrate 1 #{@assembly} #{@assembly_name}`
+      `bowtie2-build --offrate 1 #{@file} #{File.basename(@file)}`
     end
   end
 
@@ -227,7 +228,6 @@ class Assembly
         end
       end
       puts "#{bridges.size} bridges with 2 or more supporting read pairs written to supported_bridges.csv"
-      diagnostics[:result] = diagnostics[:bad]
     end
     return diagnostics
   end
