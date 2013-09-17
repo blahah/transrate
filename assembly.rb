@@ -21,7 +21,7 @@ class Assembly
 
   # assembly filename
   attr_accessor :file
-  
+
   # Reuturn a new Assembly.
   #
   # - +:assembly+ - an array of Bio::Sequences
@@ -31,7 +31,7 @@ class Assembly
     @n_bases = 0
     Bio::FastaFormat.open(file).each do |entry|
       @n_bases += entry.length
-      @assembly << entry.to_seq
+      @assembly << entry
     end
     @assembly.sort_by! { |x| x.length }
   end
