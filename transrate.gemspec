@@ -8,16 +8,18 @@ Gem::Specification.new do |gem|
   gem.email         = "rds45@cam.ac.uk"
   gem.homepage      = 'https://github.com/blahah/assemblotron'
   gem.summary       = %q{ quality assessment of de-novo transcriptome assemblies }
+  gem.description   = %q{ a library and command-line tool for quality assessment of de-novo transcriptome assemblies }
   gem.version       = Transrate::VERSION::STRING.dup
 
-  gem.files = Dir['Rakefile', '{lib}/**/*', 'README*', 'LICENSE*']
+  gem.files = `git ls-files`.split("\n")
+  gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = %w[ lib ]
 
   gem.add_dependency 'rake', '~> 10.1.0'
   gem.add_dependency 'trollop', '~> 2.0'
   gem.add_dependency 'which'
   gem.add_dependency 'bio'
-  gem.add_dependency 'bettersam'
+  gem.add_dependency 'bettersam', '~> 0.0.1.alpha'
 
   gem.add_development_dependency 'turn'
   gem.add_development_dependency 'simplecov'
