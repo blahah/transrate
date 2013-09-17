@@ -16,7 +16,7 @@ transrate implements a variety of established and new metrics. This list will be
 * **mean_len** - the mean length of the contigs
 * **n > 1k** - the number of contigs greater than 1,000 bases long
 * **n > 10k** - the number of contigs greater than 10,000 bases long
-* **nX** - the largest contig size at which at least 50% of bases are contained in contigs *longer* than this length
+* **nX** - the largest contig size at which at least X% of bases are contained in contigs *longer* than this length
 
 ### Read mapping metrics
 
