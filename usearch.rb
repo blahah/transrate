@@ -12,17 +12,21 @@ class Usearch
     @cmd = paths.first
   end
 
-  def ublast query, target, evalue="1e-5", blast6out=true
+  def custom_output_fields
+    " -userfields query+target+id+alnlen+mism+opens+qlo+qhi+tlo+thi+evalue+bits+tcov"
+  end
+
+  def ublast query, target, evalue="1e-5"
     subcmd = " -ublast #{query}"
     subcmd += " -db #{target}"
     subcmd += " -evalue #{evalue}"
-    if blast6out
-      blast6outfile = File.basename(query) + "_" + File.basename(target)
-      subcmd += " -blast6out #{blast6outfile}"
-    end
+    blast6outfile = File.basename(query) + "_" + File.basename(target) + ".b6"
+    subcmd += " -userout #{blast6outfile}"
+    subcmf += self.custom_output_fields
     subcmd += " -strand both"
     subcmd += " -threads #{@threads}"
     self.run subcmd
+    blast6outfile
   end
 
   def makeudb_ublast filepath, output
