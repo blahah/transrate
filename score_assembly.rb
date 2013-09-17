@@ -1,8 +1,8 @@
 #! /usr/bin/env ruby
 
 require 'trollop'
-require 'assembly'
-require 'comparative_metrics'
+require_relative 'assembly'
+require_relative 'comparative_metrics'
 
 opts = Trollop::options do
   version "v0.0.1a"
@@ -50,7 +50,7 @@ mapped_reads = a.map_reads(opts.left, opts.right, opts.insertsize, opts.insertsd
 read_diagnostics = a.analyse_read_mappings(mapped_reads, opts.insertsize, opts.insertsd)
 puts "   ...done in #{Time.now - t0} seconds"
 
-puts "\n2. calculating comparative metrics..."
+puts "\n3. calculating comparative metrics..."
 t0 = Time.now
 comparative = ComparativeMetrics.new a, r
 comparative_metrics = comparative.run
@@ -62,11 +62,13 @@ puts "\n"
 puts "Basic assembly metrics:"
 puts "-" *  40
 puts pretty_print_hash(basic_stats, 40)
+puts "\n"
 puts "|" *  40
 puts "\n"
 puts "Read mapping metrics:"
 puts "-" *  40
 puts pretty_print_hash(read_diagnostics, 40)
+puts "\n"
 puts "|" *  40
 puts "\n"
 puts "Comparative metrics:"

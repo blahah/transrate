@@ -20,9 +20,9 @@ class Usearch
     subcmd = " -ublast #{query}"
     subcmd += " -db #{target}"
     subcmd += " -evalue #{evalue}"
-    blast6outfile = File.basename(query) + "_" + File.basename(target) + ".b6"
+    blast6outfile = "#{File.basename(query)}_#{File.basename(target)}.b6"
     subcmd += " -userout #{blast6outfile}"
-    subcmf += self.custom_output_fields
+    subcmd += self.custom_output_fields
     subcmd += " -strand both"
     subcmd += " -threads #{@threads}"
     self.run subcmd
@@ -40,7 +40,6 @@ class Usearch
     subcmd += " -output #{output}"
     subcmd += " -xlat"
     subcmd += " -orfstyle 7"
-    subcmd += " -threads #{@threads}"
     self.run subcmd
   end
 

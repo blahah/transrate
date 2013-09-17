@@ -3,8 +3,8 @@ require_relative 'rb_hit'
 
 class ReciprocalAnnotation
 
-  attr_reader :l2r_results
-  attr_reader :r2l_results
+  attr_reader :l2r_hits
+  attr_reader :r2l_hits
   attr_reader :results
 
   def initialize assembly, reference
@@ -23,7 +23,7 @@ class ReciprocalAnnotation
 
   def make_assembly_db
     unless @assembly.orfs_ublast_db
-      assembly_base = File.basename(@assembly.file)
+      assembly_base = File.basename(@assembly.file, ".*")
       assembly_orfs = assembly_base + ".orfs"
       @usearch.findorfs @assembly.file, assembly_orfs
       assembly_db = assembly_base + ".udb"
@@ -34,7 +34,7 @@ class ReciprocalAnnotation
 
   def make_reference_db
     unless @reference.ublast_db
-      reference_base = File.basename(@reference.file)
+      reference_base = File.basename(@reference.file, ".*")
       reference_db = reference_base + ".udb"
       @usearch.makeudb_ublast @reference.file, reference_db
       @reference.ublast_db = reference_db
@@ -42,9 +42,8 @@ class ReciprocalAnnotation
   end
 
   def reciprocal_align
-    us = Usearch.new
-    left2right = us.ublast @assembly.file, @reference.ublast_db
-    right2left = us.ublast @reference.file, @assembly.orfs_ublast_db
+    left2right = @usearch.ublast @assembly.file, @reference.ublast_db
+    right2left = @usearch.ublast @reference.file, @assembly.orfs_ublast_db
     [left2right, right2left]
   end
 
