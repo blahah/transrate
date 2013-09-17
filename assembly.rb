@@ -3,7 +3,6 @@
 require 'bio'
 require 'better_sam'
 require 'csv'
-require 'trollop'
 require 'forwardable'
 
 class Assembly
@@ -26,7 +25,7 @@ class Assembly
   #
   # - +:assembly+ - an array of Bio::Sequences
   def initialize file
-    @file = File.expand_path file
+    @file = file
     @assembly = []
     @n_bases = 0
     Bio::FastaFormat.open(file).each do |entry|
@@ -65,7 +64,7 @@ class Assembly
       end
       cumulative_length = new_cum_len
     end
-    mean = cum / @assembly.size
+    mean = cumulative_length / @assembly.size
     ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
     {
       "n_seqs" => @assembly.size,
@@ -94,7 +93,7 @@ class Assembly
     rbase = File.basename(right)
     outputname ||= "#{lbase}.#{rbase}.sam"
     realistic_dist = insertsize + (3 * insertsd)
-    unless File.exists? joinedname
+    unless File.exists? outputname
       # construct bowtie command
       bowtiecmd = "bowtie2 -k 3 -p 8 -X #{realistic_dist} --no-unal --local --quiet #{File.basename(@file)} -1 #{left}"
       # paired end?
@@ -108,7 +107,7 @@ class Assembly
   end
 
   def build_bowtie_index
-    unless File.exists?(@assembly + '.1.bt2')
+    unless File.exists?(@file + '.1.bt2')
       `bowtie2-build --offrate 1 #{@file} #{File.basename(@file)}`
     end
   end
@@ -239,22 +238,3 @@ class Assembly
   end
 
 end # Assembly
-
-def pretty_print_hash hash, width
-  hash.map{ |k, v| "#{k.to_s}#{" " * (width - (k.length + v.to_i.to_s.length))}#{v.to_i}" }.join("\n")
-end
-
-puts "|" *  40
-puts "\n"
-a = Assembly.new ARGV.first
-puts "Basic assembly stats:"
-puts "-" *  40
-s = a.basic_stats
-puts pretty_print_hash s, 40
-puts "|" *  40
-puts "\n"
-puts "Read mapping statistics:"
-puts "-" *  40
-brm = a.analyse_read_mappings ARGV[1]
-puts pretty_print_hash brm, 40
-
