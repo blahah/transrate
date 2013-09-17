@@ -24,6 +24,12 @@ transrate implements a variety of established and new metrics. This list will be
 * **good** - the number of read pairs mapping in a way indicative of good assembly
 * **bad** - the number of reads pairs mapping in a way indicative of bad assembly
 
+'Good' pairs are those where both members are aligned, in the correct orientation, either on the same contig or within a plausible distance of the ends of two separate contigs.
+
+Conversely, 'bad' pairs are those where one of the conditions for being 'good' are not met.
+
+Additionally, the software calculates whether there is any evidence that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridge is shown in the **supported bridges** metric. The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to improve the assembly using this and other information.
+
 ### Comparative metrics
 
 * **reciprocal hits** - the number of reciprocal best hits against the reference using ublast. A high score indicates that a large number of real transcripts have been assembled.
@@ -74,7 +80,11 @@ OPTIONS:
             --help, -h:   Show this message
 ```
 
-If you don't include --left and --right read files, the read-mapping based analysis will be skipped.
+If you don't include --left and --right read files, the read-mapping based analysis will be skipped. I recommend that you don't align all your reads - just a subset of 500,000 will give you a very good idea of the quality. You can get a subset by running (on a linux system):
+
+`head -2000000 readfile.fastq`
+
+FASTQ records are 4 lines long, so make sure you multiply the number of reads you want by 4, and be sure to run the same command on both the left and right read files.
 
 ### Example
 
