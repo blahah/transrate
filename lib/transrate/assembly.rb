@@ -19,6 +19,9 @@ class Assembly
   # assembly filename
   attr_accessor :file
 
+  # assembly n50
+  attr_reader :n50
+
   # Reuturn a new Assembly.
   #
   # - +:file+ - path to the assembly FASTA file
