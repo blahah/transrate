@@ -118,6 +118,10 @@ Your Ruby installation *should* come with RubyGems, the package manager for Ruby
 
 If you don't have it installed, I recommend installing the latest version of Ruby and RubyGems using the RVM instructions above (in the Requirements:Ruby section.
 
+### Usearch and Bowtie2
+
+Usearch (http://drive5.com/usearch) and Bowtie2 (https://sourceforge.net/projects/bowtie-bio/files/bowtie2) must be installed and in your PATH. Additionally, the Usearch binary executable should be named `usearch`.
+
 ## Development status
 
 This software is in very early development. Nevertheless, we welcome bug reports.
