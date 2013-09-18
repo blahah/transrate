@@ -21,7 +21,7 @@ class Assembly
 
   # Reuturn a new Assembly.
   #
-  # - +:assembly+ - an array of Bio::Sequences
+  # - +:file+ - path to the assembly FASTA file
   def initialize file
     @file = file
     @assembly = []
@@ -38,6 +38,14 @@ class Assembly
   def self.stats_from_fasta file
     a = Assembly.new file
     a.basic_stats
+  end
+
+  def run
+    stats = self.basic_stats
+    stats.each_pair do |key, value|
+      ivar = "@#{key.gsub(/ /, '_')}".to_sym
+      self.instance_variable_set(key, value)
+    end
   end
 
   # Return a hash of statistics about this assembly

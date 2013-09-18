@@ -12,12 +12,13 @@ module Transrate
 
     def run
       rbu = self.reciprocal_best_ublast
-      ohr = self.ortholog_hit_ratio rbu
-      cf = self.collapse_factor @ra.l2r_hits
+      @ortholog_hit_ratio = self.ortholog_hit_ratio rbu
+      @collapse_factor = self.collapse_factor @ra.l2r_hits
+      @reciprocal_hits = rbu.size
       {
-        :reciprocal_hits => rbu.size,
-        :ortholog_hit_ratio => ohr,
-        :collapse_factor => cf
+        :reciprocal_hits => @reciprocal_hits,
+        :ortholog_hit_ratio => @ortholog_hit_ratio,
+        :collapse_factor => @collapse_factor
       }
     end
 
