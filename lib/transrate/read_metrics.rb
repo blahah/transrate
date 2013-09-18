@@ -2,6 +2,9 @@ module Transrate
 
   class ReadMetrics
 
+    attr_reader :bad
+    attr_reader :supported_bridges
+
     def initialize assembly
       @assembly = assembly
       @mapper = Bowtie2.new
