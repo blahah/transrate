@@ -1,3 +1,4 @@
+require 'transrate/transrater'
 require 'transrate/version'
 require 'transrate/assembly'
 require 'transrate/bowtie2'
