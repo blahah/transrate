@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     transrate (0.0.1)
-      bettersam
+      bettersam (~> 0.0.1.alpha)
       bio
       rake (~> 10.1.0)
       trollop (~> 2.0)
@@ -13,7 +13,7 @@ GEM
   specs:
     ansi (1.4.3)
     bettersam (0.0.1.alpha)
-    bio (1.4.3)
+    bio (1.4.3.0001)
     colorize (0.5.8)
     coveralls (0.6.7)
       colorize
