@@ -2,15 +2,17 @@ module Transrate
 
   class Transrater
 
-    def initialize path
-      @assembly = Assembly.new path
+    def initialize assembly, reference, left, right, insertsize=nil, insertsd=nil
+      @assembly = Assembly.new assembly
+      @reference = Assembly.new reference
       @read_metrics = ReadMetrics.new @assembly
-      @comparative_metrics = ComparativeMetrics.new @assembly
+      @comparative_metrics = ComparativeMetrics.new(@assembly, @reference)
+      self.run(left, right, insertsize, insertsd)
     end
 
-    def run
+    def run left, right, insertsize=nil, insertsd=nil
       @assembly.run
-      @read_metrics.run
+      @read_metrics.run(left, right)
       @comparative_metrics.run
     end
 
