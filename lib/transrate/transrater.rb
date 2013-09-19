@@ -4,7 +4,7 @@ module Transrate
 
     def initialize assembly, reference, left, right, insertsize=nil, insertsd=nil
       @assembly = Assembly.new assembly
-      @reference = reference.is_a?(Assembly) ? reference : Assembly.new reference
+      @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
       @read_metrics = ReadMetrics.new @assembly
       @comparative_metrics = ComparativeMetrics.new(@assembly, @reference)
       self.run(left, right, insertsize, insertsd)
