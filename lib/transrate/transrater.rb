@@ -2,6 +2,10 @@ module Transrate
 
   class Transrater
 
+    attr_reader :assembly
+    attr_reader :read_metrics
+    attr_reader :comparative_metrics
+
     def initialize assembly, reference, left, right, insertsize=nil, insertsd=nil
       @assembly = Assembly.new assembly
       @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)

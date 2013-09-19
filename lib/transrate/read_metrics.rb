@@ -2,6 +2,7 @@ module Transrate
 
   class ReadMetrics
 
+    attr_reader :total
     attr_reader :bad
     attr_reader :supported_bridges
 
