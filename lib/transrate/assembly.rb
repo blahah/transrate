@@ -83,8 +83,8 @@ module Transrate
         "largest" => @assembly.last.length,
         "n_bases" => @n_bases,
         "mean_len" => mean,
-        "n > 1k" => n1k,
-        "n > 10k" => n10k
+        "n_1k" => n1k,
+        "n_10k" => n10k
       }.merge ns
     end
 

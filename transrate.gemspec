@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
 
   gem.files = `git ls-files`.split("\n")
   gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  gem.require_paths = %w[ lib ]
+  gem.require_paths = %w( lib )
 
   gem.add_dependency 'rake', '~> 10.1.0'
   gem.add_dependency 'trollop', '~> 2.0'

@@ -29,12 +29,12 @@ module Transrate
       @ra.run
     end
 
-    def ortholog_hit_ratio rbu
+    def ortholog_hit_ratio rbu=nil
       return @ortholog_hit_ratio unless @ortholog_hit_ratio.nil? 
       rbu.reduce(0.0){ |sum, hit| sum += hit.last.tcov.to_f } / rbu.size
     end
 
-    def collapse_factor hits
+    def collapse_factor hits=nil
       return @collapse_factor unless @collapse_factor.nil?
       targets = {}
       hits.each_pair do |query, hit|
