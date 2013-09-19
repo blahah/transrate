@@ -49,7 +49,7 @@ module Transrate
       stats = self.basic_stats
       stats.each_pair do |key, value|
         ivar = "@#{key.gsub(/ /, '_')}".to_sym
-        self.instance_variable_set(key, value)
+        self.instance_variable_set(ivar, value)
       end
     end
 
