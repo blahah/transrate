@@ -15,7 +15,7 @@ module Transrate
     def run
       rbu = self.reciprocal_best_ublast
       @ortholog_hit_ratio = self.ortholog_hit_ratio rbu
-      @collapse_factor = self.collapse_factor @ra.l2r_hits
+      @collapse_factor = self.collapse_factor @ra.r2l_hits
       @reciprocal_hits = rbu.size
       {
         :reciprocal_hits => @reciprocal_hits,
@@ -38,12 +38,15 @@ module Transrate
       return @collapse_factor unless @collapse_factor.nil?
       targets = {}
       hits.each_pair do |query, hit|
-        unless targets.has_key? query
-          targets[query] = Set.new
+        target = hit.target
+        unless targets.has_key? target 
+          targets[target] = Set.new
         end
-        targets[query] << hit.target
+        targets[target] << query
       end
-      targets.values.reduce(0.0){ |sum, val| sum += val.size } / targets.size
+      sum = targets.values.reduce(0.0){ |sum, val| sum += val.size }
+      puts "sum: #{sum}"
+      sum / targets.size
     end
 
   end # ComparativeMetrics
