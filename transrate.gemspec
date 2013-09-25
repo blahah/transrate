@@ -6,7 +6,8 @@ Gem::Specification.new do |gem|
   gem.name          = 'transrate'
   gem.authors       = [ "Richard Smith" ]
   gem.email         = "rds45@cam.ac.uk"
-  gem.homepage      = 'https://github.com/blahah/assemblotron'
+  gem.licenses      = ["MIT"]
+  gem.homepage      = 'https://github.com/blahah/transrate'
   gem.summary       = %q{ quality assessment of de-novo transcriptome assemblies }
   gem.description   = %q{ a library and command-line tool for quality assessment of de-novo transcriptome assemblies }
   gem.version       = Transrate::VERSION::STRING.dup

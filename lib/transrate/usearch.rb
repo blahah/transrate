@@ -5,7 +5,7 @@ module Transrate
     require 'which'
     include Which
 
-    def initialize threads=8
+    def initialize threads=4
       @threads = threads
       paths = which('usearch')
       if paths.empty?
@@ -19,30 +19,36 @@ module Transrate
     end
 
     def ublast query, target, evalue="1e-5"
-      subcmd = " -ublast #{query}"
-      subcmd += " -db #{target}"
-      subcmd += " -evalue #{evalue}"
       blast6outfile = "#{File.basename(query)}_#{File.basename(target)}.b6"
-      subcmd += " -userout #{blast6outfile}"
-      subcmd += self.custom_output_fields
-      subcmd += " -strand both"
-      subcmd += " -threads #{@threads}"
-      self.run subcmd
+      unless File.exists? blast6outfile
+      subcmd = " -ublast #{query}"
+        subcmd += " -db #{target}"
+        subcmd += " -evalue #{evalue}"
+        subcmd += " -userout #{blast6outfile}"
+        subcmd += self.custom_output_fields
+        subcmd += " -strand both"
+        subcmd += " -threads #{@threads}"
+        self.run subcmd
+      end
       blast6outfile
     end
 
     def makeudb_ublast filepath, output
-      subcmd = " -makeudb_ublast #{filepath}"
-      subcmd += " -output #{output}"
-      self.run subcmd
+      unless File.exists? output
+        subcmd = " -makeudb_ublast #{filepath}"
+        subcmd += " -output #{output}"
+        self.run subcmd
+      end
     end
 
     def findorfs filepath, output
-      subcmd = " -findorfs #{filepath}"
-      subcmd += " -output #{output}"
-      subcmd += " -xlat"
-      subcmd += " -orfstyle 7"
-      self.run subcmd
+      unless File.exists? output
+        subcmd = " -findorfs #{filepath}"
+        subcmd += " -output #{output}"
+        subcmd += " -xlat"
+        subcmd += " -orfstyle 7"
+        self.run subcmd
+      end
     end
 
     def run subcmd
