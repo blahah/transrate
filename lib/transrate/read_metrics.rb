@@ -18,9 +18,14 @@ module Transrate
                                   left, right, 
                                   insertsize, insertsd)
       self.analyse_read_mappings(samfile, insertsize, insertsd)
+      @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
+      @pc_good_mapping = @good.to_f / @num_pairs.to_f * 100.0
       {
+        :num_pairs => @num_pairs,
         :total_mappings => @total,
+        :percent_mapping => @percent_mapping,
         :good_mappings => @good,
+        :pc_good_mapping => @pc_good_mapping,
         :bad_mappings => @bad,
         :both_mapped => @both_mapped,
         :properly_paired => @properly_paired,
@@ -55,6 +60,7 @@ module Transrate
     end
 
     def initial_values
+      @num_pairs = 100000
       @total = 0
       @good = 0
       @bad = 0
