@@ -63,18 +63,23 @@ module Transrate
       res = []
       n1k = 0
       n10k = 0
+      orf_length_sum = 0
       @assembly.each do |s|
-        new_cum_len = cumulative_length + s.length
-        prop = new_cum_len / self.n_bases
         n1k += 1 if s.length > 1_000
         n10k += 1 if s.length > 10_000
-        if prop >= cutoff
+        orf_length_sum += orf_length(s.seq)
+
+        cumulative_length += s.length
+        if cumulative_length >= @n_bases * cutoff
           res << s.length
-          break if x2.empty?
-          cutoff = x2.pop / 100.0
+          if x2.empty?
+            cutoff=1
+          else
+            cutoff = x2.pop / 100.0
+          end 
         end
-        cumulative_length = new_cum_len
       end
+
       mean = cumulative_length / @assembly.size
       ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
       {
@@ -84,8 +89,23 @@ module Transrate
         "n_bases" => @n_bases,
         "mean_len" => mean,
         "n_1k" => n1k,
-        "n_10k" => n10k
+        "n_10k" => n10k,
+        "average longest orf" => orf_length_sum/@assembly.size
       }.merge ns
+    end
+
+    # finds longest orf in a sequence
+    def orf_length sequence
+      longest=0
+      (1..6).each do |frame|
+        translated = Bio::Sequence::NA.new(sequence).translate(frame)
+        translated.split(/\*/).each do |orf|
+          if orf.length > longest
+            longest=orf.length
+          end
+        end
+      end
+      return longest
     end
 
     # return the number of bases in the assembly, calculating
