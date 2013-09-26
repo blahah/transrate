@@ -60,7 +60,6 @@ module Transrate
       x = [90, 70, 50, 30, 10]
       x2 = x.clone
       cutoff = x2.pop / 100.0
-      puts "cutoff is #{cutoff}"
       res = []
       n1k = 0
       n10k = 0
