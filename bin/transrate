@@ -93,3 +93,9 @@ if comparative_results
   puts "-" *  report_width
   puts pretty_print_hash(comparative_results, report_width)
 end
+
+t = Transrater.new(a, r, opts.left, opts.right)
+t.run(opts.left, opts.right)
+puts "\n\n"
+puts "Overall score #{t.assembly_score}"
+puts "\n" + "-" * report_width
