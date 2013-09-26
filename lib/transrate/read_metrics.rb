@@ -5,7 +5,9 @@ module Transrate
     attr_reader :total
     attr_reader :bad
     attr_reader :supported_bridges
-
+    attr_reader :pc_good_mapping
+    attr_reader :percent_mapping
+    
     def initialize assembly
       @assembly = assembly
       @mapper = Bowtie2.new
