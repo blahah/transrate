@@ -45,6 +45,7 @@ module Transrate
         targets[target] << query
       end
       sum = targets.values.reduce(0.0){ |sum, val| sum += val.size }
+      puts "sum: #{sum}"
       sum / targets.size
     end
 
