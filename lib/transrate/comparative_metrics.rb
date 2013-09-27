@@ -17,8 +17,12 @@ module Transrate
       @ortholog_hit_ratio = self.ortholog_hit_ratio rbu
       @collapse_factor = self.collapse_factor @ra.r2l_hits
       @reciprocal_hits = rbu.size
+    end
+
+    def comp_stats
       {
         :reciprocal_hits => @reciprocal_hits,
+        :rbh_per_contig => @reciprocal_hits/@assembly.assembly.size,
         :ortholog_hit_ratio => @ortholog_hit_ratio,
         :collapse_factor => @collapse_factor
       }
@@ -44,7 +48,7 @@ module Transrate
         end
         targets[target] << query
       end
-      sum = targets.values.reduce(0.0){ |sum, val| sum += val.size }
+      sum = targets.values.reduce(0.0){ |summer, val| summer += val.size }
       sum / targets.size
     end
 
