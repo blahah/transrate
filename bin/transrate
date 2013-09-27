@@ -59,7 +59,8 @@ if (opts.left && opts.right)
   puts "\ncalculating read diagnostics..."
   t0 = Time.now
   read_metrics = ReadMetrics.new a
-  read_results = read_metrics.run(opts.left, opts.right)
+  read_metrics.run(opts.left, opts.right)
+  read_results = read_metrics.read_stats
   puts "...done in #{Time.now - t0} seconds"
 else
   puts "\nno reads provided, skipping read diagnostics"
@@ -68,7 +69,8 @@ end
 puts "\ncalculating comparative metrics..."
 t0 = Time.now
 comparative_metrics = ComparativeMetrics.new(a, r)
-comparative_results = comparative_metrics.run
+comparative_metrics.run
+comparative_results = comparative_metrics.comp_stats
 puts "...done in #{Time.now - t0} seconds"
 
 report_width = 30
@@ -94,8 +96,14 @@ if comparative_results
   puts pretty_print_hash(comparative_results, report_width)
 end
 
-t = Transrater.new(a, r, opts.left, opts.right)
-t.run(opts.left, opts.right)
+transrater = Transrater.new(a, r, opts.left, opts.right)
+transrater.run(opts.left, opts.right)
 puts "\n\n"
-puts "Overall score #{t.assembly_score}"
+puts "Overall score #{transrater.assembly_score}"
 puts "\n" + "-" * report_width
+
+
+puts transrater.all_metrics(opts.left, opts.right).each_key.to_a.join("\t")
+transrater.all_metrics(opts.left, opts.right).each_pair do |k,v|
+  print "#{v}\t"
+end

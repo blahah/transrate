@@ -14,6 +14,7 @@ module Transrate
     attr_accessor :ublast_db
     attr_accessor :orfs_ublast_db
     attr_accessor :protein
+    attr_reader :assembly
 
     # number of bases in the assembly
     attr_writer :n_bases
@@ -90,7 +91,7 @@ module Transrate
         "mean_len" => mean,
         "n_1k" => n1k,
         "n_10k" => n10k,
-        "average longest orf" => orf_length_sum/@assembly.size
+        "orf percent" => 300*orf_length_sum/(@assembly.size*mean)
       }.merge ns
     end
 

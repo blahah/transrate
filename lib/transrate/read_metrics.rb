@@ -16,12 +16,13 @@ module Transrate
 
     def run left, right, insertsize=200, insertsd=50
       @mapper.build_index @assembly.file
-      samfile = @mapper.map_reads(@assembly.file, 
-                                  left, right, 
-                                  insertsize, insertsd)
+      samfile = @mapper.map_reads(@assembly.file, left, right,  insertsize, insertsd)
       self.analyse_read_mappings(samfile, insertsize, insertsd)
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
       @pc_good_mapping = @good.to_f / @num_pairs.to_f * 100.0
+    end
+
+    def read_stats
       {
         :num_pairs => @num_pairs,
         :total_mappings => @total,
