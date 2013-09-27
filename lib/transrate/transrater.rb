@@ -21,10 +21,18 @@ module Transrate
     end
 
     def assembly_score
+      # percent of reads mapping in biologically feasible way
       pg = @read_metrics.pc_good_mapping
       pg = Metric.new('pg', pg, 0)
+      # number of reciprocal hits
       rh = @comparative_metrics.reciprocal_hits
       rh = Metric.new('rh', rh, 0)
+      # ortholog hit ratio
+      ohr = @comparative_metrics.ortholog_hit_ratio
+      ohr = Metric.new('ohr', ohr, 0)
+      # TODO: add number of expressed transcripts
+      # TODO: consider using proportion of contigs
+      #       that have reciprocal hits?
       DimensionReduce.dimension_reduce([pg, rh])
     end
     

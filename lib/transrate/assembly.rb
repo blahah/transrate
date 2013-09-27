@@ -90,7 +90,8 @@ module Transrate
         "mean_len" => mean,
         "n_1k" => n1k,
         "n_10k" => n10k,
-        "average longest orf" => orf_length_sum/@assembly.size
+        "average longest orf" => orf_length_sum/@assembly.size,
+        "orf proportion" => (300.0*orf_length_sum)/(@assembly.size*mean.to_f)
       }.merge ns
     end
 

@@ -20,6 +20,7 @@ module Transrate
                                   left, right, 
                                   insertsize, insertsd)
       self.analyse_read_mappings(samfile, insertsize, insertsd)
+      self.analyse_expression(samfile)
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
       @pc_good_mapping = @good.to_f / @num_pairs.to_f * 100.0
       {
@@ -39,7 +40,9 @@ module Transrate
         :unrealistic_overlap => @unrealistic_overlap,
         :realistic_fragment => @realistic_fragment,
         :unrealistic_fragment => @unrealistic_fragment,
-        :potential_bridges => @supported_bridges
+        :potential_bridges => @supported_bridges,
+        :expressed_contigs => @expressed_contigs,
+        :unexpressed_contigs => @unexpressed_contigs
       }
     end
 
@@ -76,6 +79,8 @@ module Transrate
       @unrealistic_overlap = 0
       @realistic_fragment = 0
       @unrealistic_fragment = 0
+      @unexpressed_contigs = 0
+      @expressed_contigs = 0
     end
 
     def realistic_distance insertsize, insertsd
@@ -165,6 +170,19 @@ module Transrate
       end
     end
 
+    def analyse_expression samfile
+      express = Express.new
+      @expression = express.quantify_expression(@assembly.file, samfile)
+      @expression.each_pair do |target, count|
+        count = count.to_f
+        if count == 0
+          @unexpressed_contigs += 1
+        elsif count > 0
+          @expressed_contigs += 1
+        end
+      end
+    end
+    
   end # ReadMetrics
-
+  
 end # Transrate

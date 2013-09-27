@@ -17,7 +17,7 @@ module Transrate
     def map_reads file, left, right=nil, insertsize=200, insertsd=50, outputname=nil
       lbase = File.basename(left)
       rbase = File.basename(right)
-      outputname ||= "#{lbase}.#{rbase}.sam"
+      outputname ||= "#{lbase}.#{rbase}.#{File.basename(file)}.sam"
       realistic_dist = insertsize + (3 * insertsd)
       unless File.exists? outputname
         # construct bowtie command

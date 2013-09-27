@@ -39,7 +39,7 @@ EOS
 end
 
 def pretty_print_hash hash, width
-  hash.map{ |k, v| "#{k.to_s}#{" " * (width - (k.length + v.to_i.to_s.length))}#{v.to_i}" }.join("\n")
+  hash.map{ |k, v| "#{k.to_s}#{" " * (width - (k.length + v.to_f.round(2).to_s.length))}#{v.to_f.round(2)}" }.join("\n")
 end
 
 include Transrate
@@ -97,5 +97,5 @@ end
 t = Transrater.new(a, r, opts.left, opts.right)
 t.run(opts.left, opts.right)
 puts "\n\n"
-puts "Overall score #{t.assembly_score}"
+puts "Overall score #{t.assembly_score.to_f.round(2)}"
 puts "\n" + "-" * report_width
