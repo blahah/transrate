@@ -10,7 +10,7 @@ module Transrate
         a = metric.score
         total += w * ((o - a) ** 2)
       end
-      Math.sqrt(total) / bmetrics.length
+      Math.sqrt(total) / metrics.length
     end
       
   end # DimensionReduce
