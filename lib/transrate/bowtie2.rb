@@ -21,7 +21,7 @@ module Transrate
       realistic_dist = insertsize + (3 * insertsd)
       unless File.exists? outputname
         # construct bowtie command
-        bowtiecmd = "#{@bowtie2} -k 3 -p 8 -X #{realistic_dist}"
+        bowtiecmd = "#{@bowtie2} -k 3 -p 8 -X #{realistic_dist}" # TODO number of cores should be variable '-p 8'
         bowtiecmd += " --no-unal --local --quiet"
         bowtiecmd += " #{File.basename(file)} -1 #{left}"
         # paired end?

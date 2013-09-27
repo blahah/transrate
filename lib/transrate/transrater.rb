@@ -7,11 +7,10 @@ module Transrate
     attr_reader :comparative_metrics
 
     def initialize assembly, reference, left, right, insertsize=nil, insertsd=nil
-      @assembly = assembly.is_a?(Assembly) ? assembly : Assembly.new(assembly)
+      @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
       @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
       @read_metrics = ReadMetrics.new @assembly
       @comparative_metrics = ComparativeMetrics.new(@assembly, @reference)
-      self.run(left, right, insertsize, insertsd)
     end
 
     def run left, right, insertsize=nil, insertsd=nil
@@ -21,19 +20,22 @@ module Transrate
     end
 
     def assembly_score
-      # percent of reads mapping in biologically feasible way
-      pg = @read_metrics.pc_good_mapping
-      pg = Metric.new('pg', pg, 0)
-      # number of reciprocal hits
-      rh = @comparative_metrics.reciprocal_hits
-      rh = Metric.new('rh', rh, 0)
-      # ortholog hit ratio
-      ohr = @comparative_metrics.ortholog_hit_ratio
-      ohr = Metric.new('ohr', ohr, 0)
+      pg = Metric.new('pg', @read_metrics.pc_good_mapping,        0)
+      rh = Metric.new('rh', @comparative_metrics.reciprocal_hits, 0)
+      ohr = Metric.new('ohr', @comparative_metrics.ortholog_hit_ratio, 0)
       # TODO: add number of expressed transcripts
       # TODO: consider using proportion of contigs
       #       that have reciprocal hits?
-      DimensionReduce.dimension_reduce([pg, rh])
+      @score = DimensionReduce.dimension_reduce([pg, rh])
+    end
+
+    def all_metrics left, right, insertsize=nil, insertsd=nil
+      self.run(left, right, insertsize, insertsd)
+      all = @assembly.basic_stats
+      all.merge!(@read_metrics.read_stats)
+      all.merge!(@comparative_metrics.comp_stats)
+      all[:score] = @score
+      all
     end
     
   end # Transrater
