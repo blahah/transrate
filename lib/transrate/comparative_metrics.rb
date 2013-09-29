@@ -4,7 +4,8 @@ module Transrate
   
   class ComparativeMetrics
 
-    attr_accessor :reciprocal_hits
+    attr_reader :rbh_per_contig
+    attr_reader :reciprocal_hits
 
     def initialize assembly, reference
       @assembly = assembly
@@ -17,12 +18,13 @@ module Transrate
       @ortholog_hit_ratio = self.ortholog_hit_ratio rbu
       @collapse_factor = self.collapse_factor @ra.r2l_hits
       @reciprocal_hits = rbu.size
+      @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
     end
 
     def comp_stats
       {
         :reciprocal_hits => @reciprocal_hits,
-        :rbh_per_contig => @reciprocal_hits/@assembly.assembly.size,
+        :rbh_per_contig => @rbh_per_contig,
         :ortholog_hit_ratio => @ortholog_hit_ratio,
         :collapse_factor => @collapse_factor
       }

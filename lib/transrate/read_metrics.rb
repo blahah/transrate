@@ -7,6 +7,7 @@ module Transrate
     attr_reader :supported_bridges
     attr_reader :pc_good_mapping
     attr_reader :percent_mapping
+    attr_reader :expressed_contigs
     
     def initialize assembly
       @assembly = assembly
