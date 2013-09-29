@@ -20,13 +20,10 @@ module Transrate
     end
 
     def assembly_score
-      pg = Metric.new('pg', @read_metrics.pc_good_mapping,        0)
-      rh = Metric.new('rh', @comparative_metrics.reciprocal_hits, 0)
-      ohr = Metric.new('ohr', @comparative_metrics.ortholog_hit_ratio, 0)
-      # TODO: add number of expressed transcripts
-      # TODO: consider using proportion of contigs
-      #       that have reciprocal hits?
-      @score = DimensionReduce.dimension_reduce([pg, rh])
+      pg = Metric.new('pg', @read_metrics.pc_good_mapping, 0.0)
+      rbhpc = Metric.new('rbhpc', @comparative_metrics.rbh_per_contig, 0.0)
+      ec = Metric.new('ec', @read_metrics.expressed_contigs, 0.0)
+      @score = DimensionReduce.dimension_reduce([pg, rbhpc, ec])
     end
 
     def all_metrics left, right, insertsize=nil, insertsd=nil

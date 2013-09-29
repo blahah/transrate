@@ -1,13 +1,12 @@
 module Transrate
 
   require 'which'
-  include Which
   
   class Express
 
     # return an Express object
     def initialize
-      express_path = which('express')
+      express_path = Which::which('express')
       raise "could not find eXpress in the path" if express_path.empty?
       @express = express_path.first
     end
@@ -17,12 +16,14 @@ module Transrate
     def quantify_expression assembly, samfile
       assembly = assembly.file if assembly.is_a? Assembly
       cmd = "#{@express} --no-bias-correct #{assembly} #{samfile}"
-      output = 'results.xprs'
-      unless File.exists? output
+      ex_output = 'results.xprs'
+      fin_output = "#{assembly}_#{ex_output}"
+      unless File.exists? fin_output
         `#{cmd}`
+        File.rename(ex_output, fin_output)
       end
       expression = {}
-      File.open(output).each do |line|
+      File.open(fin_output).each do |line|
         line = line.chomp.split("\t")
         target = line[1]
         effective_count = line[7]

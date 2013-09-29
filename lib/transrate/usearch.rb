@@ -5,7 +5,7 @@ module Transrate
     require 'which'
     include Which
 
-    def initialize threads=4
+    def initialize threads=8
       @threads = threads
       paths = which('usearch')
       if paths.empty?
