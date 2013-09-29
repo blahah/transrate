@@ -53,7 +53,7 @@ module Transrate
 
     def run subcmd
       subcmd += " -quiet"
-      `#{@cmd}#{subcmd} 2&>1`
+      `#{@cmd}#{subcmd} 2>&1`
     end
 
   end # Usearch
