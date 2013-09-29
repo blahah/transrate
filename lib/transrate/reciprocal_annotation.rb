@@ -22,10 +22,11 @@ module Transrate
 
     def make_assembly_db
       unless @assembly.orfs_ublast_db
+        assembly_dir = File.dirname(@assembly.file)
         assembly_base = File.basename(@assembly.file, ".*")
         assembly_orfs = assembly_base + ".orfs"
         @usearch.findorfs @assembly.file, assembly_orfs
-        assembly_db = assembly_base + ".udb"
+        assembly_db = File.join(assembly_dir, assembly_base + ".udb")
         @usearch.makeudb_ublast assembly_orfs, assembly_db
         @assembly.orfs_ublast_db = assembly_db
       end
@@ -33,8 +34,9 @@ module Transrate
 
     def make_reference_db
       unless @reference.ublast_db
+        reference_dir = File.dirname(@reference.file)
         reference_base = File.basename(@reference.file, ".*")
-        reference_db = reference_base + ".udb"
+        reference_db = File.join(reference_dir, reference_base + ".udb")
         @usearch.makeudb_ublast @reference.file, reference_db
         @reference.ublast_db = reference_db
       end
