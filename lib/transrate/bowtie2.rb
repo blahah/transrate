@@ -28,8 +28,7 @@ module Transrate
         bowtiecmd += " -2 #{right}" if right
         bowtiecmd += " > #{outputname}"
         # run bowtie
-        puts bowtiecmd
-        puts `#{bowtiecmd}`
+        `#{bowtiecmd}`
       end
       outputname
     end
