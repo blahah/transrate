@@ -19,7 +19,7 @@ module Transrate
       ex_output = 'results.xprs'
       fin_output = "#{assembly}_#{ex_output}"
       unless File.exists? fin_output
-        `#{cmd}`
+        `#{cmd} 2>&1`
         File.rename(ex_output, fin_output)
       end
       expression = {}
