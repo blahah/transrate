@@ -44,7 +44,8 @@ module Transrate
         :unrealistic_fragment => @unrealistic_fragment,
         :potential_bridges => @supported_bridges,
         :expressed_contigs => @expressed_contigs,
-        :unexpressed_contigs => @unexpressed_contigs
+        :unexpressed_contigs => @unexpressed_contigs,
+        :percent_expressed => @percent_expressed
       }
     end
 
@@ -183,6 +184,7 @@ module Transrate
           @expressed_contigs += 1
         end
       end
+      @percent_expressed = @expressed_contigs.to_f / @abssembly.size * 100.0
     end
     
   end # ReadMetrics
