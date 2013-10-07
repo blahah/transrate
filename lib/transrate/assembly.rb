@@ -9,7 +9,7 @@ module Transrate
 
     include Enumerable
     extend Forwardable
-    def_delegators :@assembly, :each, :<<
+    def_delegators :@assembly, :each, :<<. :size, :length
 
     attr_accessor :ublast_db
     attr_accessor :orfs_ublast_db

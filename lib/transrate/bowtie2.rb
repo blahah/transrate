@@ -22,7 +22,7 @@ module Transrate
       unless File.exists? outputname
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive-local -p 8 -X #{realistic_dist}" # TODO number of cores should be variable '-p 8'
-        bowtiecmd += " --no-unal"
+        bowtiecmd += " --no-unal --quiet"
         bowtiecmd += " #{File.basename(file)} -1 #{left}"
         # paired end?
         bowtiecmd += " -2 #{right}" if right
