@@ -22,8 +22,9 @@ module Transrate
     def assembly_score
       pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
       rbhpc = Metric.new('rbhpc', @comparative_metrics.rbh_per_contig, 0.0)
-      ec = Metric.new('ec', @read_metrics.prop_expressed, 0.0)
-      @score = DimensionReduce.dimension_reduce([pg, rbhpc, ec])
+      pce = Metric.new('pce', @read_metrics.prop_expressed, 0.0)
+      puts "pg: #{pg.score}, pbhpc: #{rbhpc.score}, pce: #{pce.score}"
+      @score = DimensionReduce.dimension_reduce([pg, rbhpc, pce])
     end
 
     def all_metrics left, right, insertsize=nil, insertsd=nil
