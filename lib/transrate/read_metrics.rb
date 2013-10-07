@@ -184,7 +184,7 @@ module Transrate
           @expressed_contigs += 1
         end
       end
-      @percent_expressed = @expressed_contigs.to_f / @abssembly.size * 100.0
+      @percent_expressed = @expressed_contigs.to_f / @assembly.size * 100.0
     end
     
   end # ReadMetrics
