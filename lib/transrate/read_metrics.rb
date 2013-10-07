@@ -5,9 +5,9 @@ module Transrate
     attr_reader :total
     attr_reader :bad
     attr_reader :supported_bridges
-    attr_reader :pc_good_mapping
+    attr_reader :pr_good_mapping
     attr_reader :percent_mapping
-    attr_reader :expressed_contigs
+    attr_reader :prop_expressed
     
     def initialize assembly
       @assembly = assembly
@@ -20,8 +20,9 @@ module Transrate
       samfile = @mapper.map_reads(@assembly.file, left, right,  insertsize, insertsd)
       self.analyse_read_mappings(samfile, insertsize, insertsd)
       self.analyse_expression(samfile)
+      @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
-      @pc_good_mapping = @good.to_f / @num_pairs.to_f * 100.0
+      @pc_good_mapping = @pr_good_mapping * 100.0
     end
 
     def read_stats
@@ -184,7 +185,8 @@ module Transrate
           @expressed_contigs += 1
         end
       end
-      @percent_expressed = @expressed_contigs.to_f / @assembly.size * 100.0
+      @prop_expressed = @expressed_contigs.to_f / @assembly.size
+      @percent_expressed = @prop_expressed * 100.0
     end
     
   end # ReadMetrics
