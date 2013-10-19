@@ -46,6 +46,9 @@ You can install transrate very easily. Just run at the terminal:
 
 If that doesn't work, check the requirements below...
 
+If you're new to linux/unix, there's a detailed tutorial for installing transrate [on my blog](http://blahah.net/bioinformatics/2013/10/19/installing-transrate/).
+
+
 ## Usage
 
 `transrate --help` will give you...
@@ -97,6 +100,12 @@ transrate --assembly assembly.fasta \
 		  --right r.fq \
 		  --threads 4
 ```
+
+## Getting help
+
+If you need help using transrate, please post to the [forum here](https://groups.google.com/forum/#!forum/transrate-users).
+
+If you think you've found a bug, please post it to the [issues list](https://github.com/Blahah/transrate/issues).
 
 ## Requirements
 
