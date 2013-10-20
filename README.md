@@ -27,45 +27,59 @@ note: this list will be expanded soon with detailed explanations and a guide to 
 
 ### Contig metrics
 
-* **n_seqs** - the number of contigs in the assembly
-* **smallest** - the size of the smallest contig
-* **largest** - the size of the largest contig
-* **n_bases** - the number of bases included in the assembly
-* **mean_len** - the mean length of the contigs
-* **n > 1k** - the number of contigs greater than 1,000 bases long
-* **n > 10k** - the number of contigs greater than 10,000 bases long
-* **nX** - the largest contig size at which at least X% of bases are contained in contigs *at least* this length
+Contig metrics are measures based entirely on analysing the set of contigs themselves. At the moment, these are all related to the distribution of contig lengths and base content.
+
+These are informative, but are only weakly useful for judging assembly quality. For most of these metrics, we don't know what the optimum is, although we can recognise extremely bad values. For example, an extremely small (<1,000) or extremely large (>500,000) number of contigs is biologically implausible for most organisms, and therefore suggests a problem with the assembly.
+
+These metrics should therefore be used only as a quick, crude way of detecting major problems with the assembly.
+
+| name          | explanation  |
+| ------------- |:-------------|
+| n_seqs | the number of contigs in the assembly |
+| smallest | the size of the smallest contig |
+| largest | the size of the largest contig |
+| n_bases | the number of bases included in the assembly |
+| mean_len | the mean length of the contigs |
+| n > 1k | the number of contigs greater than 1,000 bases long |
+| n > 10k | the number of contigs greater than 10,000 bases long |
+| nX | the largest contig size at which at least X% of bases are contained in contigs *at least* this length |
 
 ### Read mapping metrics
 
-* **total** - the total number of reads pairs mapping
-* **good** - the number of read pairs mapping in a way indicative of good assembly
-* **bad** - the number of reads pairs mapping in a way indicative of bad assembly
+| name          | explanation  | optimum
+| ------------- |:-------------| :----
+| total | the total number and proportion of reads pairs mapping | theoretically 100%, but with erroneous and contaminating reads, often closer to 95%
+| good | the number of read pairs mapping in a way indicative of good assembly | as above
+| bad | the number of reads pairs mapping in a way indicative of bad assembly | 0%
 
-'Good' pairs are those where both members are aligned, in the correct orientation, either on the same contig or within a plausible distance of the ends of two separate contigs.
+'Good' pairs are those aligned in a biologically plausible way, i.e.:
+
+- where both members are aligned
+- in the correct orientation
+- either on the same contig or... 
+- within a plausible distance of the ends of two separate contigs.
 
 Conversely, 'bad' pairs are those where one of the conditions for being 'good' are not met.
 
-Additionally, the software calculates whether there is any evidence in the read mappings that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridges is shown in the **supported bridges** metric. The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to improve the assembly using this and other information.
+Additionally, the software calculates whether there is any evidence in the read mappings that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridges is shown in the **supported bridges** metric. The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to scaffold the assembly using this and other information.
 
 ### Comparative metrics
 
-* **reciprocal hits** - the number of reciprocal best hits against the reference using ublast. A high score indicates that a large number of real transcripts have been assembled.
-* **contig hit rate** - the proportion of contigs having a reciprocal best hit
-* **reference hit rate** - the proportion of reference sequences having a reciprocal best hit
-* **ortholog hit ratio** - the mean ratio of alignment length to reference sequence length. A low score on this metric indicates the assembly contains full-length transcripts.
-* **collapse factor** - the mean number of reference proteins mapping to each contig. A high score on this metric indicates the assembly contains chimeras.
+| name          | explanation  | optimum
+| ------------- |:-------------|:----
+| reciprocal hits | the number of reciprocal best hits against the reference using ublast. A high score indicates that a large number of real transcripts have been assembled. | As high as possible. The theoretical maximum is the number of contigs (**n_seqs**). In practise, the maximum depends on the evolutionary divergence between the assembled species and the reference.
+| contig hit rate | the proportion of contigs having a reciprocal best hit | As high as possible (see above)
+| reference hit rate | the proportion of reference sequences having a reciprocal best hit | As high as possible (see above)
+| ortholog hit ratio | the mean ratio of alignment length to reference sequence length. A low score on this metric indicates the assembly contains full-length transcripts. |  Close to 1
+| collapse factor | the mean number of reference proteins mapping to each contig. A high score on this metric indicates the assembly contains chimeras. |  Dependent on the phylogenomic relationship between the organisms, e.g. whether a genome duplication has taken place.
 
 ## Installation
 
-You can install transrate very easily. Just run at the terminal:
+Assuming all the requirements are met (see below), you can install transrate very easily. Just run at the terminal:
 
 `gem install transrate`
 
-If that doesn't work, check the requirements below...
-
-If you're new to linux/unix, there's a detailed tutorial for installing transrate [on my blog](http://blahah.net/bioinformatics/2013/10/19/installing-transrate/).
-
+If you're new to linux/unix, there's a detailed tutorial for installing transrate with all the dependencies [on my blog](http://blahah.net/bioinformatics/2013/10/19/installing-transrate/).
 
 ## Usage
 
