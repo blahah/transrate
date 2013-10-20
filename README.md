@@ -3,6 +3,22 @@ Transrate
 
 Quality analysis and comparison of transcriptome assemblies.
 
+## Development status
+
+This software is in early development. Nevertheless, we welcome bug reports.
+
+[![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
+[![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
+[![Dependency Status](https://gemnasium.com/Blahah/transrate.png?travis)][gemnasium]
+[![Code Climate](https://codeclimate.com/github/Blahah/transrate.png)][codeclimate]
+[![Coverage Status](https://coveralls.io/repos/Blahah/transrate/badge.png?branch=master)][coveralls]
+
+[gem]: https://badge.fury.io/rb/transrate
+[travis]: https://travis-ci.org/Blahah/transrate
+[gemnasium]: https://gemnasium.com/Blahah/transrate
+[codeclimate]: https://codeclimate.com/github/Blahah/transrate
+[coveralls]: https://coveralls.io/r/Blahah/transrate
+
 ## Transcriptome assembly quality metrics
 
 **transrate** implements a variety of established and new metrics. 
@@ -132,7 +148,3 @@ If you don't have it installed, I recommend installing the latest version of Rub
 ### Usearch, Bowtie2 and eXpress
 
 Usearch (http://drive5.com/usearch), Bowtie2 (https://sourceforge.net/projects/bowtie-bio/files/bowtie2) and eXpress (http://bio.math.berkeley.edu/eXpress/) must be installed and in your PATH. Additionally, the Usearch binary executable should be named `usearch`.
-
-## Development status
-
-This software is in early development. Nevertheless, we welcome bug reports.
