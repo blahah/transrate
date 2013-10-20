@@ -18,7 +18,7 @@ note: this list will be expanded soon with detailed explanations and a guide to 
 * **mean_len** - the mean length of the contigs
 * **n > 1k** - the number of contigs greater than 1,000 bases long
 * **n > 10k** - the number of contigs greater than 10,000 bases long
-* **nX** - the largest contig size at which at least X% of bases are contained in contigs *longer* than this length
+* **nX** - the largest contig size at which at least X% of bases are contained in contigs *at least* this length
 
 ### Read mapping metrics
 
@@ -35,6 +35,8 @@ Additionally, the software calculates whether there is any evidence in the read 
 ### Comparative metrics
 
 * **reciprocal hits** - the number of reciprocal best hits against the reference using ublast. A high score indicates that a large number of real transcripts have been assembled.
+* **contig hit rate** - the proportion of contigs having a reciprocal best hit
+* **reference hit rate** - the proportion of reference sequences having a reciprocal best hit
 * **ortholog hit ratio** - the mean ratio of alignment length to reference sequence length. A low score on this metric indicates the assembly contains full-length transcripts.
 * **collapse factor** - the mean number of reference proteins mapping to each contig. A high score on this metric indicates the assembly contains chimeras.
 
@@ -54,7 +56,7 @@ If you're new to linux/unix, there's a detailed tutorial for installing transrat
 `transrate --help` will give you...
 
 ```
-Transrate v0.0.1a by Richard Smith <rds45@cam.ac.uk>
+Transrate v0.0.10 by Richard Smith <rds45@cam.ac.uk>
 
 DESCRIPTION:
 Analyse a de-novo transcriptome
@@ -64,7 +66,7 @@ assembly using three kinds of metrics:
 2. read-mapping
 3. reference-based
 
-Please make sure USEARCH and bowtie2 are both installed
+Please make sure USEARCH, bowtie 2 and eXpress are installed
 and in the PATH.
 
 Bug reports and feature requests at:
@@ -95,10 +97,10 @@ FASTQ records are 4 lines long, so make sure you multiply the number of reads yo
 
 ```
 transrate --assembly assembly.fasta \
-		  --reference reference.fasta \
-		  --left l.fq \
-		  --right r.fq \
-		  --threads 4
+	  --reference reference.fasta \
+	  --left l.fq \
+	  --right r.fq \
+	  --threads 4
 ```
 
 ## Getting help
@@ -125,12 +127,12 @@ Your Ruby installation *should* come with RubyGems, the package manager for Ruby
 
 `gem --version`
 
-If you don't have it installed, I recommend installing the latest version of Ruby and RubyGems using the RVM instructions above (in the Requirements:Ruby section.
+If you don't have it installed, I recommend installing the latest version of Ruby and RubyGems using the RVM instructions above (in the Requirements:Ruby section).
 
-### Usearch and Bowtie2
+### Usearch, Bowtie2 and eXpress
 
-Usearch (http://drive5.com/usearch) and Bowtie2 (https://sourceforge.net/projects/bowtie-bio/files/bowtie2) must be installed and in your PATH. Additionally, the Usearch binary executable should be named `usearch`.
+Usearch (http://drive5.com/usearch), Bowtie2 (https://sourceforge.net/projects/bowtie-bio/files/bowtie2) and eXpress (http://bio.math.berkeley.edu/eXpress/) must be installed and in your PATH. Additionally, the Usearch binary executable should be named `usearch`.
 
 ## Development status
 
-This software is in very early development. Nevertheless, we welcome bug reports.
+This software is in early development. Nevertheless, we welcome bug reports.
