@@ -5,7 +5,7 @@ Quality analysis and comparison of transcriptome assemblies.
 
 ## Development status
 
-This software is in early development. Nevertheless, we welcome bug reports.
+This software is in early development. Users should be aware that until the first release is made, features may change faster than the documentation is updated. Nevertheless, we welcome bug reports.
 
 [![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
 [![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
