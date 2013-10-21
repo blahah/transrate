@@ -166,7 +166,7 @@ Your Ruby installation *should* come with RubyGems, the package manager for Ruby
 
 `gem --version`
 
-If you don't have it installed, I recommend installing the latest version of Ruby and RubyGems using the RVM instructions above (in the Requirements:Ruby section).
+If you don't have it installed, I recommend installing the latest version of Ruby and RubyGems using the RVM instructions above (in the [Requirements:Ruby](https://github.com/Blahah/transrate#ruby) section).
 
 ### Usearch, Bowtie2 and eXpress
 
