@@ -127,7 +127,8 @@ OPTIONS:
 
 If you don't include --left and --right read files, the read-mapping based analysis will be skipped. I recommend that you don't align all your reads - just a subset of 500,000 will give you a very good idea of the quality. You can get a subset by running (on a linux system):
 
-`head -2000000 readfile.fastq`
+`head -2000000 left.fastq > left_500k.fastq`
+`head -2000000 right.fastq > right_500k.fastq`
 
 FASTQ records are 4 lines long, so make sure you multiply the number of reads you want by 4, and be sure to run the same command on both the left and right read files.
 
