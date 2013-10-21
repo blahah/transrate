@@ -29,7 +29,7 @@ note: this list will be expanded soon with detailed explanations and a guide to 
 
 Contig metrics are measures based entirely on analysing the set of contigs themselves. At the moment, these are all related to the distribution of contig lengths and base content.
 
-These are informative, but are only weakly useful for judging assembly quality. For most of these metrics, we don't know what the optimum is, although we can recognise extremely bad values. For example, an extremely small (<1,000) or extremely large (>500,000) number of contigs is biologically implausible for most organisms, and therefore suggests a problem with the assembly.
+These are informative, but are only weakly useful for judging assembly quality. For most of these metrics, we don't know what the optimum is, although we can recognise extremely bad values. For example, an extremely small (\<1,000) or extremely large (\>500,000) number of contigs is biologically implausible for most organisms, and therefore suggests a problem with the assembly.
 
 These metrics should therefore be used only as a quick, crude way of detecting major problems with the assembly.
 
@@ -42,15 +42,21 @@ These metrics should therefore be used only as a quick, crude way of detecting m
 | mean_len | the mean length of the contigs |
 | n > 1k | the number of contigs greater than 1,000 bases long |
 | n > 10k | the number of contigs greater than 10,000 bases long |
-| nX | the largest contig size at which at least X% of bases are contained in contigs *at least* this length |
+| nX | the largest contig size at which at least X% of bases are contained in contigs at least this length |
 
 ### Read mapping metrics
+
+Read mapping metrics are based on aligning a subset of the reads used in the assembly to the assembled contigs. These are a way of determining how well the assembly is supported by the original experimental evidence, and can be very useful overall quality metrics. However, they should not be considered alone, as read mapping metrics can be high for very fragmented assemblies.
+
+These metrics can be useful for optimising your assembly. In particular, we want to maximise the proportion of the read pairs that map to the contigs successfully and in a biologically plausible way.
 
 | name          | explanation  | optimum
 | ------------- |:-------------| :----
 | total | the total number and proportion of reads pairs mapping | theoretically 100%, but with erroneous and contaminating reads, often closer to 95%
-| good | the number of read pairs mapping in a way indicative of good assembly | as above
-| bad | the number of reads pairs mapping in a way indicative of bad assembly | 0%
+| good | the number and proportion of read pairs mapping in a way indicative of good assembly | as above
+| bad | the number and proportion of reads pairs mapping in a way indicative of bad assembly | 0%
+| unexpressed contigs | the number and proportion of contigs that **are not** supported by read evidence | 0%
+| expressed contigs | the number and proportion of contigs that **are** supported by read evidence | 100%
 
 'Good' pairs are those aligned in a biologically plausible way, i.e.:
 
@@ -61,7 +67,9 @@ These metrics should therefore be used only as a quick, crude way of detecting m
 
 Conversely, 'bad' pairs are those where one of the conditions for being 'good' are not met.
 
-Additionally, the software calculates whether there is any evidence in the read mappings that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridges is shown in the **supported bridges** metric. The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to scaffold the assembly using this and other information.
+Additionally, the software calculates whether there is any evidence in the read mappings that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridges is shown in the **supported bridges** metric. A low count of supported bridges could be good or bad depending on the context. If you have a fragmented assembly, a large number of supported bridges means that scaffolding could greatly improve it. On the other hand, a large number of supported bridges in an otherwise seemingly good assembly could be indicative of misassemblies.
+
+The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to scaffold the assembly using this and other information.
 
 ### Comparative metrics
 
