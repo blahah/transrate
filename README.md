@@ -3,6 +3,19 @@ Transrate
 
 Quality analysis and comparison of transcriptome assemblies.
 
+## Contents
+
+1. [Development status](https://github.com/Blahah/transrate#development-status)
+2. [Transcriptome assembly quality metrics](https://github.com/Blahah/transrate#transcriptome-assembly-quality-metrics)
+3. [Installation](https://github.com/Blahah/transrate#installation)
+4. [Usage](https://github.com/Blahah/transrate#usage)
+   - [example](https://github.com/Blahah/transrate#example)
+5. [Requirements](https://github.com/Blahah/transrate#requirements)
+   1. [Ruby](https://github.com/Blahah/transrate#ruby)
+   2. [RubyGems](https://github.com/Blahah/transrate#rubygems)
+   3. [USEARCH, Bowtie 2, and eXpress](https://github.com/Blahah/transrate#usearch-bowtie2-and-express)
+6. [Getting help](https://github.com/Blahah/transrate#getting-help)
+
 ## Development status
 
 This software is in early development. Users should be aware that until the first release is made, features may change faster than the documentation is updated. Nevertheless, we welcome bug reports.
@@ -21,65 +34,7 @@ This software is in early development. Users should be aware that until the firs
 
 ## Transcriptome assembly quality metrics
 
-**transrate** implements a variety of established and new metrics. 
-
-note: this list will be expanded soon with detailed explanations and a guide to interpreting the results.
-
-### Contig metrics
-
-Contig metrics are measures based entirely on analysing the set of contigs themselves. At the moment, these are all related to the distribution of contig lengths and base content.
-
-These are informative, but are only weakly useful for judging assembly quality. For most of these metrics, we don't know what the optimum is, although we can recognise extremely bad values. For example, an extremely small (\<1,000) or extremely large (\>500,000) number of contigs is biologically implausible for most organisms, and therefore suggests a problem with the assembly.
-
-These metrics should therefore be used only as a quick, crude way of detecting major problems with the assembly.
-
-| name          | explanation  |
-| ------------- |:-------------|
-| n_seqs | the number of contigs in the assembly |
-| smallest | the size of the smallest contig |
-| largest | the size of the largest contig |
-| n_bases | the number of bases included in the assembly |
-| mean_len | the mean length of the contigs |
-| n > 1k | the number of contigs greater than 1,000 bases long |
-| n > 10k | the number of contigs greater than 10,000 bases long |
-| nX | the largest contig size at which at least X% of bases are contained in contigs at least this length |
-
-### Read mapping metrics
-
-Read mapping metrics are based on aligning a subset of the reads used in the assembly to the assembled contigs. These are a way of determining how well the assembly is supported by the original experimental evidence, and can be very useful overall quality metrics. However, they should not be considered alone, as read mapping metrics can be high for very fragmented assemblies.
-
-These metrics can be useful for optimising your assembly. In particular, we want to maximise the proportion of the read pairs that map to the contigs successfully and in a biologically plausible way.
-
-| name          | explanation  | optimum
-| ------------- |:-------------| :----
-| total | the total number and proportion of reads pairs mapping | theoretically 100%, but with erroneous and contaminating reads, often closer to 95%
-| good | the number and proportion of read pairs mapping in a way indicative of good assembly | as above
-| bad | the number and proportion of reads pairs mapping in a way indicative of bad assembly | 0%
-| unexpressed contigs | the number and proportion of contigs that **are not** supported by read evidence | 0%
-| expressed contigs | the number and proportion of contigs that **are** supported by read evidence | 100%
-
-'Good' pairs are those aligned in a biologically plausible way, i.e.:
-
-- where both members are aligned
-- in the correct orientation
-- either on the same contig or... 
-- within a plausible distance of the ends of two separate contigs.
-
-Conversely, 'bad' pairs are those where one of the conditions for being 'good' are not met.
-
-Additionally, the software calculates whether there is any evidence in the read mappings that different contigs originate from the same transcript. These theoretical links are called bridges, and the number of bridges is shown in the **supported bridges** metric. A low count of supported bridges could be good or bad depending on the context. If you have a fragmented assembly, a large number of supported bridges means that scaffolding could greatly improve it. On the other hand, a large number of supported bridges in an otherwise seemingly good assembly could be indicative of misassemblies.
-
-The list of supported bridges is output to a file, `supported_bridges.csv`, in case you want to make use of the information. At a later date, transrate will include the ability to scaffold the assembly using this and other information.
-
-### Comparative metrics
-
-| name          | explanation  | optimum
-| ------------- |:-------------|:----
-| reciprocal hits | the number of reciprocal best hits against the reference using ublast. A high score indicates that a large number of real transcripts have been assembled. | As high as possible. The theoretical maximum is the number of contigs (**n_seqs**). In practise, the maximum depends on the evolutionary divergence between the assembled species and the reference.
-| contig hit rate | the proportion of contigs having a reciprocal best hit | As high as possible (see above)
-| reference hit rate | the proportion of reference sequences having a reciprocal best hit | As high as possible (see above)
-| ortholog hit ratio | the mean ratio of alignment length to reference sequence length. A low score on this metric indicates the assembly contains full-length transcripts. |  Close to 1
-| collapse factor | the mean number of reference proteins mapping to each contig. A high score on this metric indicates the assembly contains chimeras. |  Dependent on the phylogenomic relationship between the organisms, e.g. whether a genome duplication has taken place.
+**transrate** implements a variety of established and new metrics. They are explained in detail [on the wiki](https://github.com/Blahah/transrate/wiki/Transcriptome-assembly-quality-metrics).
 
 ## Installation
 
@@ -142,12 +97,6 @@ transrate --assembly assembly.fasta \
 	  --threads 4
 ```
 
-## Getting help
-
-If you need help using transrate, please post to the [forum here](https://groups.google.com/forum/#!forum/transrate-users).
-
-If you think you've found a bug, please post it to the [issues list](https://github.com/Blahah/transrate/issues).
-
 ## Requirements
 
 ### Ruby
@@ -171,3 +120,9 @@ If you don't have it installed, I recommend installing the latest version of Rub
 ### Usearch, Bowtie2 and eXpress
 
 Usearch (http://drive5.com/usearch), Bowtie2 (https://sourceforge.net/projects/bowtie-bio/files/bowtie2) and eXpress (http://bio.math.berkeley.edu/eXpress/) must be installed and in your PATH. Additionally, the Usearch binary executable should be named `usearch`.
+
+## Getting help
+
+If you need help using transrate, please post to the [forum here](https://groups.google.com/forum/#!forum/transrate-users).
+
+If you think you've found a bug, please post it to the [issues list](https://github.com/Blahah/transrate/issues).
