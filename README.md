@@ -46,6 +46,8 @@ If you're new to linux/unix, there's a detailed tutorial for installing transrat
 
 ## Usage
 
+### Command line
+
 `transrate --help` will give you...
 
 ```
@@ -83,11 +85,12 @@ OPTIONS:
 If you don't include --left and --right read files, the read-mapping based analysis will be skipped. I recommend that you don't align all your reads - just a subset of 500,000 will give you a very good idea of the quality. You can get a subset by running (on a linux system):
 
 `head -2000000 left.fastq > left_500k.fastq`
+
 `head -2000000 right.fastq > right_500k.fastq`
 
 FASTQ records are 4 lines long, so make sure you multiply the number of reads you want by 4, and be sure to run the same command on both the left and right read files.
 
-### Example
+#### Example
 
 ```
 transrate --assembly assembly.fasta \
@@ -95,6 +98,23 @@ transrate --assembly assembly.fasta \
 	  --left l.fq \
 	  --right r.fq \
 	  --threads 4
+```
+
+### As a library
+
+```ruby
+require 'transrate'
+
+assembly = Transrate::Assembly.new(File.expand_path('assembly.fasta'))
+reference = Transrate::Assembly.new(File.expand_path('reference.fasta'))
+
+t = Transrate::Transrater.new(assembly, reference)
+
+left = File.expand_path('left.fq')
+right = File.expand_path('right.fq')
+
+puts t.all_metrics(left, right)
+puts t.assembly_score
 ```
 
 ## Requirements
