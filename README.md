@@ -9,12 +9,13 @@ Quality analysis and comparison of transcriptome assemblies.
 2. [Transcriptome assembly quality metrics](https://github.com/Blahah/transrate#transcriptome-assembly-quality-metrics)
 3. [Installation](https://github.com/Blahah/transrate#installation)
 4. [Usage](https://github.com/Blahah/transrate#usage)
-   1. [Command line](https://github.com/Blahah/transrate#command-line)
-   2. [As a library](https://github.com/Blahah/transrate#as-a-library)
+    - [Command line](https://github.com/Blahah/transrate#command-line)
+        - [example](https://github.com/Blahah/transrate#example)
+    - [As a library](https://github.com/Blahah/transrate#as-a-library)
 5. [Requirements](https://github.com/Blahah/transrate#requirements)
-   1. [Ruby](https://github.com/Blahah/transrate#ruby)
-   2. [RubyGems](https://github.com/Blahah/transrate#rubygems)
-   3. [USEARCH, Bowtie 2, and eXpress](https://github.com/Blahah/transrate#usearch-bowtie2-and-express)
+    - [Ruby](https://github.com/Blahah/transrate#ruby)
+    - [RubyGems](https://github.com/Blahah/transrate#rubygems)
+    - [USEARCH, Bowtie 2, and eXpress](https://github.com/Blahah/transrate#usearch-bowtie2-and-express)
 6. [Getting help](https://github.com/Blahah/transrate#getting-help)
 
 ## Development status
