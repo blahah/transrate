@@ -14,8 +14,8 @@ Analyse a de-novo transcriptome
 assembly using three kinds of metrics:
 
 1. contig-based
-2. read-mapping
-3. reference-based
+2. read-mapping (if --left and --right are provided)
+3. reference-based (if --reference is provided)
 
 Please make sure USEARCH and bowtie2 are both installed
 and in the PATH.
