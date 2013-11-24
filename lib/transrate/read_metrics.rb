@@ -8,6 +8,7 @@ module Transrate
     attr_reader :pr_good_mapping
     attr_reader :percent_mapping
     attr_reader :prop_expressed
+    attr_reader :has_run
     
     def initialize assembly
       @assembly = assembly
@@ -23,6 +24,7 @@ module Transrate
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
       @pc_good_mapping = @pr_good_mapping * 100.0
+      @has_run = true
     end
 
     def read_stats
