@@ -6,6 +6,7 @@ module Transrate
 
     attr_reader :rbh_per_contig
     attr_reader :reciprocal_hits
+    attr_reader :has_run
 
     def initialize assembly, reference
       @assembly = assembly
@@ -19,6 +20,7 @@ module Transrate
       @collapse_factor = self.collapse_factor @ra.r2l_hits
       @reciprocal_hits = rbu.size
       @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
+      @has_run = true
     end
 
     def comp_stats
