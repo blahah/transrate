@@ -4,10 +4,10 @@ require 'trollop'
 require 'transrate'
 
 opts = Trollop::options do
-  version "v0.0.1a"
+  version Transrate::VERSION::STRING.dup
   banner <<-EOS
 
-Transrate v0.0.1a by Richard Smith <rds45@cam.ac.uk>
+Transrate v#{Transrate::VERSION::STRING.dup} by Richard Smith <rds45@cam.ac.uk>
 
 DESCRIPTION:
 Analyse a de-novo transcriptome
