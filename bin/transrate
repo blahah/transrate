@@ -42,59 +42,65 @@ end
 include Transrate
 
 a = Assembly.new opts.assembly
-r = Assembly.new opts.reference
+r = opts.reference ? Assembly.new(opts.reference) : nil 
 
-puts "\n\nAnalysing assembly: #{opts.assembly}\n\n"
+transrater = Transrater.new(a, r, 
+                            opts.left, 
+                            opts.right,
+                            opts.insertsize,
+                            opts.insertsd)
 
-puts "calculating contig stats..."
-t0 = Time.now
-contig_results = a.basic_stats
-puts "...done in #{Time.now - t0} seconds"
-
-read_results = nil
-if (opts.left && opts.right)
-  puts "\ncalculating read diagnostics..."
-  t0 = Time.now
-  read_metrics = ReadMetrics.new a
-  read_metrics.run(opts.left, opts.right)
-  read_results = read_metrics.read_stats
-  puts "...done in #{Time.now - t0} seconds"
-else
-  puts "\nno reads provided, skipping read diagnostics"
-end
-
-puts "\ncalculating comparative metrics..."
-t0 = Time.now
-comparative_metrics = ComparativeMetrics.new(a, r)
-comparative_metrics.run
-comparative_results = comparative_metrics.comp_stats
-puts "...done in #{Time.now - t0} seconds"
+puts "\nAnalysing assembly: #{opts.assembly}\n\n"
 
 report_width = 30
 
+puts "Calculating contig metrics..."
+t0 = Time.now
+contig_results = transrater.assembly_metrics.basic_stats
+
 if contig_results
-  puts "\n\n"
+  puts "\n"
   puts "Contig metrics:"
   puts "-" *  report_width
   puts pretty_print_hash(contig_results, report_width)
 end
 
-if read_results
-  puts "\n\n"
-  puts "Read mapping metrics:"
-  puts "-" *  report_width
-  puts pretty_print_hash(read_results, report_width)
+puts "Contig metrics done in #{Time.now - t0} seconds"
+
+read_results = nil
+if (opts.left && opts.right)
+  puts "\ncalculating read diagnostics..."
+  t0 = Time.now
+  read_results = transrater.read_metrics(opts.left, opts.right).read_stats
+
+  if read_results
+    puts "\n"
+    puts "Read mapping metrics:"
+    puts "-" *  report_width
+    puts pretty_print_hash(read_results, report_width)
+  end
+
+  puts "Read metrics done in #{Time.now - t0} seconds"
+else
+  puts "\nNo reads provided, skipping read diagnostics"
 end
 
-if comparative_results
-  puts "\n\n"
-  puts "Comparative metrics:"
-  puts "-" *  report_width
-  puts pretty_print_hash(comparative_results, report_width)
+if opts.reference
+  puts "\nCalculating comparative metrics..."
+  t0 = Time.now
+  comparative_results = transrater.comparative_metrics.comp_stats
+
+  if comparative_results
+    puts "\n"
+    puts "Comparative metrics:"
+    puts "-" *  report_width
+    puts pretty_print_hash(comparative_results, report_width)
+  end
+
+  puts "Comparative metrics done in #{Time.now - t0} seconds"
 end
 
-transrater = Transrater.new(a, r, opts.left, opts.right)
-transrater.run(opts.left, opts.right)
-puts "\n\n"
-puts "Overall score #{transrater.assembly_score.to_f.round(2)}"
-puts "\n" + "-" * report_width
+puts "\n"
+puts "-" * report_width
+puts "OVERALL SCORE: #{transrater.assembly_score.to_f.round(2) * 100}%"
+puts "-" * report_width
