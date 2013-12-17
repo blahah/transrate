@@ -2,9 +2,9 @@ module Transrate
 
   class Transrater
 
-    def initialize assembly, reference, left=nil, right=nil, insertsize=nil, insertsd=nil
+    def initialize assembly, reference=nil, left=nil, right=nil, insertsize=nil, insertsd=nil
       @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
-      @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
+      @reference = reference and reference.is_a?(Assembly) ? reference : Assembly.new(reference)
       @read_metrics = ReadMetrics.new @assembly
       @comparative_metrics = ComparativeMetrics.new(@assembly, @reference)
     end
@@ -18,10 +18,12 @@ module Transrate
     end
 
     def assembly_score
-      pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
-      rbhpc = Metric.new('rbhpc', @comparative_metrics.rbh_per_contig, 0.0)
-      pce = Metric.new('pce', @read_metrics.prop_expressed, 0.0)
-      @score = DimensionReduce.dimension_reduce([pg, rbhpc, pce])
+      metrics = []
+      metrics << Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
+      metrics << Metric.new('rbhpc', @comparative_metrics.rbh_per_contig, 0.0)
+      metrics << Metric.new('pce', @read_metrics.prop_expressed, 0.0)
+      metrics.delete_if {|m| m.score==nil}
+      @score = DimensionReduce.dimension_reduce(metrics)
     end
 
     def assembly_metrics
