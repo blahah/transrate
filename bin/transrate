@@ -27,7 +27,7 @@ OPTIONS:
 
 EOS
   opt :assembly, "assembly file in FASTA format", :required => true, :type => String
-  opt :reference, "reference proteome file in FASTA format", :required => true, :type => String
+  opt :reference, "reference proteome file in FASTA format", :type => String
   opt :left, "left reads file in FASTQ format", :type => String
   opt :right, "right reads file in FASTQ format", :type => String
   opt :insertsize, "mean insert size",  :default => 200, :type => Integer
