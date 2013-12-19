@@ -34,6 +34,7 @@ EOS
   opt :insertsd, "insert size standard deviation", :default => 50, :type => Integer
   opt :threads, "number of threads to use", :default => 8, :type => Integer
 end
+Trollop::die :assembly, "must exist" if !File.exist?(opts[:assembly]) if opts[:assembly]
 
 def pretty_print_hash hash, width
   hash.map{ |k, v| "#{k.to_s}#{" " * (width - (k.length + v.to_f.round(2).to_s.length))}#{v.to_f.round(2)}" }.join("\n")

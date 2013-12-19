@@ -23,10 +23,7 @@ module Transrate
     # assembly filename
     attr_accessor :file
 
-    # assembly n50
-    attr_reader :n50
-
-    # Reuturn a new Assembly.
+    # Return a new Assembly.
     #
     # - +:file+ - path to the assembly FASTA file
     def initialize file
@@ -50,7 +47,9 @@ module Transrate
     def run
       stats = self.basic_stats
       stats.each_pair do |key, value|
-        ivar = "@#{key.gsub(/ /, '_')}".to_sym
+        ivar = "@#{key.gsub(/\ /, '_')}".to_sym
+        attr_ivar = "#{key.gsub(/\ /, '_')}".to_sym
+        singleton_class.class_eval do; attr_accessor attr_ivar; end
         self.instance_variable_set(ivar, value)
       end
       @has_run = true
@@ -93,7 +92,7 @@ module Transrate
         "mean_len" => mean,
         "n_1k" => n1k,
         "n_10k" => n10k,
-        "orf percent" => 300*orf_length_sum/(@assembly.size*mean)
+        "orf_percent" => 300*orf_length_sum/(@assembly.size*mean)
       }.merge ns
     end
 
