@@ -6,7 +6,7 @@ module Transrate
       @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
       @reference = reference and reference.is_a?(Assembly) ? reference : Assembly.new(reference)
       @read_metrics = ReadMetrics.new @assembly
-      @comparative_metrics = ComparativeMetrics.new(@assembly, @reference)
+      @comparative_metrics = ComparativeMetrics.new(@assembly, @reference) if reference
     end
 
     def run left=nil, right=nil, insertsize=nil, insertsd=nil
@@ -19,9 +19,9 @@ module Transrate
 
     def assembly_score
       metrics = []
-      metrics << Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
-      metrics << Metric.new('rbhpc', @comparative_metrics.rbh_per_contig, 0.0)
-      metrics << Metric.new('pce', @read_metrics.prop_expressed, 0.0)
+      assembly_metrics
+      metrics << Metric.new("orf_percent", @assembly.orf_percent, 0.0)
+      metrics << Metric.new("n50", @assembly.N50, 0.0)
       metrics.delete_if {|m| m.score==nil}
       @score = DimensionReduce.dimension_reduce(metrics)
     end
