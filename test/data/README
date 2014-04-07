@@ -1,0 +1,8 @@
+The test data were created as follows:
+
+- A 100,000 pair subsample of a set of 100bp Illumina HiSeq reads from Rice whole leaf RNASeq were assembled with SOAPDenovotrans (assembly.fa)
+- The Rice protein set was download from Phytozome v9.0 FTP (ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_protein.fa.gz)
+- USEARCH usearch_global with a sequence ID cutoff of 0.8 was used to extract proteins in the rice protein set that were matched by a transcript in the assembly.
+- 50 non-matching proteins were also extracted.
+- The 50 non-matching proteins were added to the matching proteins to form reference.fa
+- Reads aligning to the assembly were extracted from the 100,000 pairs using bowtie
