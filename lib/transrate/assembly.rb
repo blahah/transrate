@@ -15,6 +15,7 @@ module Transrate
     attr_accessor :orfs_ublast_db
     attr_accessor :protein
     attr_reader :assembly
+    attr_reader :has_run
 
     # number of bases in the assembly
     attr_writer :n_bases
@@ -52,6 +53,7 @@ module Transrate
         ivar = "@#{key.gsub(/ /, '_')}".to_sym
         self.instance_variable_set(ivar, value)
       end
+      @has_run = true
     end
 
     # Return a hash of statistics about this assembly
