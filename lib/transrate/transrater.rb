@@ -6,7 +6,7 @@ module Transrate
     attr_reader :read_metrics
     attr_reader :comparative_metrics
 
-    def initialize assembly, reference, left, right, insertsize=nil, insertsd=nil
+    def initialize assembly, reference, left=nil, right=nil, insertsize=nil, insertsd=nil
       @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
       @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
       @read_metrics = ReadMetrics.new @assembly
@@ -21,10 +21,10 @@ module Transrate
 
     def assembly_score
       pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
-      rbhpc = Metric.new('rbhpc', @comparative_metrics.rbh_per_contig, 0.0)
-      pce = Metric.new('pce', @read_metrics.prop_expressed, 0.0)
-      puts "pg: #{pg.score}, pbhpc: #{rbhpc.score}, pce: #{pce.score}"
-      @score = DimensionReduce.dimension_reduce([pg, rbhpc, pce])
+      rc = Metric.new('rc', @comparative_metrics.reference_coverage, 0.0)
+      #pce = Metric.new('pce', @read_metrics.prop_expressed, 0.0)
+      puts "pg: #{pg.score}, rc: #{rc.score}" #, pce: #{pce.score}"
+      @score = DimensionReduce.dimension_reduce([pg, rc])
     end
 
     def all_metrics left, right, insertsize=nil, insertsd=nil

@@ -6,6 +6,7 @@ module Transrate
 
     attr_reader :rbh_per_contig
     attr_reader :reciprocal_hits
+    attr_reader :reference_coverage
 
     def initialize assembly, reference
       @assembly = assembly
@@ -18,7 +19,9 @@ module Transrate
       @ortholog_hit_ratio = self.ortholog_hit_ratio rbu
       @collapse_factor = self.collapse_factor @ra.r2l_hits
       @reciprocal_hits = rbu.size
-      @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
+      @rbh_per_contig = @reciprocal_hits.to_f / @assembly.size.to_f
+      @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
+      @reference_coverage = @rbh_per_reference * @collapse_factor
     end
 
     def comp_stats
