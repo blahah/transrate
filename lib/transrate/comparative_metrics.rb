@@ -5,6 +5,7 @@ module Transrate
   class ComparativeMetrics
 
     attr_reader :rbh_per_contig
+    attr_reader :rbh_per_reference
     attr_reader :reciprocal_hits
     attr_reader :reference_coverage
     attr_reader :has_run
@@ -30,6 +31,7 @@ module Transrate
       {
         :reciprocal_hits => @reciprocal_hits,
         :rbh_per_contig => @rbh_per_contig,
+        :rbh_per_reference => @rbh_per_reference,
         :ortholog_hit_ratio => @ortholog_hit_ratio,
         :collapse_factor => @collapse_factor
       }
