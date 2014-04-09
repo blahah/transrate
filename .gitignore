@@ -18,3 +18,6 @@ tmp
 _yardoc
 doc/
 .ruby-version
+
+# large test files not for repo
+dryrun
