@@ -26,7 +26,7 @@ module Transrate
     # assembly n50
     attr_reader :n50
 
-    # Reuturn a new Assembly.
+    # Return a new Assembly.
     #
     # - +:file+ - path to the assembly FASTA file
     def initialize file

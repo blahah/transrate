@@ -39,6 +39,7 @@ module Transrate
         reference_db = File.join(reference_dir, reference_base + ".udb")
         @usearch.makeudb_ublast @reference.file, reference_db
         @reference.ublast_db = reference_db
+        return reference_db
       end
     end
 
