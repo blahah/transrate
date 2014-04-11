@@ -51,7 +51,8 @@ module Transrate
       stats.each_pair do |key, value|
         ivar = "@#{key.gsub(/\ /, '_')}".to_sym
         attr_ivar = "#{key.gsub(/\ /, '_')}".to_sym
-        singleton_class.class_eval do; attr_accessor attr_ivar; end # creates accessors for the variables in stats
+        # creates accessors for the variables in stats
+        singleton_class.class_eval { attr_accessor attr_ivar }
         self.instance_variable_set(ivar, value)
       end
       @has_run = true
@@ -85,7 +86,6 @@ module Transrate
       semaphore = Mutex.new
       stats = []
 
-
       threads.times do
         threadpool << Thread.new do |thread|
           # keep looping until we run out of bins
@@ -111,7 +111,7 @@ module Transrate
 
       # merge the collected stats and return then
       merge_basic_stats stats
-      
+
     end # basic_stats
 
     
@@ -146,10 +146,10 @@ module Transrate
       # the next value to set the next cutoff. we take a copy
       # of the Array so we can use the intact original to collect
       # the results later
-#      x = [90, 70, 50, 30, 10]
-#      x2 = x.clone
-#      cutoff = x2.pop / 100.0
-#      res = []
+      # x = [90, 70, 50, 30, 10]
+      # x2 = x.clone
+      # cutoff = x2.pop / 100.0
+      # res = []
       n1k = 0
       n10k = 0
       orf_length_sum = 0
@@ -181,7 +181,7 @@ module Transrate
 #          end 
 #        end
       end
-      
+
       # calculate and return the statistics as a hash
       mean = cumulative_length / @assembly.size
  #     ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
@@ -207,12 +207,12 @@ module Transrate
       end
       merged = {}
       collect.each_pair do |stat, values|
-        if stat == "orf_percent"  || /N[0-9]{2}/ =~ stat
+        if stat == 'orf_percent'  || /N[0-9]{2}/ =~ stat
           # store the mean
           merged[stat] = values.inject(:+) / values.size
-        elsif stat == "smallest"
+        elsif stat == 'smallest'
           merged[stat] = values.min
-        elsif stat == "largest"
+        elsif stat == 'largest'
           merged[stat] = values.max
         else
           # store the sum
