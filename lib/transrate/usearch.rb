@@ -56,8 +56,7 @@ module Transrate
     end
 
     def run subcmd
-      #      subcmd += " -quiet"
-      puts subcmd
+      subcmd += " -quiet"
       ret = `#{@cmd}#{subcmd} 2>&1`
       unless $?.exitstatus == 0
         Transrate.log.error("Usearch::run") do
