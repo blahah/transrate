@@ -22,9 +22,18 @@ module Transrate
     end
 
     def assembly_score
-      pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
-      rc = Metric.new('rc', @comparative_metrics.reference_coverage, 0.0)
-      @score = DimensionReduce.dimension_reduce([pg, rc])
+      @score, pg, rc = nil
+      if @read_metrics.has_run
+        pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
+      end
+      if @comparative_metrics.has_run
+        rc = Metric.new('rc', @comparative_metrics.reference_coverage,
+                    0.0)
+      end
+      if (pg && rc)
+        @score = DimensionReduce.dimension_reduce([pg, rc])
+      end
+      return @score
     end
 
     def assembly_metrics
