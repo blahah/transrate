@@ -49,7 +49,9 @@ module Transrate
     def run threads=8
       stats = self.basic_stats threads
       stats.each_pair do |key, value|
-        ivar = "@#{key.gsub(/ /, '_')}".to_sym
+        ivar = "@#{key.gsub(/\ /, '_')}".to_sym
+        attr_ivar = "#{key.gsub(/\ /, '_')}".to_sym
+        singleton_class.class_eval do; attr_accessor attr_ivar; end # creates accessors for the variables in stats
         self.instance_variable_set(ivar, value)
       end
       @has_run = true
@@ -80,8 +82,12 @@ module Transrate
       # assign one bin of contigs to each thread from the queue.
       # each thread will process its bin of contigs and then wait
       # for the others to finish.
+      semaphore = Mutex.new
+      stats = []
+
+
       threads.times do
-        threadpool << Thread.new do
+        threadpool << Thread.new do |thread|
           # keep looping until we run out of bins
           until queue.empty?
 
@@ -92,8 +98,8 @@ module Transrate
               # calculate basic stats for the bin, storing them
               # in the current thread so they can be collected
               # in the main thread.
-              stats = basic_bin_stats bin
-              Thread.current[:bin_stats] = stats
+              bin_stats = basic_bin_stats bin
+              semaphore.synchronize { stats << bin_stats }
             end
           end
         end
@@ -101,11 +107,7 @@ module Transrate
 
       # collect the stats calculated in each thread and join
       # the threads to terminate them
-      stats = []
-      threadpool.each do |t|
-        t.join
-        stats << t[:bin_stats]
-      end
+      threadpool.each(&:join)
 
       # merge the collected stats and return then
       merge_basic_stats stats
@@ -154,7 +156,8 @@ module Transrate
 
       # sort the contigs in ascending length order
       # and iterate over them
-      bin.sort_by { |c| c.seq.size }.each do |contig|
+      bin.sort_by! { |c| c.seq.size }
+      bin.each do |contig|
         
         # increment our long contig counters if this
         # contig is above the thresholds
@@ -204,7 +207,7 @@ module Transrate
       end
       merged = {}
       collect.each_pair do |stat, values|
-        if %w(mean_len orf_percent).include? stat || /N[0-9]{2}/ =~ stat
+        if stat == "orf_percent"  || /N[0-9]{2}/ =~ stat
           # store the mean
           merged[stat] = values.inject(:+) / values.size
         elsif stat == "smallest"
@@ -216,6 +219,7 @@ module Transrate
           merged[stat] = values.inject(:+)
         end
       end
+
       merged
       
     end # merge_basic_stats
