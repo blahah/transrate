@@ -4,6 +4,7 @@ module Transrate
 
     def self.dimension_reduce(metrics)
       total = 0
+      p metrics
       metrics.each do |metric|
         o = metric.origin
         w = metric.weighting

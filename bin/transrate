@@ -41,6 +41,13 @@ end
 
 include Transrate
 
+# set up logger
+Transrate.log = Log.new(STDOUT)
+Transrate.log.datetime_format = '%H:%M:%S'
+Transrate.log.formatter = proc do |severity, datetime, progname, msg|
+  "[#{datetime} #{severity} #{progname}]: #{msg}\n"
+end
+
 a = Assembly.new opts.assembly
 r = opts.reference ? Assembly.new(opts.reference) : nil 
 
@@ -102,5 +109,8 @@ end
 
 puts "\n"
 puts "-" * report_width
-puts "OVERALL SCORE: #{transrater.assembly_score.to_f.round(2) * 100}%"
-puts "-" * report_width
+score = transrater.assembly_score
+unless score.nil?
+  puts "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
+  puts "-" * report_width
+end
