@@ -4,15 +4,14 @@ require 'helper'
 
 class TestInline < Test::Unit::TestCase
 
-  context "transrate" do
+  context 'transrate' do
 
     setup do
-      @a = Transrate::Assembly.new("test/assembly.fasta")
+      @a = Transrate::Assembly.new('test/assembly.fasta')
       @seq1 = 'ATGCCCCTAGGGTAG'
-      @seq2 = @seq1.reverse.tr('ACGT', 'TGCA')
     end
 
-    should "find longest orf in file" do
+    should 'find longest orf in file' do
       orfs = []
       @a.assembly.each do |entry|
         l = @a.orf_length entry.seq
@@ -22,9 +21,9 @@ class TestInline < Test::Unit::TestCase
       assert_equal orfs, [333, 370, 131, 84]
     end
 
-    should "find longest orf in sequence" do
+    should 'find longest orf in sequence' do
       l = @a.orf_length(@seq1)
-      assert_equal l, 5
+      assert_equal l, 4
     end
 
   end
