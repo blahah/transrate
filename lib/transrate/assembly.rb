@@ -226,63 +226,57 @@ module Transrate
     end # merge_basic_stats
      
     inline do |builder|
-      builder.c "
-          static
-          void
-          longest_orf(VALUE _s) {
-            int sl = RARRAY_LEN(_s);
-            int s[sl];
-            int i,f;
-            int len = 0;
-            int longest = 0;
-            VALUE *sv = RARRAY_PTR(_s);
-            for (i=0; i < sl; i++) {
-              s[i] = NUM2INT(sv[i]);
+
+    builder.c "
+      static
+      void
+      longest_orf(VALUE _s) {
+        int i,sl,longest=0;
+        int len[6];
+        char * c_str;
+
+        sl = RSTRING_LEN(_s);
+        c_str = StringValueCStr(_s);
+        for (i=0;i<6;i++) {
+          len[i]=0;
+        }
+        for (i=0;i<sl-2;i++) {
+          if (c_str[i]=='T' &&
+            ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
+            (c_str[i+1]=='A' && c_str[i+2]=='A') ||
+            (c_str[i+1]=='G' && c_str[i+2]=='A'))) { 
+            if (len[i%3] > longest) {
+              longest = len[i%3];
             }
-            for (f=0; f<3; f++) {
-              len=0;
-              for (i=f; i < sl-2; i+=3) {
-                if (s[i]==84 && ((s[i+1]==65 && s[i+2]==71) ||
-                 (s[i+1]==65 && s[i+2]==65) || 
-                 (s[i+1]==71 && s[i+2]==65))) {
-                  if (len > longest) {
-                    longest = len;
-                  }
-                  len=0;
-                } else {
-                  len++;
-                }
-              }
-              if (len > longest) {
-                longest = len;
-              }
-            }
-            for (f=0; f<3; f++) {
-              len=0;
-              for (i=sl-1-f;i>=0;i-=3) {
-                if ((s[i]==65 && s[i-1]==84 && s[i-2]==67) ||
-                 (s[i]==65 && s[i-1]==84 && s[i-2]==84) ||
-                  (s[i]==65 && s[i-1]==67 && s[i-2]==84)) {
-                  if (len > longest) {
-                    longest = len;
-                  }
-                  len = 0;
-                } else {
-                  len++;
-                }
-              }
-            }
-            if (len > longest) {
-              longest = len;
-            }
-            return INT2NUM(longest);
+            len[i%3]=0;
+          } else {
+            len[i%3]++;
           }
-      "
+          if (c_str[i+2]=='A' &&
+            ((c_str[i]=='C' && c_str[i+1]=='T') ||
+            (c_str[i]=='T' && c_str[i+1]=='T') ||
+            (c_str[i]=='T' && c_str[i+1]=='C'))) { 
+            if (len[3+i%3] > longest) {
+              longest = len[3+i%3];
+            }
+            len[3+i%3]=0;
+          } else {
+            len[3+i%3]++;
+          }
+        }
+        if (len[i%3] > longest) {
+          longest = len[i%3];
+        }
+        if (len[3+i%3] > longest) {
+          longest = len[3+i%3];
+        }
+        return INT2NUM(longest);
+      }"
     end
 
     # finds longest orf in a sequence
     def orf_length sequence
-      longest = longest_orf(sequence.unpack("U*"))
+      longest = longest_orf(sequence)
       return longest
     end
 

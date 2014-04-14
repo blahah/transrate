@@ -4,7 +4,7 @@ require 'helper'
 
 class TestTransrate < Test::Unit::TestCase
 
-  context "transrate" do
+  context 'transrate' do
 
     setup do
       @a = Transrate::Assembly.new('test/assembly.fasta')
