@@ -229,7 +229,7 @@ module Transrate
       builder.c "
           static
           void
-          load_array(VALUE _s) {
+          longest_orf(VALUE _s) {
             int sl = RARRAY_LEN(_s);
             int s[sl];
             int i,f;
@@ -278,7 +278,7 @@ module Transrate
 
     # finds longest orf in a sequence
     def orf_length sequence
-      longest = load_array(sequence.unpack("U*"))
+      longest = longest_orf(sequence.unpack("U*"))
       return longest
     end
 
