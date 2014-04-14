@@ -43,9 +43,7 @@ module Transrate
 
     def findorfs filepath, output
       if File.exists? output
-        Transrate.log.debug("Transrate::Usearch") do
-          "skipping ORF finding: ORF file already exists at #{output}"
-        end
+        puts "skipping ORF finding: ORF file already exists at #{output}"
       else
         subcmd = " -findorfs #{filepath}"
         subcmd += " -output #{output}"
@@ -59,9 +57,7 @@ module Transrate
       subcmd += " -quiet"
       ret = `#{@cmd}#{subcmd} 2>&1`
       unless $?.exitstatus == 0
-        Transrate.log.error("Usearch::run") do
-          "usearch command failed: #{subcmd}\noutput:\n#{ret}"
-        end
+        puts "usearch command failed: #{subcmd}\noutput:\n#{ret}"
       end
     end
 
