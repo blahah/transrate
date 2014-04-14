@@ -4,7 +4,7 @@ module Transrate
   module VERSION
     MAJOR = 0
     MINOR = 0
-    PATCH = 11
+    PATCH = 12
     BUILD = nil
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
