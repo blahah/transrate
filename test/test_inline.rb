@@ -8,8 +8,8 @@ class TestInline < Test::Unit::TestCase
 
     setup do
       @a = Transrate::Assembly.new("test/assembly.fasta")
-      @seq1 = "ATGCCCCTAGGGTAG"
-      @seq2 = @seq1.reverse.tr("ACGT", "TGCA")
+      @seq1 = 'ATGCCCCTAGGGTAG'
+      @seq2 = @seq1.reverse.tr('ACGT', 'TGCA')
     end
 
     should "find longest orf in file" do
