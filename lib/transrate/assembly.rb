@@ -187,14 +187,14 @@ module Transrate
       mean = cumulative_length / @assembly.size
  #     ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
       {
-        "n_seqs" => bin.size,
-        "smallest" => bin.first.length,
-        "largest" => bin.last.length,
-        "n_bases" => n_bases,
-        "mean_len" => mean,
-        "n_1k" => n1k,
-        "n_10k" => n10k,
-        "orf_percent" => 300 * orf_length_sum / (@assembly.size * mean)
+        'n_seqs' => bin.size,
+        'smallest' => bin.first.length,
+        'largest' => bin.last.length,
+        'n_bases' => n_bases,
+        'mean_len' => mean,
+        'n_1k' => n1k,
+        'n_10k' => n10k,
+        'orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
       }
 #      }.merge ns
 
@@ -242,7 +242,9 @@ module Transrate
             for (f=0; f<3; f++) {
               len=0;
               for (i=f; i < sl-2; i+=3) {
-                if (s[i]==84 && ((s[i+1]==65 && s[i+2]==71) || (s[i+1]==65 && s[i+2]==65) || (s[i+1]==71 && s[i+2]==65))) {
+                if (s[i]==84 && ((s[i+1]==65 && s[i+2]==71) ||
+                 (s[i+1]==65 && s[i+2]==65) || 
+                 (s[i+1]==71 && s[i+2]==65))) {
                   if (len > longest) {
                     longest = len;
                   }
@@ -258,7 +260,9 @@ module Transrate
             for (f=0; f<3; f++) {
               len=0;
               for (i=sl-1-f;i>=0;i-=3) {
-                if ((s[i]==65 && s[i-1]==84 && s[i-2]==67) || (s[i]==65 && s[i-1]==84 && s[i-2]==84) || (s[i]==65 && s[i-1]==67 && s[i-2]==84)) {
+                if ((s[i]==65 && s[i-1]==84 && s[i-2]==67) ||
+                 (s[i]==65 && s[i-1]==84 && s[i-2]==84) ||
+                  (s[i]==65 && s[i-1]==67 && s[i-2]==84)) {
                   if (len > longest) {
                     longest = len;
                   }
@@ -295,7 +299,7 @@ module Transrate
     def print_stats
       self.basic_stats.map do |k, v| 
         "#{k}#{" " * (20 - (k.length + v.to_i.to_s.length))}#{v.to_i}"
-      end.join("\n")
+      end.join('\n')
     end
 
   end # Assembly
