@@ -2,6 +2,7 @@ require 'bio'
 require 'bettersam'
 require 'csv'
 require 'forwardable'
+require 'inline'
 
 module Transrate
 
@@ -70,7 +71,7 @@ module Transrate
       
       # split the contigs into equal sized bins, one bin per thread
       binsize = (@assembly.size / threads.to_f).ceil
-      Transrate.log.info("Processing #{@assembly.size} contigs in #{threads} bins")
+      # Transrate.log.info("Processing #{@assembly.size} contigs in #{threads} bins")
       @assembly.each_slice(binsize) do |bin|
         queue << bin
       end
@@ -224,17 +225,60 @@ module Transrate
       
     end # merge_basic_stats
      
+    inline do |builder|
+      builder.c "
+          static
+          void
+          load_array(VALUE _s) {
+            int sl = RARRAY_LEN(_s);
+            int s[sl];
+            int i,f;
+            int len = 0;
+            int longest = 0;
+            VALUE *sv = RARRAY_PTR(_s);
+            for (i=0; i < sl; i++) {
+              s[i] = NUM2INT(sv[i]);
+            }
+            for (f=0; f<3; f++) {
+              len=0;
+              for (i=f; i < sl-2; i+=3) {
+                if (s[i]==84 && ((s[i+1]==65 && s[i+2]==71) || (s[i+1]==65 && s[i+2]==65) || (s[i+1]==71 && s[i+2]==65))) {
+                  if (len > longest) {
+                    longest = len;
+                  }
+                  len=0;
+                } else {
+                  len++;
+                }
+              }
+              if (len > longest) {
+                longest = len;
+              }
+            }
+            for (f=0; f<3; f++) {
+              len=0;
+              for (i=sl-1-f;i>=0;i-=3) {
+                if ((s[i]==65 && s[i-1]==84 && s[i-2]==67) || (s[i]==65 && s[i-1]==84 && s[i-2]==84) || (s[i]==65 && s[i-1]==67 && s[i-2]==84)) {
+                  if (len > longest) {
+                    longest = len;
+                  }
+                  len = 0;
+                } else {
+                  len++;
+                }
+              }
+            }
+            if (len > longest) {
+              longest = len;
+            }
+            return INT2NUM(longest);
+          }
+      "
+    end
+
     # finds longest orf in a sequence
     def orf_length sequence
-      longest=0
-      (1..6).each do |frame|
-        translated = Bio::Sequence::NA.new(sequence).translate(frame)
-        translated.split('*').each do |orf|
-          if orf.length > longest
-            longest=orf.length
-          end
-        end
-      end
+      longest = load_array(sequence.unpack("U*"))
       return longest
     end
 
