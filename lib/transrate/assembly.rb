@@ -71,7 +71,6 @@ module Transrate
       
       # split the contigs into equal sized bins, one bin per thread
       binsize = (@assembly.size / threads.to_f).ceil
-      Transrate.log.info("Processing #{@assembly.size} contigs in #{threads} bins")
       @assembly.each_slice(binsize) do |bin|
         queue << bin
       end
