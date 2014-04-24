@@ -5,6 +5,24 @@ require 'forwardable'
 
 module Transrate
 
+  # Container for a transcriptome assembly and its associated
+  # metadata.
+  #
+  # @!attribute [rw] ublast_db
+  #   @return [String] path to a ublast database generated from this assembly
+  # @!attribute [rw] orss_ublast_db
+  #   @return [String] path to a ublast database generated from the orfs
+  #     extracted from this assembly
+  # @!attribute [r] assembly
+  #   @return [Array<Bio::FastaFormat>] the assembly
+  # @!attribute [r] has_run
+  #   @return [BOOL] whether the basic metrics have been generated
+  # @!attribute [w] n_bases
+  #   @return [Integer] the number of bases in the assembly
+  # @!attribute [rw] file
+  #   @return [String] path to the assembly FASTA file
+  # @!attribute [r] n50
+  #   @return [Integer] assembly n50
   class Assembly
 
     include Enumerable
@@ -13,7 +31,6 @@ module Transrate
 
     attr_accessor :ublast_db
     attr_accessor :orfs_ublast_db
-    attr_accessor :protein
     attr_reader :assembly
     attr_reader :has_run
 
@@ -26,9 +43,9 @@ module Transrate
     # assembly n50
     attr_reader :n50
 
-    # Return a new Assembly.
+    # Create a new Assembly.
     #
-    # - +:file+ - path to the assembly FASTA file
+    # @param file [String] path to the assembly FASTA file
     def initialize file
       @file = file
       @assembly = []
@@ -39,13 +56,20 @@ module Transrate
       end
     end
 
-    # Return a new Assembly object by loading sequences
-    # from the FASTA-format +:file+
-    def self.stats_from20_fasta file
+    # Return basic statistics about the assembly in 
+    # the specified FASTA file
+    #
+    # @param file [String] path to assebmly FASTA file
+    #
+    # @return [Hash] basic statistics about the assembly
+    def self.stats_from_fasta file
       a = Assembly.new file
       a.basic_stats
     end
 
+    # Generate and store the basic statistics for this assembly
+    #
+    # @param threads [Integer] number of threads to use
     def run threads=8
       stats = self.basic_stats threads
       stats.each_pair do |key, value|
@@ -62,7 +86,10 @@ module Transrate
     # calculated in parallel by splitting the assembly into
     # equal-sized bins and calling Assembly#basic_bin_stat on each
     # bin in a separate thread.
-    
+    #
+    # @param threads [Integer] number of threads to use
+    #
+    # @return [Hash] basic statistics about the assembly
     def basic_stats threads=8
       
       # create a work queue to process contigs in parallel
