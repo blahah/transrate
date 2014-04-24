@@ -18,7 +18,7 @@ class TestTransrate < Test::Unit::TestCase
 
     should "find longest orf" do
       len = @a.orf_length("ATGCCCGGGTAG")
-      assert_equal len, 4, "expected 4 but got #{len}"
+      assert_equal len, 3, "expected 4 but got #{len}"
     end
 
     should "find longest orf in file" do
