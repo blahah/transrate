@@ -11,6 +11,8 @@ require 'transrate/metric'
 require 'transrate/dimension_reduce'
 require 'transrate/express'
 
+# Transrate is a comprehensive transcriptome assembly
+# quality assessment tool.
 module Transrate
 
 end # Transrate

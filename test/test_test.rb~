@@ -31,11 +31,19 @@ class TestTransrate < Test::Unit::TestCase
       assert_equal orfs, [333, 370, 131, 84]
     end
 
-    should "find the mean length" do
-      ans = @a.run(2)
-      mean = @a.mean_len
-      assert_equal mean, 1508.25
-    end
+    # should "find longest orf in file using C" do
+    #   orfs = []
+    #   @a.assembly.each do |entry|
+    #     l = @a.orf_lengthC entry.seq
+    #     orfs << l
+    #   end
+    #   assert_equal orfs.length, 4
+    #   assert_equal orfs, [333, 370, 131, 84]
+    # end
 
+    # should "get n50" do
+    #   n = @a.n50
+    #   assert_equal n, nil, "n50 calculation is turned off"
+    # end
   end
 end
