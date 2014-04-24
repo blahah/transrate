@@ -2,6 +2,7 @@ require 'bio'
 require 'bettersam'
 require 'csv'
 require 'forwardable'
+require 'inline'
 
 module Transrate
 
@@ -212,14 +213,14 @@ module Transrate
       mean = cumulative_length / @assembly.size
  #     ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
       {
-        "n_seqs" => bin.size,
-        "smallest" => bin.first.length,
-        "largest" => bin.last.length,
-        "n_bases" => n_bases,
-        "mean_len" => mean,
-        "n_1k" => n1k,
-        "n_10k" => n10k,
-        "orf_percent" => 300 * orf_length_sum / (@assembly.size * mean)
+        'n_seqs' => bin.size,
+        'smallest' => bin.first.length,
+        'largest' => bin.last.length,
+        'n_bases' => n_bases,
+        'mean_len' => mean,
+        'n_1k' => n1k,
+        'n_10k' => n10k,
+        'orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
       }
 #      }.merge ns
 
@@ -250,17 +251,59 @@ module Transrate
       
     end # merge_basic_stats
      
+    inline do |builder|
+
+      builder.c <<SRC
+        static
+        void
+        longest_orf(VALUE _s) {
+          int i,sl,longest=0;
+          int len[6];
+          char * c_str;
+
+          sl = RSTRING_LEN(_s);
+          c_str = StringValueCStr(_s);
+          for (i=0;i<6;i++) {
+            len[i]=0;
+          }
+          for (i=0;i<sl-2;i++) {
+            if (c_str[i]=='T' &&
+              ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
+              (c_str[i+1]=='A' && c_str[i+2]=='A') ||
+              (c_str[i+1]=='G' && c_str[i+2]=='A'))) { 
+              if (len[i%3] > longest) {
+                longest = len[i%3];
+              }
+              len[i%3]=0;
+            } else {
+              len[i%3]++;
+            }
+            if (c_str[i+2]=='A' &&
+              ((c_str[i]=='C' && c_str[i+1]=='T') ||
+              (c_str[i]=='T' && c_str[i+1]=='T') ||
+              (c_str[i]=='T' && c_str[i+1]=='C'))) { 
+              if (len[3+i%3] > longest) {
+                longest = len[3+i%3];
+              }
+              len[3+i%3]=0;
+            } else {
+              len[3+i%3]++;
+            }
+          }
+          if (len[i%3] > longest) {
+            longest = len[i%3];
+          }
+          if (len[3+i%3] > longest) {
+            longest = len[3+i%3];
+          }
+          return INT2NUM(longest);
+        }
+SRC
+    end
+
     # finds longest orf in a sequence
     def orf_length sequence
-      longest=0
-      (1..6).each do |frame|
-        translated = Bio::Sequence::NA.new(sequence).translate(frame)
-        translated.split('*').each do |orf|
-          if orf.length > longest
-            longest=orf.length
-          end
-        end
-      end
+      longest = longest_orf(sequence)
       return longest
     end
 
@@ -277,7 +320,7 @@ module Transrate
     def print_stats
       self.basic_stats.map do |k, v| 
         "#{k}#{" " * (20 - (k.length + v.to_i.to_s.length))}#{v.to_i}"
-      end.join("\n")
+      end.join('\n')
     end
 
   end # Assembly
