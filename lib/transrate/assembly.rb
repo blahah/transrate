@@ -34,14 +34,8 @@ module Transrate
     attr_accessor :orfs_ublast_db
     attr_reader :assembly
     attr_reader :has_run
-
-    # number of bases in the assembly
     attr_writer :n_bases
-
-    # assembly filename
     attr_accessor :file
-
-    # assembly n50
     attr_reader :n50
 
     # Create a new Assembly.
