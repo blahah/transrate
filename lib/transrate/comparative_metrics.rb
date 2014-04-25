@@ -7,7 +7,6 @@ module Transrate
     attr_reader :rbh_per_contig
     attr_reader :rbh_per_reference
     attr_reader :reciprocal_hits
-    attr_reader :reference_coverage
     attr_reader :has_run
 
     def initialize assembly, reference
@@ -17,12 +16,12 @@ module Transrate
     end
 
     def run
-      rbu = self.reciprocal_best_ublast
-      @ortholog_hit_ratio = self.ortholog_hit_ratio rbu
-      @collapse_factor = self.collapse_factor @ra.r2l_hits
+      rbu = reciprocal_best_ublast
+      @ortholog_hit_ratio = ortholog_hit_ratio rbu
+      @collapse_factor = collapse_factor @ra.r2l_hits
       @reciprocal_hits = rbu.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
-      @reference_coverage = @rbh_per_reference * @collapse_factor
+      @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
       @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
       @has_run = true
     end
@@ -32,6 +31,7 @@ module Transrate
         :reciprocal_hits => @reciprocal_hits,
         :rbh_per_contig => @rbh_per_contig,
         :rbh_per_reference => @rbh_per_reference,
+        :reference_coverage => @reference_coverage,
         :ortholog_hit_ratio => @ortholog_hit_ratio,
         :collapse_factor => @collapse_factor
       }
@@ -43,8 +43,9 @@ module Transrate
     end
 
     def ortholog_hit_ratio rbu=nil
-      return @ortholog_hit_ratio unless @ortholog_hit_ratio.nil? 
-      rbu.reduce(0.0){ |sum, hit| sum += hit.last.tcov.to_f } / rbu.size
+      return @ortholog_hit_ratio unless @ortholog_hit_ratio.nil?
+      divisor = (rbu.size * 100).to_f 
+      rbu.reduce(0){ |sum, hit| sum += hit.last.target_coverage } / divisor
     end
 
     def collapse_factor hits=nil
