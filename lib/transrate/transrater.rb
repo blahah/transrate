@@ -1,11 +1,27 @@
 module Transrate
 
+  # A transrater runs all types of metrics on an assembly.
+  #
+  # @!attribute [r] assembly
+  #   @return [Assembly, String] an Assembly or the path to an assembly
+  # @!attribute [r] read_metrics
+  #   @return [Hash] the read metrics if they have been calculated
+  # @!attribute [r] comparative_metrics
+  #   @return [hash] the comparative metrics if they have been calculated
   class Transrater
 
     attr_reader :assembly
     attr_reader :read_metrics
-    attr_reader :comparative_metrics
 
+    # A new Transrater
+    #
+    # @param assembly [Assembly, String] the Assembly or path to the FASTA
+    # @param reference [Assembly, String] the reference Assembly or
+    #   path to the FASTA
+    # @param left [String] path to the left reads
+    # @param right [String] path to the right reads
+    # @param insertsize [Integer] mean insert size of the read pairs
+    # @param insertsd [Integer] standard deviation of the read pair insert size
     def initialize assembly, reference, left=nil, right=nil, insertsize=nil, insertsd=nil
       @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
       @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
@@ -13,6 +29,12 @@ module Transrate
       @comparative_metrics = ComparativeMetrics.new(@assembly, @reference)
     end
 
+    # Run all analyses
+    #
+    # @param left [String] path to the left reads
+    # @param right [String] path to the right reads
+    # @param insertsize [Integer] mean insert size of the read pairs
+    # @param insertsd [Integer] standard deviation of the read pair insert size
     def run left=nil, right=nil, insertsize=nil, insertsd=nil
       assembly_metrics
       if left && right
@@ -21,6 +43,11 @@ module Transrate
       comparative_metrics
     end
 
+    # Reduce all metrics for the assembly to a single quality score.
+    #
+    # 
+    #
+    # @return [Integer] the assembly score
     def assembly_score
       @score, pg, rc = nil
       if @read_metrics.has_run
@@ -47,7 +74,7 @@ module Transrate
     end
 
     def comparative_metrics
-      @comparative_metrics.run unless @comparative_metrics.has_run
+      @comparative_metrics.run #unless @comparative_metrics.has_run
       @comparative_metrics
     end
 

@@ -6,7 +6,7 @@ module Transrate
     # gap opens, q. start, q. end, s. start, s. end, evalue, bit score
     attr_accessor :query, :target, :id, :alnlen, :mismatches
     attr_accessor :gaps, :qstart, :qend, :tstart, :tend, :evalue
-    attr_accessor :bitscore, :tcov
+    attr_accessor :bitscore, :target_coverage
     
     def initialize(list)
       @query      = list[0].scan(/[^|]+/).first.split.first # extract only identifier
@@ -21,7 +21,7 @@ module Transrate
       @tend       = list[9]
       @evalue     = list[10]
       @bitscore   = list[11]
-      @tcov       = list[12]
+      @target_coverage       = list[12].to_i
     end
 
     def to_s
