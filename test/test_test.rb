@@ -20,6 +20,5 @@ class TestTransrate < Test::Unit::TestCase
       mean = @a.mean_len
       assert_equal mean, 1508.25
     end
-
   end
 end
