@@ -68,19 +68,10 @@ module Transrate
     # what is this method trying to do? :/
     def results_to_hits results
       hits = {}
-      puts "<results_to_hits> results.size = #{results.size}"
       results.each do |hit|
         if hits.has_key? hit.query
           old_hit = hits[hit.query]
           old_eval, old_bits = old_hit.evalue, old_hit.bitscore
-          if hit.bitscore == nil
-            p hit
-            abort "oh noes"
-          end
-          if old_bits == nil
-            p old_hit
-            raise 'hell'
-          end
           if hit.bitscore > old_bits
             hits[hit.query] = hit 
           elsif hit.bitscore == old_bits && hit.evalue < old_eval
