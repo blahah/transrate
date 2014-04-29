@@ -8,6 +8,7 @@ module Transrate
     attr_reader :rbh_per_reference
     attr_reader :reciprocal_hits
     attr_reader :has_run
+    attr_reader :reference_coverage
 
     def initialize assembly, reference
       @assembly = assembly
