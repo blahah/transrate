@@ -36,7 +36,16 @@ EOS
 end
 
 def pretty_print_hash hash, width
-  hash.map{ |k, v| "#{k.to_s}#{" " * (width - (k.length + v.to_f.round(2).to_s.length))}#{v.to_f.round(2)}" }.join("\n")
+  hash.map do |k, v|
+    # show as float if there are any decimal places
+    if v.to_f.round(2).to_s.split('.').last.to_i > 0
+      v = v.to_f.round(2)
+    end
+    pad = (width - (k.to_s.length + v.to_s.length))
+    "#{k.to_s.split('_').join(' ')}" + 
+    "#{" " * pad}" +
+    "#{v}"
+  end.join("\n")
 end
 
 include Transrate
@@ -89,7 +98,6 @@ if opts.reference
   puts "\nCalculating comparative metrics..."
   t0 = Time.now
   comparative_metrics = transrater.comparative_metrics
-  p comparative_metrics.comp_stats
   comparative_results = comparative_metrics.comp_stats
 
   if comparative_results

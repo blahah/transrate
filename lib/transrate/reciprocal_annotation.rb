@@ -68,7 +68,6 @@ module Transrate
     # what is this method trying to do? :/
     def results_to_hits results
       hits = {}
-      puts "<results_to_hits> results.size = #{results.size}"
       results.each do |hit|
         if hits.has_key? hit.query
           old_hit = hits[hit.query]
