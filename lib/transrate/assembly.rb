@@ -87,6 +87,9 @@ module Transrate
     # @return [Hash] basic statistics about the assembly
     def basic_stats threads=8
       
+      # disable threading basic stats for now
+      threads = 1
+
       # create a work queue to process contigs in parallel
       queue = Queue.new
       
@@ -167,10 +170,10 @@ module Transrate
       # the next value to set the next cutoff. we take a copy
       # of the Array so we can use the intact original to collect
       # the results later
-      # x = [90, 70, 50, 30, 10]
-      # x2 = x.clone
-      # cutoff = x2.pop / 100.0
-      # res = []
+      x = [90, 70, 50, 30, 10]
+      x2 = x.clone
+      cutoff = x2.pop / 100.0
+      res = []
       n1k = 0
       n10k = 0
       orf_length_sum = 0
@@ -193,19 +196,20 @@ module Transrate
         # cutoff has been reached. if it has, store the Nx value and
         # get the next cutoff
         cumulative_length += contig.length
-#        if cumulative_length >= @n_bases * cutoff
-#          res << contig.length
-#          if x2.empty?
-#            cutoff=1
-#          else
-#            cutoff = x2.pop / 100.0
-#          end 
-#        end
+        if cumulative_length >= @n_bases * cutoff
+          res << contig.length
+          if x2.empty?
+            cutoff=1
+          else
+            cutoff = x2.pop / 100.0
+          end 
+        end
+
       end
 
       # calculate and return the statistics as a hash
       mean = cumulative_length / @assembly.size
- #     ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
+      ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
       {
         'n_seqs' => bin.size,
         'smallest' => bin.first.length,
@@ -215,8 +219,7 @@ module Transrate
         'n_1k' => n1k,
         'n_10k' => n10k,
         'orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
-      }
-#      }.merge ns
+      }.merge ns
 
     end # basic_bin_stats
 
