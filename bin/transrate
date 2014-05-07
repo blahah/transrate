@@ -48,6 +48,8 @@ opts = Trollop::options do
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
+  opt :outfile, "filename to use for CSV output",
+      :default => 'transate_results.csv'
   opt :quiet, "don't print results - only save to file"
 end
 
