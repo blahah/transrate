@@ -58,6 +58,7 @@ def pretty_print_hash hash, width
       v = v.to_f.round(2)
     end
     pad = (width - (k.to_s.length + v.to_s.length))
+    pad = [pad, 0].max
     "#{k.to_s.split('_').join(' ')}" + 
     "#{" " * pad}" +
     "#{v}"
