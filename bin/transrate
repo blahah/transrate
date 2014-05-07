@@ -25,29 +25,29 @@ opts = Trollop::options do
   transrate <options>
 
   EXAMPLES:
-  transrate
+  transrate --assembly contigs.fa --reference Athaliana_protein.fa --threads 8
 
   OPTIONS:
 
   EOS
   opt :assembly, "assembly file(s) in FASTA format, comma-separated",
-  :required => true, 
-  :type => String
+      :required => true, 
+      :type => String
   opt :reference, "reference proteome file in FASTA format",
-  :type => String
+      :type => String
   opt :left, "left reads file in FASTQ format",
-  :type => String
+      :type => String
   opt :right, "right reads file in FASTQ format",
-  :type => String
+      :type => String
   opt :insertsize, "mean insert size",
-  :default => 200,
-  :type => Integer
+      :default => 200,
+      :type => Integer
   opt :insertsd, "insert size standard deviation",
-  :default => 50,
-  :type => Integer
+      :default => 50,
+      :type => Integer
   opt :threads, "number of threads to use",
-  :default => 8,
-  :type => Integer
+      :default => 8,
+      :type => Integer
   opt :quiet, "don't print results - only save to file"
 end
 
@@ -65,8 +65,9 @@ def pretty_print_hash hash, width
 end
 
 # don't log if --quiet is set
+$quiet = opts.quiet
 def log msg
-  unless opts.quiet
+  unless $quiet
     puts msg
   end
 end
@@ -88,7 +89,7 @@ opts.assembly.split(',').each do |assembly|
     opts.insertsize,
     opts.insertsd)
 
-  log "\nAnalysing assembly: #{opts.assembly}\n\n"
+  log "\nAnalysing assembly: #{assembly}\n\n"
 
   contig_results = {}
 
@@ -140,14 +141,17 @@ opts.assembly.split(',').each do |assembly|
     end
 
     log "Comparative metrics done in #{Time.now - t0} seconds"
-  end
 
-  log "\n"
-  log "-" * report_width
-  score = transrater.assembly_score
-  unless score.nil?
-    log "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
+
+    log "\n"
     log "-" * report_width
+    score = transrater.assembly_score
+    unless score.nil?
+      log "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
+      log "-" * report_width
+    end
+  else
+    log "\nNo reference provided, skipping comparative diagnostics"
   end
 
   all << contig_results.
@@ -160,9 +164,11 @@ end
 # write out all resuls to .csv
 outfile = opts.out || 'transrate.csv'
 CSV.open(outfile, 'wb') do |file|
-  head = [:assembly] + all[0].keys.delete(:assembly)
-  csv << head
+  keys = all[0].keys
+  keys.delete(:assembly)
+  head = [:assembly] + keys
+  file << head
   all.each do |row|
-    csv << head.map { |x| row[x] }
+    file << head.map { |x| row[x] }
   end
 end
