@@ -75,7 +75,7 @@ module Transrate
     end
 
     def comparative_metrics
-      @comparative_metrics.run #unless @comparative_metrics.has_run
+      @comparative_metrics.run unless @comparative_metrics.has_run
       @comparative_metrics
     end
 
