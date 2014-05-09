@@ -12,7 +12,8 @@ class TestCompMetrics < Test::Unit::TestCase
       target = "test/Athaliana.fa"
       assembly = Transrate::Assembly.new(query)
       reference = Transrate::Assembly.new(target)
-      @comp = Transrate::ComparativeMetrics.new(assembly, reference)
+      threads = 8
+      @comp = Transrate::ComparativeMetrics.new(assembly, reference, threads)
     end
 
     should "run metrics on assembly" do

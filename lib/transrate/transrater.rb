@@ -22,11 +22,13 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def initialize assembly, reference, left=nil, right=nil, insertsize=nil, insertsd=nil
+    def initialize(assembly, reference, left:nil, right:nil, insertsize:nil,
+                   insertsd:nil, threads:1)
       @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
       @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
       @read_metrics = ReadMetrics.new @assembly
-      @comparative_metrics = ComparativeMetrics.new(@assembly, @reference)
+      @comparative_metrics = ComparativeMetrics.new(@assembly, @reference,
+                                                    threads)
     end
 
     # Run all analyses
@@ -54,8 +56,7 @@ module Transrate
         pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
       end
       if @comparative_metrics.has_run
-        rc = Metric.new('rc', @comparative_metrics.reference_coverage,
-                    0.0)
+        rc = Metric.new('rc', @comparative_metrics.reference_coverage, 0.0)
       end
       if (pg && rc)
         @score = DimensionReduce.dimension_reduce([pg, rc])
