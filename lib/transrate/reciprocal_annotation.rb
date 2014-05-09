@@ -65,7 +65,6 @@ module Transrate
       end
     end
 
-    # what is this method trying to do? :/
     def results_to_hits results
       hits = {}
       results.each do |hit|
