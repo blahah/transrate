@@ -48,7 +48,8 @@ transrater = Transrater.new(a, r,
                             opts.left, 
                             opts.right,
                             opts.insertsize,
-                            opts.insertsd)
+                            opts.insertsd,
+                            opts.threads)
 
 puts "\nAnalysing assembly: #{opts.assembly}\n\n"
 
