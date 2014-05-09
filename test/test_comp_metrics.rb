@@ -7,9 +7,8 @@ class TestCompMetrics < Test::Unit::TestCase
   context "transrate" do
 
     setup do
-      # @a = Transrate::Assembly.new("test/assembly.fasta")
-      query = "test/Alyrata.fa"
-      target = "test/Athaliana.fa"
+      query = "test_data/cd.v3.soap.fa"
+      target = "test_data/Os.protein.fa"
       assembly = Transrate::Assembly.new(query)
       reference = Transrate::Assembly.new(target)
       threads = 8
@@ -20,6 +19,5 @@ class TestCompMetrics < Test::Unit::TestCase
       @comp.run
       assert @comp.has_run
     end
-
   end
 end
