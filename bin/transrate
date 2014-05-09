@@ -90,7 +90,6 @@ if opts.reference
   puts "\nCalculating comparative metrics..."
   t0 = Time.now
   comparative_metrics = transrater.comparative_metrics
-  p comparative_metrics.comp_stats
   comparative_results = comparative_metrics.comp_stats
 
   if comparative_results
