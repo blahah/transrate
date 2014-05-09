@@ -10,10 +10,10 @@ module Transrate
     attr_reader :has_run
     attr_reader :reference_coverage
 
-    def initialize assembly, reference
+    def initialize assembly, reference, threads
       @assembly = assembly
       @reference = reference
-      @usearch = Usearch.new
+      @threads = threads
     end
 
     def run
