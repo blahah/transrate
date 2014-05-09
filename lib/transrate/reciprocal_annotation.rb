@@ -50,10 +50,10 @@ module Transrate
     end
 
     def parse_results left2right, right2left
-      l2r_results = self.load_results_file left2right
-      r2l_results = self.load_results_file right2left
-      @l2r_hits = self.results_to_hits l2r_results
-      @r2l_hits = self.results_to_hits r2l_results
+      @l2r_results = self.load_results_file left2right
+      @r2l_results = self.load_results_file right2left
+      @l2r_hits = self.results_to_hits @l2r_results
+      @r2l_hits = self.results_to_hits @r2l_results
       @results = {}
       @l2r_hits.each_pair do |query, best|
         next if best.nil?
