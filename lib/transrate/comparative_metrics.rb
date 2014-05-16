@@ -54,17 +54,15 @@ module Transrate
       targets = Hash.new
       @ra.reciprocals.each_pair do |key, list|
         list.each do |hit|
-          # if hit.target == "LOC_Os04g49194.1"
           targets[hit.target] ||= [] # if key doesn't exist add it with a []
           targets[hit.target] << hit
-          # end
         end
       end
 
       total_coverage=0
       total_length=0
       targets.each_pair do |key, list|
-        # next unless key =~ /Os07g13800/ # LOC_Os07g13800.1|PACid:24113047
+
         blocks = []
         target_length = 0
         list.each do |hit|
@@ -159,7 +157,6 @@ module Transrate
       potential_chimeras = 0
 
       @ra.reciprocals.each_pair do |key, list|
-        next unless key == "C566268" 
         blocks = []
         list.each do |hit|
           start, stop = [hit.qstart, hit.qend].minmax
