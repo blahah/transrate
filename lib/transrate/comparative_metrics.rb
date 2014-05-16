@@ -227,14 +227,6 @@ module Transrate
         blocks.delete_if {|x| x[0]==-1 && x[1]==-1}
         if blocks.length > 1
           potential_chimeras += 1
-          puts "chimeric = #{key}"
-          list.each do |hit|
-            puts hit
-          end
-          puts "---"
-          blocks.each do |block|
-            puts "#{block[0]}..#{block[1]}"
-          end
         end
       end
 
