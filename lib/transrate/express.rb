@@ -19,7 +19,7 @@ module Transrate
       ex_output = 'results.xprs'
       fin_output = "#{assembly}_#{ex_output}"
       unless File.exists? fin_output
-        `#{cmd} 2>&1`.split(/\n/)[1..30].join("\n")
+        stdout = `#{cmd} 2>&1`.split(/\n/)[1..30].join("\n")
         File.rename(ex_output, fin_output)
       end
       expression = {}
