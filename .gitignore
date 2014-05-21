@@ -4,6 +4,7 @@
 .config
 Gemfile.lock
 coverage
+test_data
 InstalledFiles
 lib/bundler/man
 pkg

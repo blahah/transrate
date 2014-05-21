@@ -84,13 +84,14 @@ report_width = 30
 all = []
 opts.assembly.split(',').each do |assembly|
 
-  a = Assembly.new assembly
+transrater = Transrater.new(a, r, 
+                            opts.left, 
+                            opts.right,
+                            opts.insertsize,
+                            opts.insertsd,
+                            opts.threads)
 
-  transrater = Transrater.new(a, r, 
-    opts.left, 
-    opts.right,
-    opts.insertsize,
-    opts.insertsd)
+  a = Assembly.new assembly
 
   log "\nAnalysing assembly: #{assembly}\n\n"
 
