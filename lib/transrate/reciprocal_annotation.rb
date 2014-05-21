@@ -50,10 +50,10 @@ module Transrate
     end
 
     def parse_results left2right, right2left
-      l2r_results = self.load_results_file left2right
-      r2l_results = self.load_results_file right2left
-      @l2r_hits = self.results_to_hits l2r_results
-      @r2l_hits = self.results_to_hits r2l_results
+      @l2r_results = self.load_results_file left2right
+      @r2l_results = self.load_results_file right2left
+      @l2r_hits = self.results_to_hits @l2r_results
+      @r2l_hits = self.results_to_hits @r2l_results
       @results = {}
       @l2r_hits.each_pair do |query, best|
         next if best.nil?
@@ -65,21 +65,12 @@ module Transrate
       end
     end
 
-    # what is this method trying to do? :/
     def results_to_hits results
       hits = {}
       results.each do |hit|
         if hits.has_key? hit.query
           old_hit = hits[hit.query]
           old_eval, old_bits = old_hit.evalue, old_hit.bitscore
-          if hit.bitscore == nil
-            p hit
-            abort "oh noes"
-          end
-          if old_bits == nil
-            p old_hit
-            raise 'hell'
-          end
           if hit.bitscore > old_bits
             hits[hit.query] = hit 
           elsif hit.bitscore == old_bits && hit.evalue < old_eval
