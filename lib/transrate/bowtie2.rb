@@ -1,5 +1,8 @@
 module Transrate
 
+  class Bowtie2Error < StandardError
+  end
+
   class Bowtie2
 
     require 'which'
@@ -7,10 +10,10 @@ module Transrate
 
     def initialize
       bowtie2_path = which('bowtie2')
-      raise "could not find bowtie2 in the path" if bowtie2_path.empty?
+      raise Bowtie2Error.new("could not find bowtie2 in the path") if bowtie2_path.empty?
       @bowtie2 = bowtie2_path.first
       bowtie2_build_path = which('bowtie2-build')
-      raise "could not find bowtie2-build in the path" if bowtie2_build_path.empty?
+      raise Bowtie2Error.new("could not find bowtie2-build in the path") if bowtie2_build_path.empty?
       @bowtie2_build = bowtie2_build_path.first
     end
 
