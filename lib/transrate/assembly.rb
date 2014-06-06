@@ -32,10 +32,10 @@ module Transrate
 
     attr_accessor :ublast_db
     attr_accessor :orfs_ublast_db
+    attr_accessor :file
     attr_reader :assembly
     attr_reader :has_run
     attr_writer :n_bases
-    attr_accessor :file
     attr_reader :n50
 
     # Create a new Assembly.
