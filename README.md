@@ -3,6 +3,18 @@ Transrate
 
 Quality analysis and comparison of transcriptome assemblies.
 
+[![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
+[![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
+[![Dependency Status](https://gemnasium.com/Blahah/transrate.png?travis)][gemnasium]
+[![Code Climate](https://codeclimate.com/github/Blahah/transrate.png)][codeclimate]
+[![Coverage Status](https://coveralls.io/repos/Blahah/transrate/badge.png?branch=master)][coveralls]
+
+[gem]: https://badge.fury.io/rb/transrate
+[travis]: https://travis-ci.org/Blahah/transrate
+[gemnasium]: https://gemnasium.com/Blahah/transrate
+[codeclimate]: https://codeclimate.com/github/Blahah/transrate
+[coveralls]: https://coveralls.io/r/Blahah/transrate
+
 ## Contents
 
 1. [Development status](https://github.com/Blahah/transrate#development-status)
@@ -21,18 +33,6 @@ Quality analysis and comparison of transcriptome assemblies.
 ## Development status
 
 This software is in early development. Users should be aware that until the first release is made, features may change faster than the documentation is updated. Nevertheless, we welcome bug reports.
-
-[![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
-[![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
-[![Dependency Status](https://gemnasium.com/Blahah/transrate.png?travis)][gemnasium]
-[![Code Climate](https://codeclimate.com/github/Blahah/transrate.png)][codeclimate]
-[![Coverage Status](https://coveralls.io/repos/Blahah/transrate/badge.png?branch=master)][coveralls]
-
-[gem]: https://badge.fury.io/rb/transrate
-[travis]: https://travis-ci.org/Blahah/transrate
-[gemnasium]: https://gemnasium.com/Blahah/transrate
-[codeclimate]: https://codeclimate.com/github/Blahah/transrate
-[coveralls]: https://coveralls.io/r/Blahah/transrate
 
 ## Transcriptome assembly quality metrics
 
