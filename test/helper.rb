@@ -7,7 +7,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 ]
 SimpleCov.start
 
-require 'test/unit'
+require 'minitest/autorun'
 begin; require 'turn/autorun'; rescue LoadError; end
 require 'shoulda-context'
 require 'transrate'
