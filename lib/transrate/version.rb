@@ -9,8 +9,8 @@ module Transrate
   # Semantic Versioning 2.0 (http://semver.org/).
   module VERSION
     MAJOR = 0
-    MINOR = 0
-    PATCH = 14
+    MINOR = 1
+    PATCH = 0
     BUILD = nil
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')

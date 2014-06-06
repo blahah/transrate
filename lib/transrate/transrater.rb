@@ -25,7 +25,9 @@ module Transrate
     def initialize(assembly, reference, left:nil, right:nil, insertsize:nil,
                    insertsd:nil, threads:1)
       @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
-      @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
+      if reference
+        @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
+      end
       @read_metrics = ReadMetrics.new @assembly
       @comparative_metrics = ComparativeMetrics.new(@assembly, @reference,
                                                     threads)
