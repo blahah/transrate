@@ -7,7 +7,7 @@ class TestCompMetrics < Test::Unit::TestCase
   context "transrate" do
 
     setup do
-      query = "test/clg.assembly.fa"
+      query = "test/clg.head.assembly.fa"
       target = "test/Os.protein.fa"
       assembly = Transrate::Assembly.new(query)
       reference = Transrate::Assembly.new(target)
