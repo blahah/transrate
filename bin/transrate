@@ -2,47 +2,87 @@
 
 require 'trollop'
 require 'transrate'
+require 'csv'
 
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
 
-Transrate v#{Transrate::VERSION::STRING.dup} by Richard Smith <rds45@cam.ac.uk>
+  Transrate v#{Transrate::VERSION::STRING.dup} by Richard Smith <rds45@cam.ac.uk>
 
-DESCRIPTION:
-Analyse a de-novo transcriptome
-assembly using three kinds of metrics:
+  DESCRIPTION:
+  Analyse a de-novo transcriptome
+  assembly using three kinds of metrics:
 
-1. contig-based
-2. read-mapping (if --left and --right are provided)
-3. reference-based (if --reference is provided)
+  1. contig-based
+  2. read-mapping (if --left and --right are provided)
+  3. reference-based (if --reference is provided)
 
-Bug reports and feature requests at:
-http://github.com/blahah/transrate
+  Bug reports and feature requests at:
+  http://github.com/blahah/transrate
 
-USAGE:
-transrate <options>
+  USAGE:
+  transrate <options>
 
-OPTIONS:
+  EXAMPLES:
+  transrate --assembly contigs.fa --reference Athaliana_protein.fa --threads 8
 
-EOS
-  opt :assembly, "assembly file in FASTA format", :required => true, :type => String
-  opt :reference, "reference proteome file in FASTA format", :type => String
-  opt :left, "left reads file in FASTQ format", :type => String
-  opt :right, "right reads file in FASTQ format", :type => String
-  opt :insertsize, "mean insert size",  :default => 200, :type => Integer
-  opt :insertsd, "insert size standard deviation", :default => 50, :type => Integer
-  opt :threads, "number of threads to use", :default => 8, :type => Integer
+  OPTIONS:
+
+  EOS
+  opt :assembly, "assembly file(s) in FASTA format, comma-separated",
+      :required => true, 
+      :type => String
+  opt :reference, "reference proteome file in FASTA format",
+      :type => String
+  opt :left, "left reads file in FASTQ format",
+      :type => String
+  opt :right, "right reads file in FASTQ format",
+      :type => String
+  opt :insertsize, "mean insert size",
+      :default => 200,
+      :type => Integer
+  opt :insertsd, "insert size standard deviation",
+      :default => 50,
+      :type => Integer
+  opt :threads, "number of threads to use",
+      :default => 8,
+      :type => Integer
+  opt :outfile, "filename to use for CSV output",
+      :default => 'transate_results.csv'
+  opt :quiet, "don't print results - only save to file"
 end
 
 def pretty_print_hash hash, width
-  hash.map{ |k, v| "#{k.to_s}#{" " * (width - (k.length + v.to_f.round(2).to_s.length))}#{v.to_f.round(2)}" }.join("\n")
+  hash.map do |k, v|
+    # show as float if there are any decimal places
+    if v.to_f.round(2).to_s.split('.').last.to_i > 0
+      v = v.to_f.round(2)
+    end
+    pad = (width - (k.to_s.length + v.to_s.length))
+    pad = [pad, 0].max
+    "#{k.to_s.split('_').join(' ')}" + 
+    "#{" " * pad}" +
+    "#{v}"
+  end.join("\n")
+end
+
+# don't log if --quiet is set
+$quiet = opts.quiet
+def log msg
+  unless $quiet
+    puts msg
+  end
 end
 
 include Transrate
 
-a = Assembly.new opts.assembly
 r = opts.reference ? Assembly.new(opts.reference) : nil 
+report_width = 30
+
+# loop through the assemblies, storing their outputs in an array of hashes
+all = []
+opts.assembly.split(',').each do |assembly|
 
 transrater = Transrater.new(a, r, 
                             opts.left, 
@@ -51,61 +91,88 @@ transrater = Transrater.new(a, r,
                             opts.insertsd,
                             opts.threads)
 
-puts "\nAnalysing assembly: #{opts.assembly}\n\n"
+  a = Assembly.new assembly
 
-report_width = 30
+  log "\nAnalysing assembly: #{assembly}\n\n"
 
-puts "Calculating contig metrics..."
-t0 = Time.now
-contig_results = transrater.assembly_metrics.basic_stats
+  contig_results = {}
 
-if contig_results
-  puts "\n"
-  puts "Contig metrics:"
-  puts "-" *  report_width
-  puts pretty_print_hash(contig_results, report_width)
-end
-
-puts "Contig metrics done in #{Time.now - t0} seconds"
-
-read_results = nil
-if (opts.left && opts.right)
-  puts "\ncalculating read diagnostics..."
+  log "Calculating contig metrics..."
   t0 = Time.now
-  read_results = transrater.read_metrics(opts.left, opts.right).read_stats
+  contig_results = transrater.assembly_metrics.basic_stats
 
-  if read_results
-    puts "\n"
-    puts "Read mapping metrics:"
-    puts "-" *  report_width
-    puts pretty_print_hash(read_results, report_width)
+  if contig_results
+    log "\n"
+    log "Contig metrics:"
+    log "-" *  report_width
+    log pretty_print_hash(contig_results, report_width)
   end
 
-  puts "Read metrics done in #{Time.now - t0} seconds"
-else
-  puts "\nNo reads provided, skipping read diagnostics"
-end
+  log "Contig metrics done in #{Time.now - t0} seconds"
 
-if opts.reference
-  puts "\nCalculating comparative metrics..."
-  t0 = Time.now
-  comparative_metrics = transrater.comparative_metrics
-  comparative_results = comparative_metrics.comp_stats
+  read_results = {}
 
-  if comparative_results
-    puts "\n"
-    puts "Comparative metrics:"
-    puts "-" *  report_width
-    puts pretty_print_hash(comparative_results, report_width)
+  if (opts.left && opts.right)
+    log "\ncalculating read diagnostics..."
+    t0 = Time.now
+    read_results = transrater.read_metrics(opts.left, opts.right).read_stats
+
+    if read_results
+      log "\n"
+      log "Read mapping metrics:"
+      log "-" *  report_width
+      log pretty_print_hash(read_results, report_width)
+    end
+
+    log "Read metrics done in #{Time.now - t0} seconds"
+  else
+    log "\nNo reads provided, skipping read diagnostics"
   end
 
-  puts "Comparative metrics done in #{Time.now - t0} seconds"
+  comparative_results={}
+
+  if opts.reference
+    log "\nCalculating comparative metrics..."
+    t0 = Time.now
+    comparative_metrics = transrater.comparative_metrics
+    comparative_results = comparative_metrics.comp_stats
+
+    if comparative_results
+      log "\n"
+      log "Comparative metrics:"
+      log "-" *  report_width
+      log pretty_print_hash(comparative_results, report_width)
+    end
+
+    log "Comparative metrics done in #{Time.now - t0} seconds"
+
+
+    log "\n"
+    log "-" * report_width
+    score = transrater.assembly_score
+    unless score.nil?
+      log "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
+      log "-" * report_width
+    end
+  else
+    log "\nNo reference provided, skipping comparative diagnostics"
+  end
+
+  all << contig_results.
+           merge(read_results).
+           merge(comparative_results).
+           merge({ :assembly => assembly })
+
 end
 
-puts "\n"
-puts "-" * report_width
-score = transrater.assembly_score
-unless score.nil?
-  puts "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
-  puts "-" * report_width
+# write out all resuls to .csv
+outfile = opts.out || 'transrate.csv'
+CSV.open(outfile, 'wb') do |file|
+  keys = all[0].keys
+  keys.delete(:assembly)
+  head = [:assembly] + keys
+  file << head
+  all.each do |row|
+    file << head.map { |x| row[x] }
+  end
 end
