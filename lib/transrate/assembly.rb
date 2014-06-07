@@ -1,5 +1,4 @@
 require 'bio'
-require 'bettersam'
 require 'csv'
 require 'forwardable'
 require 'inline'
@@ -51,7 +50,7 @@ module Transrate
       end
     end
 
-    # Return basic statistics about the assembly in 
+    # Return basic statistics about the assembly in
     # the specified FASTA file
     #
     # @param file [String] path to assebmly FASTA file
@@ -86,13 +85,13 @@ module Transrate
     #
     # @return [Hash] basic statistics about the assembly
     def basic_stats threads=8
-      
+
       # disable threading basic stats for now
       threads = 1
 
       # create a work queue to process contigs in parallel
       queue = Queue.new
-      
+
       # split the contigs into equal sized bins, one bin per thread
       binsize = (@assembly.size / threads.to_f).ceil
       @assembly.each_slice(binsize) do |bin|
@@ -132,13 +131,13 @@ module Transrate
       # collect the stats calculated in each thread and join
       # the threads to terminate them
       threadpool.each(&:join)
-
+      puts stats
       # merge the collected stats and return then
       merge_basic_stats stats
 
     end # basic_stats
 
-    
+
     # Calculate basic statistics in an single thread for a bin
     # of contigs.
     #
@@ -156,13 +155,13 @@ module Transrate
     #
     # @param [Array] bin An array of Bio::Sequence objects
     # representing contigs in the assembly
-    
+
     def basic_bin_stats bin
 
       # cumulative length is a float so we can divide it
       # accurately later to get the mean length
       cumulative_length = 0.0
-      
+
       # we'll calculate Nx for x in [10, 30, 50, 70, 90]
       # to do this we create a stack of the x values and
       # pop the first one to set the first cutoff. when
@@ -177,12 +176,11 @@ module Transrate
       n1k = 0
       n10k = 0
       orf_length_sum = 0
-
       # sort the contigs in ascending length order
       # and iterate over them
       bin.sort_by! { |c| c.seq.size }
       bin.each do |contig|
-        
+
         # increment our long contig counters if this
         # contig is above the thresholds
         n1k += 1 if contig.length > 1_000
@@ -202,9 +200,15 @@ module Transrate
             cutoff=1
           else
             cutoff = x2.pop / 100.0
-          end 
+          end
         end
 
+      end
+
+      # if there aren't enough sequences we might have no value for some
+      # of the Nx. Fill the empty ones in with the longest contig length.
+      while res.length < x.length do
+        res << bin.last.length
       end
 
       # calculate and return the statistics as a hash
@@ -225,31 +229,32 @@ module Transrate
 
     def merge_basic_stats stats
       # convert the array of hashes into a hash of arrays
-      collect = Hash.new{|h,k| h[k]=[]}
+      collect = Hash.new{ |h, k| h[k] = [] }
       stats.each_with_object(collect) do |collect, result|
         collect.each{ |k, v| result[k] << v }
       end
       merged = {}
       collect.each_pair do |stat, values|
-        if stat == 'orf_percent'  || /N[0-9]{2}/ =~ stat
+        if stat == 'orf_percent' || /N[0-9]{2}/ =~ stat
           # store the mean
-          merged[stat] = values.inject(:+) / values.size
+          puts stat
+          puts values
+          merged[stat] = values.inject(0, :+) / values.size
         elsif stat == 'smallest'
           merged[stat] = values.min
         elsif stat == 'largest'
           merged[stat] = values.max
         else
           # store the sum
-          merged[stat] = values.inject(:+)
+          merged[stat] = values.inject(0, :+)
         end
       end
 
       merged
-      
-    end # merge_basic_stats
-     
-    inline do |builder|
 
+    end # merge_basic_stats
+
+    inline do |builder|
       builder.c <<SRC
         static
         void
@@ -265,9 +270,9 @@ module Transrate
           }
           for (i=0;i<sl-2;i++) {
             if (c_str[i]=='T' &&
-              ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
-              (c_str[i+1]=='A' && c_str[i+2]=='A') ||
-              (c_str[i+1]=='G' && c_str[i+2]=='A'))) { 
+               ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
+               (c_str[i+1]=='A' && c_str[i+2]=='A') ||
+               (c_str[i+1]=='G' && c_str[i+2]=='A'))) {
               if (len[i%3] > longest) {
                 longest = len[i%3];
               }
@@ -278,7 +283,7 @@ module Transrate
             if (c_str[i+2]=='A' &&
               ((c_str[i]=='C' && c_str[i+1]=='T') ||
               (c_str[i]=='T' && c_str[i+1]=='T') ||
-              (c_str[i]=='T' && c_str[i+1]=='C'))) { 
+              (c_str[i]=='T' && c_str[i+1]=='C'))) {
               if (len[3+i%3] > longest) {
                 longest = len[3+i%3];
               }
@@ -315,7 +320,7 @@ SRC
     end
 
     def print_stats
-      self.basic_stats.map do |k, v| 
+      self.basic_stats.map do |k, v|
         "#{k}#{" " * (20 - (k.length + v.to_i.to_s.length))}#{v.to_i}"
       end.join('\n')
     end
