@@ -24,8 +24,9 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'RubyInline', '~> 3.12'
   gem.add_dependency 'crb-blast'
 
-  gem.add_development_dependency 'turn'
+  gem.add_development_dependency 'test-unit'
   gem.add_development_dependency 'minitest'
+  gem.add_development_dependency 'turn'
   gem.add_development_dependency 'simplecov'
   gem.add_development_dependency 'shoulda-context'
   gem.add_development_dependency 'coveralls', '>= 0.6.7'
