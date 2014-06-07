@@ -7,11 +7,12 @@ class TestReciprocalAnnotation < Test::Unit::TestCase
   context "reciprocal annotation" do
 
     setup do
-      # @a = Transrate::Assembly.new("test/assembly.fasta")
-      query = "test/chimeric_contig.fa"
-      target = "test/at_p.faa"
-      assembly = Transrate::Assembly.new(query)
-      reference = Transrate::Assembly.new(target)
+      querypath = File.join(File.dirname(__FILE__),
+                            'data',
+                            'chimeric_contig.fa')
+      targetpath = File.join(File.dirname(__FILE__), 'data', 'at_p.faa')
+      assembly = Transrate::Assembly.new(querypath)
+      reference = Transrate::Assembly.new(targetpath)
       @recip = Transrate::ReciprocalAnnotation.new(assembly, reference)
     end
 

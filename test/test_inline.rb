@@ -7,7 +7,8 @@ class TestInline < Test::Unit::TestCase
   context 'transrate' do
 
     setup do
-      @a = Transrate::Assembly.new('test/assembly.fasta')
+      filepath = File.join(File.dirname(__FILE__), 'data', 'assembly.fasta')
+      @a = Transrate::Assembly.new(filepath)
       @seq1 = 'ATGCCCCTAGGGTAG'
     end
 

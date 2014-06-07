@@ -1,5 +1,3 @@
-#!/usr/bin/env	ruby
-
 require 'helper'
 
 class TestCompMetrics < Test::Unit::TestCase
@@ -7,8 +5,10 @@ class TestCompMetrics < Test::Unit::TestCase
   context "transrate" do
 
     setup do
-      query = "test/clg.head.assembly.fa"
-      target = "test/Os.protein.fa"
+      querypath = File.join(File.dirname(__FILE__),
+                            'data',
+                            'clg.head.assembly.fa')
+      targetpath = File.join(File.dirname(__FILE__), 'data', 'Os.protein.fa')
       assembly = Transrate::Assembly.new(query)
       reference = Transrate::Assembly.new(target)
       threads = 8

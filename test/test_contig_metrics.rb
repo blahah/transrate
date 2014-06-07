@@ -1,5 +1,3 @@
-#!/usr/bin/env	ruby
-
 require 'helper'
 
 class TestContigMetrics < Test::Unit::TestCase
@@ -7,9 +5,8 @@ class TestContigMetrics < Test::Unit::TestCase
   context "transrate" do
 
     setup do
-      query = "test/assembly.fasta"
-      # query = "test/clg.assembly.fa"
-      assembly = Transrate::Assembly.new(query)
+      querypath = File.join(File.dirname(__FILE__), 'data', 'assembly.fasta')
+      assembly = Transrate::Assembly.new(querypath)
       @contig_metrics = Transrate::ContigMetrics.new(assembly)
     end
 
