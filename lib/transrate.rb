@@ -1,6 +1,6 @@
 # before the
 require 'rbconfig'
-RbConfig::CONFIG['CFLAGS'] = '-w'
+RbConfig::CONFIG['CFLAGS'] = ''
 
 require 'transrate/transrater'
 require 'transrate/version'
