@@ -237,8 +237,6 @@ module Transrate
       collect.each_pair do |stat, values|
         if stat == 'orf_percent' || /N[0-9]{2}/ =~ stat
           # store the mean
-          puts stat
-          puts values
           merged[stat] = values.inject(0, :+) / values.size
         elsif stat == 'smallest'
           merged[stat] = values.min
