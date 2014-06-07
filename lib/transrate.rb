@@ -1,3 +1,7 @@
+# before the
+require 'rbconfig'
+RbConfig::CONFIG['CFLAGS'] = '-w'
+
 require 'transrate/transrater'
 require 'transrate/version'
 require 'transrate/assembly'
