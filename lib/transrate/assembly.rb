@@ -131,7 +131,6 @@ module Transrate
       # collect the stats calculated in each thread and join
       # the threads to terminate them
       threadpool.each(&:join)
-      puts stats
       # merge the collected stats and return then
       merge_basic_stats stats
 
