@@ -33,7 +33,7 @@ module Transrate
     attr_accessor :file
     attr_reader :assembly
     attr_reader :has_run
-    attr_writer :n_bases
+    attr_accessor :n_bases
     attr_reader :n50
 
     # Create a new Assembly.
@@ -49,7 +49,7 @@ module Transrate
       end
     end
 
-    # Return basic statistics about the assembly in 
+    # Return basic statistics about the assembly in
     # the specified FASTA file
     #
     # @param file [String] path to assebmly FASTA file
@@ -84,19 +84,18 @@ module Transrate
     #
     # @return [Hash] basic statistics about the assembly
     def basic_stats threads=8
-      
+
       # disable threading basic stats for now
       threads = 1
 
       # create a work queue to process contigs in parallel
       queue = Queue.new
-      
+
       # split the contigs into equal sized bins, one bin per thread
       binsize = (@assembly.size / threads.to_f).ceil
       @assembly.each_slice(binsize) do |bin|
         queue << bin
       end
-
       # a classic threadpool - an Array of threads that allows
       # us to assign work to each thread and then aggregate their
       # results when they are all finished
@@ -132,11 +131,13 @@ module Transrate
       threadpool.each(&:join)
 
       # merge the collected stats and return then
-      merge_basic_stats stats
+      # merge_basic_stats stats
+      # as threading is currently disabled there's no need to do merging
+      stats[0]
 
     end # basic_stats
 
-    
+
     # Calculate basic statistics in an single thread for a bin
     # of contigs.
     #
@@ -154,13 +155,13 @@ module Transrate
     #
     # @param [Array] bin An array of Bio::Sequence objects
     # representing contigs in the assembly
-    
+
     def basic_bin_stats bin
 
       # cumulative length is a float so we can divide it
       # accurately later to get the mean length
       cumulative_length = 0.0
-      
+
       # we'll calculate Nx for x in [10, 30, 50, 70, 90]
       # to do this we create a stack of the x values and
       # pop the first one to set the first cutoff. when
@@ -180,7 +181,7 @@ module Transrate
       # and iterate over them
       bin.sort_by! { |c| c.seq.size }
       bin.each do |contig|
-        
+
         # increment our long contig counters if this
         # contig is above the thresholds
         n1k += 1 if contig.length > 1_000
@@ -200,7 +201,7 @@ module Transrate
             cutoff=1
           else
             cutoff = x2.pop / 100.0
-          end 
+          end
         end
 
       end
@@ -243,9 +244,9 @@ module Transrate
       end
 
       merged
-      
+
     end # merge_basic_stats
-     
+
     inline do |builder|
 
       builder.c <<SRC
@@ -265,7 +266,7 @@ module Transrate
             if (c_str[i]=='T' &&
               ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
               (c_str[i+1]=='A' && c_str[i+2]=='A') ||
-              (c_str[i+1]=='G' && c_str[i+2]=='A'))) { 
+              (c_str[i+1]=='G' && c_str[i+2]=='A'))) {
               if (len[i%3] > longest) {
                 longest = len[i%3];
               }
@@ -276,7 +277,7 @@ module Transrate
             if (c_str[i+2]=='A' &&
               ((c_str[i]=='C' && c_str[i+1]=='T') ||
               (c_str[i]=='T' && c_str[i+1]=='T') ||
-              (c_str[i]=='T' && c_str[i+1]=='C'))) { 
+              (c_str[i]=='T' && c_str[i+1]=='C'))) {
               if (len[3+i%3] > longest) {
                 longest = len[3+i%3];
               }
@@ -313,7 +314,7 @@ SRC
     end
 
     def print_stats
-      self.basic_stats.map do |k, v| 
+      self.basic_stats.map do |k, v|
         "#{k}#{" " * (20 - (k.length + v.to_i.to_s.length))}#{v.to_i}"
       end.join('\n')
     end
