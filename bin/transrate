@@ -31,7 +31,7 @@ opts = Trollop::options do
 
   EOS
   opt :assembly, "assembly file(s) in FASTA format, comma-separated",
-      :required => true, 
+      :required => true,
       :type => String
   opt :reference, "reference proteome file in FASTA format",
       :type => String
@@ -61,7 +61,7 @@ def pretty_print_hash hash, width
     end
     pad = (width - (k.to_s.length + v.to_s.length))
     pad = [pad, 0].max
-    "#{k.to_s.split('_').join(' ')}" + 
+    "#{k.to_s.split('_').join(' ')}" +
     "#{" " * pad}" +
     "#{v}"
   end.join("\n")
@@ -77,21 +77,21 @@ end
 
 include Transrate
 
-r = opts.reference ? Assembly.new(opts.reference) : nil 
+r = opts.reference ? Assembly.new(opts.reference) : nil
 report_width = 30
 
 # loop through the assemblies, storing their outputs in an array of hashes
 all = []
 opts.assembly.split(',').each do |assembly|
 
-transrater = Transrater.new(a, r, 
-                            opts.left, 
+  a = Assembly.new assembly
+  transrater = Transrater.new(a, r,
+                            opts.left,
                             opts.right,
                             opts.insertsize,
                             opts.insertsd,
                             opts.threads)
 
-  a = Assembly.new assembly
 
   log "\nAnalysing assembly: #{assembly}\n\n"
 
@@ -145,7 +145,6 @@ transrater = Transrater.new(a, r,
     end
 
     log "Comparative metrics done in #{Time.now - t0} seconds"
-
 
     log "\n"
     log "-" * report_width
