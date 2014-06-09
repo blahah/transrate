@@ -22,8 +22,8 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def initialize(assembly, reference, left:nil, right:nil, insertsize:nil,
-                   insertsd:nil, threads:1)
+    def initialize(assembly, reference, left=nil, right=nil, insertsize=nil,
+                   insertsd=nil, threads=1)
       @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
       if reference
         @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
@@ -49,7 +49,7 @@ module Transrate
 
     # Reduce all metrics for the assembly to a single quality score.
     #
-    # 
+    #
     #
     # @return [Integer] the assembly score
     def assembly_score
@@ -89,7 +89,7 @@ module Transrate
       all[:score] = @score
       all
     end
-    
+
   end # Transrater
 
 end # Transrate
