@@ -71,6 +71,18 @@ module Transrate
       @proportion_n = @bases_n / total.to_f
     end
 
+    def results
+      return if !@has_run
+      return {'gc' => @gc,
+              'gc_skew' => @gc_skew,
+              'at_skew' => @at_skew,
+              'cpg' => @cpg,
+              'bases_n' => @bases_n,
+              'proportion_n' => @proportion_n,
+              'linguistic_complexity' => @linguistic_complexity
+             }
+    end
+
     def get_linguistic_complexity seq, k
       d = 4 ** k
       set = Set.new
