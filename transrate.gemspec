@@ -23,6 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'bio-samtools'
   gem.add_dependency 'RubyInline', '~> 3.12'
   gem.add_dependency 'crb-blast'
+  gem.add_dependency 'bettersam'
 
   gem.add_development_dependency 'test-unit'
   gem.add_development_dependency 'minitest'

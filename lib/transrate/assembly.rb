@@ -29,12 +29,10 @@ module Transrate
     extend Forwardable
     def_delegators :@assembly, :each, :<<, :size, :length
 
-    attr_accessor :ublast_db
-    attr_accessor :orfs_ublast_db
     attr_accessor :file
     attr_reader :assembly
     attr_reader :has_run
-    attr_writer :n_bases
+    attr_accessor :n_bases
     attr_reader :n50
 
     # Create a new Assembly.
@@ -97,7 +95,6 @@ module Transrate
       @assembly.each_slice(binsize) do |bin|
         queue << bin
       end
-
       # a classic threadpool - an Array of threads that allows
       # us to assign work to each thread and then aggregate their
       # results when they are all finished
@@ -132,7 +129,9 @@ module Transrate
       # the threads to terminate them
       threadpool.each(&:join)
       # merge the collected stats and return then
-      merge_basic_stats stats
+      # merge_basic_stats stats
+      # as threading is currently disabled there's no need to do merging
+      stats[0]
 
     end # basic_stats
 
@@ -267,9 +266,9 @@ module Transrate
           }
           for (i=0;i<sl-2;i++) {
             if (c_str[i]=='T' &&
-               ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
-               (c_str[i+1]=='A' && c_str[i+2]=='A') ||
-               (c_str[i+1]=='G' && c_str[i+2]=='A'))) {
+              ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
+              (c_str[i+1]=='A' && c_str[i+2]=='A') ||
+              (c_str[i+1]=='G' && c_str[i+2]=='A'))) {
               if (len[i%3] > longest) {
                 longest = len[i%3];
               }
