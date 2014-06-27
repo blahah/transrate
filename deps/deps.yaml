@@ -1,0 +1,45 @@
+blastplus:
+  binaries:
+    - makeblastdb
+    - blastn
+    - tblastn
+    - blastp
+    - blastx
+    - tblastx
+    - makembindex
+    - psiblast
+    - rpsblast
+    - blastdbcmd
+    - segmasker
+    - dustmasker
+    - blast_formatter
+    - windowmasker
+    - blastdb_aliastool
+    - deltablast
+    - rpstblastn
+    - blastdbcheck
+  version:
+    number: '2.2.29'
+    command: 'blastx -version'
+  url:
+    64bit:
+      macosx: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-universal-macosx.tar.gz
+      linux: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-x64-linux.tar.gz
+bowtie2:
+  binaries:
+    - bowtie2
+    - bowtie2-align-l
+    - bowtie2-align-s
+    - bowtie2-build
+    - bowtie2-build-l
+    - bowtie2-build-s
+    - bowtie2-inspect
+    - bowtie2-inspect-l
+    - bowtie2-inspect-s
+  version:
+    number: '2.2.3'
+    command: 'bowtie2 --version'
+  url:
+    64bit:
+      linux: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-linux-x86_64.zip
+      macosx: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-macos-x86_64.zip
