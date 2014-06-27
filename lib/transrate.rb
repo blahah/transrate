@@ -4,6 +4,7 @@ RbConfig::CONFIG['CFLAGS'] = ''
 
 require 'transrate/transrater'
 require 'transrate/version'
+require 'transrate/contig'
 require 'transrate/assembly'
 require 'transrate/bowtie2'
 require 'transrate/read_metrics'

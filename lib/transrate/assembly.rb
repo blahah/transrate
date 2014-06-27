@@ -43,7 +43,7 @@ module Transrate
       @n_bases = 0
       Bio::FastaFormat.open(file).each do |entry|
         @n_bases += entry.length
-        @assembly << Contig.new entry
+        @assembly << Contig.new(entry)
       end
     end
 

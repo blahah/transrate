@@ -9,7 +9,7 @@ module Transrate
     attr_reader :percent_mapping
     attr_reader :prop_expressed
     attr_reader :has_run
-    
+
     def initialize assembly
       @assembly = assembly
       @mapper = Bowtie2.new
@@ -190,7 +190,7 @@ module Transrate
       @prop_expressed = @expressed_contigs.to_f / @assembly.size
       @percent_expressed = @prop_expressed * 100.0
     end
-    
+
   end # ReadMetrics
-  
+
 end # Transrate
