@@ -8,7 +8,7 @@ module Transrate
 
     include Enumerable
     extend Forwardable
-    def_delegators :@seq, :each_char, :size, :length
+    def_delegators :@seq, :size, :length
     attr_accessor :seq
 
     def initialize seq
@@ -16,7 +16,7 @@ module Transrate
     end
 
     def each &block
-      each_char &block
+      @seq.seq.each_char &block
     end
 
     # Base composition of the contig
@@ -35,7 +35,7 @@ module Transrate
         :cg => 0
       }
       last_base = nil
-      self.each_char do |base|
+      @seq.seq.each_char do |base|
         # single bases
         key = base.downcase.to_sym
         base_comp[key] += 1
@@ -201,7 +201,7 @@ SRC
       d = 4 ** k
       set = Set.new
       (0..@seq.length-k).each do |i|
-        set << @seq.slice(i,k).upcase # slice(start, length)
+        set << @seq.seq.slice(i,k).upcase # slice(start, length)
       end # count how many kmers in seq
       set.size / d.to_f
     end
