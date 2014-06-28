@@ -28,3 +28,7 @@ dryrun
 *.blast
 *.phr
 *.pin
+*.psq
+*.nhr
+*.nin
+*.nsq
