@@ -3,6 +3,11 @@
 require 'trollop'
 require 'transrate'
 require 'csv'
+require 'bindeps'
+
+gem_dir = Gem.loaded_specs['transrate'].full_gem_path
+gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
+Bindeps.require gem_deps
 
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup

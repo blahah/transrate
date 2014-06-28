@@ -2,3 +2,7 @@ language: ruby
 rvm:
   - "2.0.0"
   - "2.1.0"
+before_script:
+  - gem install bindeps
+  - bundle install
+  - bundle exec bin/transrate --help
