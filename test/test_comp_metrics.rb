@@ -2,12 +2,12 @@ require 'helper'
 
 class TestCompMetrics < Test::Unit::TestCase
 
-  context "transrate" do
+  context "ComparativeMetrics" do
 
     setup do
       querypath = File.join(File.dirname(__FILE__),
                             'data',
-                            'assembly.fa')
+                            'assembly.fasta')
       targetpath = File.join(File.dirname(__FILE__), 'data', 'Os.protein.fa')
       assembly = Transrate::Assembly.new(querypath)
       reference = Transrate::Assembly.new(targetpath)
