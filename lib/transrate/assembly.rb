@@ -175,7 +175,7 @@ module Transrate
       orf_length_sum = 0
       # sort the contigs in ascending length order
       # and iterate over them
-      bin.sort_by! { |c| c.seq.size }
+      bin.sort_by! { |c| c.seq.length }
       bin.each do |contig|
 
         # increment our long contig counters if this
@@ -185,7 +185,7 @@ module Transrate
 
         # add the length of the longest orf to the
         # running total
-        orf_length_sum += orf_length(contig.seq)
+        orf_length_sum += contig.orf_length
 
         # increment the cumulative length and check whether the Nx
         # cutoff has been reached. if it has, store the Nx value and
