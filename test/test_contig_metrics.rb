@@ -17,33 +17,33 @@ class TestContigMetrics < Test::Unit::TestCase
 
     should "get gc content" do
       @contig_metrics.run
-      assert_equal @contig_metrics.gc.round(5), 0.37672
+      assert_equal 0.37672, @contig_metrics.gc_prop.round(5)
     end
 
     should "get gc skew" do
       @contig_metrics.run
-      assert_equal @contig_metrics.gc_skew.round(5), 0.00440
+      assert_equal 0.00440, @contig_metrics.gc_skew.round(5)
     end
 
     should "get at skew" do
       @contig_metrics.run
-      assert_equal @contig_metrics.at_skew.round(5), -0.00718
+      assert_equal -0.00718, @contig_metrics.at_skew.round(5)
     end
 
     should "get CpG density" do
       @contig_metrics.run
-      assert_equal @contig_metrics.cpg.round(5), 0.52828
+      assert_equal 0.52828, @contig_metrics.cpg_ratio.round(5)
     end
 
     should "get linguistic complexity" do
       @contig_metrics.run
-      assert_equal @contig_metrics.linguistic_complexity.round(5), 0.26599
+      assert_equal 0.26599, @contig_metrics.linguistic_complexity.round(5)
     end
 
     should "get the number and proportion of Ns" do
       @contig_metrics.run
-      assert_equal @contig_metrics.bases_n, 2
-      assert_equal @contig_metrics.proportion_n.round(5), 0.00033
+      assert_equal 2, @contig_metrics.bases_n
+      assert_equal 0.00033, @contig_metrics.proportion_n.round(5)
     end
   end
 end
