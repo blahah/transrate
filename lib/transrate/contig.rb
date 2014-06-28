@@ -3,20 +3,20 @@ require 'inline'
 
 module Transrate
 
-  # A contig an a transcriptome assembly.
+  # A contig in a transcriptome assembly.
   class Contig
 
     include Enumerable
     extend Forwardable
-    def_delegators :@seq, :each, :size, :length
-    attr_accessor :bases_c, :bases_g, :bases_a, :bases_t,
-                  :prop_c, :prop_g, :prop_a, :prop_t,
-                  :gc, :gc_skew, :at_skew, :cpg,
-                  :linguistic_complexity, :zip_size,
-                  :bases_n, :prop_n
+    def_delegators :@seq, :each_char, :size, :length
+    attr_accessor :seq
 
-    def init seq
+    def initialize seq
       @seq = seq
+    end
+
+    def each &block
+      each_char &block
     end
 
     # Base composition of the contig
@@ -24,25 +24,38 @@ module Transrate
       if @base_composition
         return @base_composition
       end
-      base_comp = {}
-      dibase_comp = {}
+      base_comp = {
+        :a => 0,
+        :t => 0,
+        :c => 0,
+        :g => 0,
+        :n => 0
+      }
+      dibase_comp = {
+        :cg => 0
+      }
       last_base = nil
-      self.each do |base|
+      self.each_char do |base|
+        # single bases
         key = base.downcase.to_sym
-        base_comp[dikey] ||= 1
-        base_comp[dikey] += 1
+        base_comp[key] += 1
         if last_base
+          # pairs of bases
           dikey = "#{last_base}#{base}".downcase.to_sym
-          dibase_comp[dikey] ||= 1
-          dibase_comp[dikey] += 1
+          if dibase_comp[dikey]
+            dibase_comp[dikey] += 1
+          else
+            dibase_comp[dikey] = 1
+          end
         end
         last_base = base
       end
       @base_composition = base_comp
       @dibase_composition = dibase_comp
+      return base_comp
     end
 
-    # Dibase composition of the contif
+    # Dibase composition of the contig
     def dibase_composition
       if @dibase_composition
         return @dibase_composition
@@ -91,29 +104,46 @@ module Transrate
       bases_t / length.to_f
     end
 
+    def bases_n
+      base_composition[:n]
+    end
+
+    def prop_n
+      bases_n / length.to_f
+    end
+
     # GC
-    def gc
+    def bases_gc
+      bases_g + bases_c
+    end
+
+    def prop_gc
       prop_g + prop_c
     end
 
     # GC skew
     def gc_skew
-      gc / (prop_a + prop_t + gc)
+      prop_gc / (prop_a + prop_t + prop_gc)
     end
 
     # AT skew
     def at_skew
-      prop_a + prop_t / (prop_a + prop_t + gc)
+      prop_a + prop_t / (prop_a + prop_t + prop_gc)
+    end
+
+    # CpG count
+    def cpg_count
+      dibase_composition[:cg]
     end
 
     # CpG (C-phosphate-G) ratio
     def cpg_ratio
-      @dibase_composition[:cg] / (bases_c + bases_g) * length
+      dibase_composition[:cg] / (prop_c * prop_g)
     end
 
     # Find the longest orf in the contig
-    def orf_length sequence
-      longest = longest_orf(sequence)
+    def orf_length
+      longest = longest_orf(@seq.seq)
       return longest
     end
 
@@ -167,28 +197,13 @@ module Transrate
 SRC
     end
 
-    def gc_skew
-
-    end
-
-    def at_skew
-
-    end
-
-    def cpg
-
-    end
-
-    def bases_n
-
-    end
-
-    def proportion_n
-
-    end
-
-    def linguistic_complexity
-
+    def linguistic_complexity k
+      d = 4 ** k
+      set = Set.new
+      (0..@seq.length-k).each do |i|
+        set << @seq.slice(i,k).upcase # slice(start, length)
+      end # count how many kmers in seq
+      set.size / d.to_f
     end
 
   end
