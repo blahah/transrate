@@ -143,7 +143,7 @@ module Transrate
 
     # Find the longest orf in the contig
     def orf_length
-      longest = longest_orf(@seq.seq)
+      longest = longest_orf @seq.seq
       return longest
     end
 
