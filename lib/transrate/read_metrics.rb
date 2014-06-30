@@ -21,7 +21,8 @@ module Transrate
 
     def run left, right, insertsize=200, insertsd=50
       @mapper.build_index @assembly.file
-      @num_pairs = `wc -l #{left}`.split(/\s+/)[0].to_i/4
+      puts left
+      @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
                                   insertsd: insertsd)
@@ -49,7 +50,8 @@ module Transrate
         :n_uncovered_contigs => @n_uncovered_contigs,
         :p_uncovered_contigs => @p_uncovered_contigs,
         :n_lowcovered_contigs => @n_lowcovered_contigs,
-        :p_lowcovered_contigs => @p_lowcovered_contigs,:n_uncovered_contigs => @n_uncovered_contigs
+        :p_lowcovered_contigs => @p_lowcovered_contigs,
+        :n_uncovered_contigs => @n_uncovered_contigs
       }
     end
 

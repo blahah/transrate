@@ -27,7 +27,7 @@ class TestReadMetrics < Test::Unit::TestCase
       assert @read_metrics
     end
 
-    should "run read metrics" do
+    should "run" do
       left = File.join(File.dirname(__FILE__), 'data', 'left.fastq')
       right = File.join(File.dirname(__FILE__), 'data', 'right.fastq')
       tmpdir = Dir.mktmpdir
