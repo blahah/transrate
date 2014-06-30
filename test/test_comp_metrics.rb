@@ -1,16 +1,16 @@
-#!/usr/bin/env	ruby
-
 require 'helper'
 
 class TestCompMetrics < Test::Unit::TestCase
 
-  context "transrate" do
+  context "ComparativeMetrics" do
 
     setup do
-      query = "test/assembly.fasta"
-      target = "test/Os.protein.fa"
-      assembly = Transrate::Assembly.new(query)
-      reference = Transrate::Assembly.new(target)
+      querypath = File.join(File.dirname(__FILE__),
+                            'data',
+                            'assembly.fasta')
+      targetpath = File.join(File.dirname(__FILE__), 'data', 'Os.protein.fa')
+      assembly = Transrate::Assembly.new(querypath)
+      reference = Transrate::Assembly.new(targetpath)
       threads = 8
       @comp = Transrate::ComparativeMetrics.new(assembly, reference, threads)
     end

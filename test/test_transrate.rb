@@ -7,7 +7,8 @@ class TestTransrate < Test::Unit::TestCase
   context "transrate" do
 
     setup do
-      @a = Transrate::Assembly.new("test/assembly.fasta")
+      filepath = File.join(File.dirname(__FILE__), 'data', 'assembly.fasta')
+      @a = Transrate::Assembly.new(filepath)
     end
 
     should "create assembly object" do

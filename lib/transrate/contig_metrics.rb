@@ -5,7 +5,7 @@ module Transrate
 
   class ContigMetrics
 
-    attr_reader :gc, :gc_skew, :at_skew, :cpg
+    attr_reader :gc_prop, :gc_skew, :at_skew, :cpg_ratio
     attr_reader :linguistic_complexity, :wootton_federhen, :shannon, :zlib_comp
     attr_reader :bases_n, :proportion_n
     attr_reader :has_run
@@ -24,9 +24,6 @@ module Transrate
       @bases_n = -1
       @proportion_n = -1
       @linguistic_complexity = -1
-      @wootton_federhen = -1   #
-      @shannon = -1
-      @zlib_comp = -1
     end
 
     def run
@@ -41,42 +38,33 @@ module Transrate
       g = 0
       t = 0
       @bases_n = 0
-      cg = 0
+      cpg_count = 0
       lc = 0
-      set = Set.new
       k = 6
-      @assembly.assembly.each do |entry|
-        seq = entry.seq
-        total += seq.length
-        (0..seq.length-1).each do |i|
-          a += 1 if "A" == seq[i].upcase
-          c += 1 if "C" == seq[i].upcase
-          g += 1 if "G" == seq[i].upcase
-          t += 1 if "T" == seq[i].upcase
-          @bases_n += 1 if "N" == seq[i].upcase
-          if i > 0
-            if seq[i-1].upcase == "C" and seq[i].upcase == "G"
-              cg += 1
-            end
-          end
-        end
-        comp = get_linguistic_complexity(seq, 6)
-        lc += comp
+      @assembly.assembly.each do |contig|
+        total += contig.length
+        a += contig.bases_a
+        c += contig.bases_c
+        g += contig.bases_g
+        t += contig.bases_t
+        @bases_n += contig.bases_n
+        cpg_count += contig.cpg_count
+        lc += contig.linguistic_complexity k
       end
-      @gc = (g + c) / (a + c + g + t).to_f
+      @gc_prop = (g + c) / (a + c + g + t).to_f
       @gc_skew = (g - c) / (g + c).to_f
       @at_skew = (a - t) / (a + t).to_f
-      @cpg = cg.to_f / (c * g) * total
+      @cpg_ratio = cpg_count.to_f / (c * g) * total
       @linguistic_complexity = lc / @assembly.assembly.size.to_f
       @proportion_n = @bases_n / total.to_f
     end
 
     def results
       return if !@has_run
-      return {'gc' => @gc,
+      return {'gc' => @gc_prop,
               'gc_skew' => @gc_skew,
               'at_skew' => @at_skew,
-              'cpg' => @cpg,
+              'cpg_ratio' => @cpg_ratio,
               'bases_n' => @bases_n,
               'proportion_n' => @proportion_n,
               'linguistic_complexity' => @linguistic_complexity

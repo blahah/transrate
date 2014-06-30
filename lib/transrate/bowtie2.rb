@@ -21,20 +21,21 @@ module Transrate
       @index_name = ""
     end
 
-    def map_reads file, left, right=nil, insertsize=200, insertsd=50, sam=nil
+    def map_reads(file, left, right, insertsize: 200, insertsd: 50, outputname: nil)
       raise Bowtie2Error.new("Index not built") if !@index_built
       lbase = File.basename(left)
       rbase = File.basename(right)
       index = File.basename(@index_name)
-      dir = File.dirname(left)
-      @sam ||= "#{dir}/#{lbase}.#{rbase}.#{index}.sam"
+      @sam ||= "#{lbase}.#{rbase}.#{index}.sam"
       realistic_dist = insertsize + (3 * insertsd)
       unless File.exists? @sam
         # construct bowtie command
-        bowtiecmd = "#{@bowtie2} --very-sensitive-local -k 10 -p 8 "
-        bowtiecmd += " -X #{realistic_dist}"
-        bowtiecmd += " --no-unal --quiet --no-head "
-        bowtiecmd += " -x #{@index_name} -1 #{left}"
+        bowtiecmd = "#{@bowtie2} --very-sensitive-local"
+        # TODO number of cores should be variable '-p 8'
+        bowtiecmd += " -p 8 -X #{realistic_dist}"
+        bowtiecmd += " --quiet"
+        bowtiecmd += " -x #{@index_name}"
+        bowtiecmd += " -1 #{left}"
         # paired end?
         bowtiecmd += " -2 #{right}" if right
         bowtiecmd += " > #{@sam}"
@@ -46,7 +47,7 @@ module Transrate
 
     def build_index file
       unless File.exists?(file + '.1.bt2')
-        @index_name = file.split(".")[0..-2].join(".")
+        @index_name = File.basename(file).split(".")[0..-2].join(".")
         cmd = "#{@bowtie2_build} --quiet --offrate 1 #{file} #{@index_name}"
         `#{cmd}`
         @index_built = true

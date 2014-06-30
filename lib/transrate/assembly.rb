@@ -1,8 +1,6 @@
 require 'bio'
-require 'bettersam'
 require 'csv'
 require 'forwardable'
-require 'inline'
 
 module Transrate
 
@@ -45,7 +43,7 @@ module Transrate
       @n_bases = 0
       Bio::FastaFormat.open(file).each do |entry|
         @n_bases += entry.length
-        @assembly << entry
+        @assembly << Contig.new(entry)
       end
     end
 
@@ -129,7 +127,6 @@ module Transrate
       # collect the stats calculated in each thread and join
       # the threads to terminate them
       threadpool.each(&:join)
-
       # merge the collected stats and return then
       # merge_basic_stats stats
       # as threading is currently disabled there's no need to do merging
@@ -176,10 +173,9 @@ module Transrate
       n1k = 0
       n10k = 0
       orf_length_sum = 0
-
       # sort the contigs in ascending length order
       # and iterate over them
-      bin.sort_by! { |c| c.seq.size }
+      bin.sort_by! { |c| c.seq.length }
       bin.each do |contig|
 
         # increment our long contig counters if this
@@ -189,7 +185,7 @@ module Transrate
 
         # add the length of the longest orf to the
         # running total
-        orf_length_sum += orf_length(contig.seq)
+        orf_length_sum += contig.orf_length
 
         # increment the cumulative length and check whether the Nx
         # cutoff has been reached. if it has, store the Nx value and
@@ -204,6 +200,12 @@ module Transrate
           end
         end
 
+      end
+
+      # if there aren't enough sequences we might have no value for some
+      # of the Nx. Fill the empty ones in with the longest contig length.
+      while res.length < x.length do
+        res << bin.last.length
       end
 
       # calculate and return the statistics as a hash
@@ -224,84 +226,28 @@ module Transrate
 
     def merge_basic_stats stats
       # convert the array of hashes into a hash of arrays
-      collect = Hash.new{|h,k| h[k]=[]}
+      collect = Hash.new{ |h, k| h[k] = [] }
       stats.each_with_object(collect) do |collect, result|
         collect.each{ |k, v| result[k] << v }
       end
       merged = {}
       collect.each_pair do |stat, values|
-        if stat == 'orf_percent'  || /N[0-9]{2}/ =~ stat
+        if stat == 'orf_percent' || /N[0-9]{2}/ =~ stat
           # store the mean
-          merged[stat] = values.inject(:+) / values.size
+          merged[stat] = values.inject(0, :+) / values.size
         elsif stat == 'smallest'
           merged[stat] = values.min
         elsif stat == 'largest'
           merged[stat] = values.max
         else
           # store the sum
-          merged[stat] = values.inject(:+)
+          merged[stat] = values.inject(0, :+)
         end
       end
 
       merged
 
     end # merge_basic_stats
-
-    inline do |builder|
-
-      builder.c <<SRC
-        static
-        void
-        longest_orf(VALUE _s) {
-          int i,sl,longest=0;
-          int len[6];
-          char * c_str;
-
-          sl = RSTRING_LEN(_s);
-          c_str = StringValueCStr(_s);
-          for (i=0;i<6;i++) {
-            len[i]=0;
-          }
-          for (i=0;i<sl-2;i++) {
-            if (c_str[i]=='T' &&
-              ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
-              (c_str[i+1]=='A' && c_str[i+2]=='A') ||
-              (c_str[i+1]=='G' && c_str[i+2]=='A'))) {
-              if (len[i%3] > longest) {
-                longest = len[i%3];
-              }
-              len[i%3]=0;
-            } else {
-              len[i%3]++;
-            }
-            if (c_str[i+2]=='A' &&
-              ((c_str[i]=='C' && c_str[i+1]=='T') ||
-              (c_str[i]=='T' && c_str[i+1]=='T') ||
-              (c_str[i]=='T' && c_str[i+1]=='C'))) {
-              if (len[3+i%3] > longest) {
-                longest = len[3+i%3];
-              }
-              len[3+i%3]=0;
-            } else {
-              len[3+i%3]++;
-            }
-          }
-          if (len[i%3] > longest) {
-            longest = len[i%3];
-          }
-          if (len[3+i%3] > longest) {
-            longest = len[3+i%3];
-          }
-          return INT2NUM(longest);
-        }
-SRC
-    end
-
-    # finds longest orf in a sequence
-    def orf_length sequence
-      longest = longest_orf(sequence)
-      return longest
-    end
 
     # return the number of bases in the assembly, calculating
     # from the assembly if it hasn't already been done.

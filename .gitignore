@@ -25,3 +25,12 @@ doc/
 
 # large test files not for repo
 dryrun
+*.blast
+*.phr
+*.pin
+*.psq
+*.nhr
+*.nin
+*.nsq
+*.bt2
+*.fai

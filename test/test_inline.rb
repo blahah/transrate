@@ -1,29 +1,30 @@
 #!/usr/bin/env  ruby
 
 require 'helper'
+require 'bio'
 
 class TestInline < Test::Unit::TestCase
 
   context 'transrate' do
 
     setup do
-      @a = Transrate::Assembly.new('test/assembly.fasta')
-      @seq1 = 'ATGCCCCTAGGGTAG'
+      filepath = File.join(File.dirname(__FILE__), 'data', 'assembly.fasta')
+      @a = Transrate::Assembly.new(filepath)
     end
 
     should 'find longest orf in file' do
       orfs = []
-      @a.assembly.each do |entry|
-        l = @a.orf_length entry.seq
-        orfs << l
+      @a.assembly.each do |contig|
+        orfs << contig.orf_length
       end
-      assert_equal orfs.length, 4
-      assert_equal orfs, [333, 370, 131, 84]
+      assert_equal 4, orfs.length
+      assert_equal [333, 370, 131, 84], orfs
     end
 
     should 'find longest orf in sequence' do
-      l = @a.orf_length(@seq1)
-      assert_equal l, 4
+      seq = Bio::Sequence.new 'ATGCCCCTAGGGTAG'
+      contig = Transrate::Contig.new seq
+      assert_equal 4, contig.orf_length
     end
 
   end
