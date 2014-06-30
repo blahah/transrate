@@ -85,7 +85,7 @@ module Transrate
     end
 
     def initial_values
-      @num_pairs = 100000
+      @num_pairs = 0
       @total = 0
       @good = 0
       @bad = 0
