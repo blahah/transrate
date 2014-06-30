@@ -1,7 +1,7 @@
 module Transrate
 
   require 'which'
-  
+
   class Express
 
     # return an Express object
@@ -15,7 +15,8 @@ module Transrate
     # in the assembly fastafile
     def quantify_expression assembly, samfile
       assembly = assembly.file if assembly.is_a? Assembly
-      cmd = "#{@express} --no-bias-correct #{File.expand_path assembly} #{File.expand_path samfile}"
+      cmd = "#{@express} --no-bias-correct #{File.expand_path assembly} "
+      cmd << " #{File.expand_path samfile}"
       ex_output = 'results.xprs'
       fin_output = "#{assembly}_#{ex_output}"
       unless File.exists? fin_output
@@ -31,7 +32,7 @@ module Transrate
       end
       expression
     end
-    
+
   end # Express
 
  end # Transrate
