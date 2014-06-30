@@ -34,7 +34,6 @@ class TestReadMetrics < Test::Unit::TestCase
       assert @read_metrics.has_run
       stats = @read_metrics.read_stats
       assert_equal 7763, stats[:num_pairs]
-      p stats
     end
 
   end
