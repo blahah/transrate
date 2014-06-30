@@ -18,6 +18,7 @@ module Transrate
 
     def run left, right, insertsize=200, insertsd=50
       @mapper.build_index @assembly.file
+      @num_pairs = `wc -l #{left}`.split(/\s+/)[0].to_i/4
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize, insertsd)
       self.analyse_read_mappings(samfile, insertsize, insertsd)
@@ -59,13 +60,20 @@ module Transrate
       if File.exists?(samfile) && File.size(samfile) > 0
         ls = BetterSam.new
         rs = BetterSam.new
-        sam = File.open(samfile).each_line
-        sam.each_slice(2) do |l, r|
-          if (l && r) && (ls.parse_line(l) && rs.parse_line(r))
+        sam = File.open(samfile)
+        line = sam.readline
+        while line
+          ls.parse_line(line)
+          if ls.mate_unmapped?
+            self.check_read_single(ls)
+            line = sam.readline rescue nil
+          else
+            line2 = sam.readline rescue nil
+            rs.parse_line(line2)
             self.check_read_pair(ls, rs, realistic_dist)
+            line = sam.readline rescue nil
           end
         end
-        self.check_bridges if bridge
       else
         raise "samfile #{samfile} not found"
       end
@@ -92,6 +100,10 @@ module Transrate
 
     def realistic_distance insertsize, insertsd
       insertsize + (3 * insertsd)
+    end
+
+    def check_read_single ls
+
     end
 
     def check_read_pair ls, rs, realistic_dist
