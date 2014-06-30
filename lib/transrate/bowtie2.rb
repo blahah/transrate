@@ -33,7 +33,7 @@ module Transrate
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive-local -k 10 -p 8 "
         bowtiecmd += " -X #{realistic_dist}"
-        bowtiecmd += " --no-unal --quiet --no-head "
+        bowtiecmd += " --quiet "
         bowtiecmd += " -x #{@index_name} -1 #{left}"
         # paired end?
         bowtiecmd += " -2 #{right}" if right
