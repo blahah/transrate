@@ -62,6 +62,9 @@ module Transrate
         rs = BetterSam.new
         sam = File.open(samfile)
         line = sam.readline
+        while line=~/^@/
+          line = sam.readline
+        end
         while line
           ls.parse_line(line)
           if ls.mate_unmapped?
