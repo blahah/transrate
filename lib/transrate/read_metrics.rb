@@ -2,6 +2,9 @@ module Transrate
 
   class ReadMetrics
 
+    require 'bettersam'
+    require 'bio-samtools'
+
     attr_reader :total
     attr_reader :bad
     attr_reader :supported_bridges
@@ -18,9 +21,11 @@ module Transrate
 
     def run left, right, insertsize=200, insertsd=50
       @mapper.build_index @assembly.file
-      samfile = @mapper.map_reads(@assembly.file, left, right,  insertsize, insertsd)
+      samfile = @mapper.map_reads(@assembly.file, left, right,
+                                  insertsize: insertsize,
+                                  insertsd: insertsd)
       self.analyse_read_mappings(samfile, insertsize, insertsd)
-      self.analyse_expression(samfile)
+      self.analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
       @pc_good_mapping = @pr_good_mapping * 100.0
@@ -35,20 +40,15 @@ module Transrate
         :good_mappings => @good,
         :pc_good_mapping => @pc_good_mapping,
         :bad_mappings => @bad,
-        :both_mapped => @both_mapped,
-        :properly_paired => @properly_paired,
-        :improper_paired => @improperly_paired,
-        :proper_orientation => @proper_orientation,
-        :improper_orientation => @improper_orientation,
-        :same_contig => @same_contig,
-        :realistic_overlap => @realistic_overlap,
-        :unrealistic_overlap => @unrealistic_overlap,
-        :realistic_fragment => @realistic_fragment,
-        :unrealistic_fragment => @unrealistic_fragment,
         :potential_bridges => @supported_bridges,
-        :expressed_contigs => @expressed_contigs,
-        :unexpressed_contigs => @unexpressed_contigs,
-        :percent_expressed => @percent_expressed
+        :n_uncovered_bases => @n_uncovered_bases,
+        :p_uncovered_bases => @p_uncovered_bases,
+        :n_uncovered_base_contigs => @n_uncovered_base_contigs,
+        :p_uncovered_base_contigs => @p_uncovered_base_contigs,
+        :n_uncovered_contigs => @n_uncovered_contigs,
+        :p_uncovered_contigs => @p_uncovered_contigs,
+        :n_lowcovered_contigs => @n_lowcovered_contigs,
+        :p_lowcovered_contigs => @p_lowcovered_contigs,:n_uncovered_contigs => @n_uncovered_contigs
       }
     end
 
@@ -71,7 +71,7 @@ module Transrate
     end
 
     def initial_values
-      @num_pairs = 100000
+      @num_pairs = 0
       @total = 0
       @good = 0
       @bad = 0
@@ -177,7 +177,7 @@ module Transrate
     end
 
     def analyse_coverage bamfile
-      bam = Bio::Db::Sam.new(:bam => bamfile, :fasta => @assembly.file)
+      bam = Bio::DB::Sam.new(:bam => bamfile, :fasta => @assembly.file)
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       @n_uncovered_bases = 0
@@ -197,14 +197,15 @@ module Transrate
         end
         mean = total / cov.length.to_f
         @n_uncovered_bases += zerocov
-        @n_uncovered_case_contigs += 1 if zerocov
+        @n_uncovered_base_contigs += 1 if zerocov > 0
         @n_uncovered_contigs += 1 if mean < 1
         @n_lowcovered_contigs += 1 if mean < 10
       end
       @p_uncovered_bases = @n_uncovered_bases / @assembly.n_bases.to_f
-      @p_uncovered_base_contigs / @assembly.size.to_f
-      @p_uncovered_contigs / @assembly.size.to_f
-      @p_lowcovered_contigs / @assembly.size.to_f
+      @p_uncovered_base_contigs = @n_uncovered_base_contigs /
+                                  @assembly.size.to_f
+      @p_uncovered_contigs = @n_uncovered_contigs / @assembly.size.to_f
+      @p_lowcovered_contigs = @n_lowcovered_contigs / @assembly.size.to_f
     end
 
   end # ReadMetrics

@@ -17,16 +17,19 @@ module Transrate
       @bowtie2_build = bowtie2_build_path.first
     end
 
-    def map_reads file, left, right=nil, insertsize=200, insertsd=50, outputname=nil
+    def map_reads(file, left, right, insertsize: 200, insertsd: 50, outputname: nil)
       lbase = File.basename(left)
       rbase = File.basename(right)
       outputname ||= "#{lbase}.#{rbase}.#{File.basename(file)}.sam"
       realistic_dist = insertsize + (3 * insertsd)
       unless File.exists? outputname
         # construct bowtie command
-        bowtiecmd = "#{@bowtie2} --very-sensitive-local -k 10 -p 8 -X #{realistic_dist}" # TODO number of cores should be variable '-p 8'
-        bowtiecmd += " --no-unal --quiet"
-        bowtiecmd += " #{File.basename(file)} -1 #{left}"
+        bowtiecmd = "#{@bowtie2} --very-sensitive-local"
+        # TODO number of cores should be variable '-p 8'
+        bowtiecmd += " -p 8 -X #{realistic_dist}"
+        bowtiecmd += " --quiet"
+        bowtiecmd += " -x #{File.basename(file)}"
+        bowtiecmd += " -1 #{left}"
         # paired end?
         bowtiecmd += " -2 #{right}" if right
         bowtiecmd += " > #{outputname}"

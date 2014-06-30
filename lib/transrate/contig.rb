@@ -11,7 +11,7 @@ module Transrate
     def_delegators :@seq, :size, :length
     attr_accessor :seq, :name, :coverage
 
-    def initialize seq, name
+    def initialize(seq, name: nil)
       @seq = seq
       @name = seq.respond_to?(:entry_id) ? seq.entry_id : name
     end
