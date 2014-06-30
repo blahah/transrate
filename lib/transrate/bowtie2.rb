@@ -26,8 +26,7 @@ module Transrate
       lbase = File.basename(left)
       rbase = File.basename(right)
       index = File.basename(@index_name)
-      dir = File.dirname(left)
-      @sam ||= "#{dir}/#{lbase}.#{rbase}.#{index}.sam"
+      @sam ||= "#{lbase}.#{rbase}.#{index}.sam"
       realistic_dist = insertsize + (3 * insertsd)
       unless File.exists? @sam
         # construct bowtie command
@@ -35,7 +34,7 @@ module Transrate
         # TODO number of cores should be variable '-p 8'
         bowtiecmd += " -p 8 -X #{realistic_dist}"
         bowtiecmd += " --quiet"
-        bowtiecmd += " -x #{File.basename(file)}"
+        bowtiecmd += " -x #{@index_name}"
         bowtiecmd += " -1 #{left}"
         # paired end?
         bowtiecmd += " -2 #{right}" if right
@@ -48,7 +47,7 @@ module Transrate
 
     def build_index file
       unless File.exists?(file + '.1.bt2')
-        @index_name = file.split(".")[0..-2].join(".")
+        @index_name = File.basename(file).split(".")[0..-2].join(".")
         cmd = "#{@bowtie2_build} --quiet --offrate 1 #{file} #{@index_name}"
         `#{cmd}`
         @index_built = true

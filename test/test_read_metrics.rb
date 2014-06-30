@@ -6,7 +6,8 @@ class TestReadMetrics < Test::Unit::TestCase
   context "ReadMetrics" do
 
     setup do
-      query = File.expand_path "test/data/sorghum_transcript.fa"
+      query = File.join(File.dirname(__FILE__), 'data',
+                        'sorghum_transcript.fa')
       assembly = Transrate::Assembly.new(query)
       @read_metrics = Transrate::ReadMetrics.new(assembly)
     end
@@ -17,7 +18,7 @@ class TestReadMetrics < Test::Unit::TestCase
           File.delete(file)
         end
         Dir["*sam"].each do |file|
-          #File.delete(file)
+          File.delete(file)
         end
       end
     end
@@ -27,16 +28,16 @@ class TestReadMetrics < Test::Unit::TestCase
     end
 
     should "run read metrics" do
-      left = File.expand_path "test/data/left.fastq"
-      right = File.expand_path "test/data/right.fastq"
-      Dir.mktmpdir do |tmpdir|
-        Dir.chdir tmpdir do
-          @read_metrics.run(left, right)
-          assert @read_metrics.has_run
-          stats = @read_metrics.read_stats
-          p stats
-          assert_equal 7763, stats[:num_pairs]
-        end
+      left = File.join(File.dirname(__FILE__), 'data', 'left.fastq')
+      right = File.join(File.dirname(__FILE__), 'data', 'right.fastq')
+      tmpdir = Dir.mktmpdir
+      puts tmpdir
+      Dir.chdir tmpdir do
+        @read_metrics.run(left, right)
+        assert @read_metrics.has_run
+        stats = @read_metrics.read_stats
+        p stats
+        assert_equal 7763, stats[:num_pairs]
       end
     end
 

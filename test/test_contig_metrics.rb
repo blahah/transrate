@@ -5,7 +5,8 @@ class TestContigMetrics < Test::Unit::TestCase
   context "transrate" do
 
     setup do
-      querypath = File.join(File.dirname(__FILE__), 'data', 'assembly.fasta')
+      querypath = File.join(File.dirname(__FILE__), 'data',
+                            'assembly.fasta')
       assembly = Transrate::Assembly.new(querypath)
       @contig_metrics = Transrate::ContigMetrics.new(assembly)
     end
