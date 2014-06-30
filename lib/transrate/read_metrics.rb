@@ -72,8 +72,10 @@ module Transrate
             line = sam.readline rescue nil
           else
             line2 = sam.readline rescue nil
-            rs.parse_line(line2)
-            self.check_read_pair(ls, rs, realistic_dist)
+            if line2
+              rs.parse_line(line2)
+              self.check_read_pair(ls, rs, realistic_dist)
+            end
             line = sam.readline rescue nil
           end
         end
