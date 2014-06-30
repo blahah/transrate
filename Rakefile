@@ -22,5 +22,17 @@ Rake::TestTask.new do |t|
   t.test_files = ['test/test_contig_metrics.rb']
 end
 
+Rake::TestTask.new do |t|
+  t.name = :read
+  t.libs << 'test'
+  t.test_files = ['test/test_read_metrics.rb']
+end
+
+Rake::TestTask.new do |t|
+  t.name = :bowtie
+  t.libs << 'test'
+  t.test_files = ['test/test_bowtie.rb']
+end
+
 desc "Run tests"
 task :default => :test
