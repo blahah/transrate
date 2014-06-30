@@ -12,38 +12,29 @@ class TestReadMetrics < Test::Unit::TestCase
       @read_metrics = Transrate::ReadMetrics.new(assembly)
     end
 
-    teardown do
-      Dir.chdir("test") do
-        Dir["*bt2"].each do |file|
-          File.delete(file)
-        end
-        Dir["*sam"].each do |file|
-          File.delete(file)
-        end
-      end
-    end
-
-    should "check setup ran correctly" do
+    should "setup correctly" do
       assert @read_metrics
     end
 
-    should "run" do
+    should "calculate read mapping statistics" do
       left = File.join(File.dirname(__FILE__), 'data', 'left.fastq')
       right = File.join(File.dirname(__FILE__), 'data', 'right.fastq')
-      tmpdir = Dir.mktmpdir
-      puts tmpdir
-      Dir.chdir tmpdir do
-        @read_metrics.run(left, right)
-        assert @read_metrics.has_run
-        stats = @read_metrics.read_stats
-        assert_equal 7763, stats[:num_pairs]
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left, right)
+          stats = @read_metrics.read_stats
+          p stats
+          assert @read_metrics.has_run
+          assert_equal 7763, stats[:num_pairs], 'number of read pairs'
+          assert_equal 7739, stats[:total_mappings], 'number mapping'
+          assert_equal 99.69, stats[:percent_mapping].round(2),
+                       'percent mapping'
+          assert_equal 7739, stats[:good_mappings], 'good mapping'
+          assert_equal 99.69, stats[:pc_good_mapping].round(2),
+                       'percent good mapping'
+          assert_equal 0, stats[:bad_mappings], 'bad mapping'
+        end
       end
-    end
-
-    should "find mapping read pairs" do
-    end
-
-    should "find read pairs that support the assembly" do
     end
 
     should "find read pairs that support scaffolding" do

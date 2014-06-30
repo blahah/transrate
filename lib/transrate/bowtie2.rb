@@ -12,16 +12,22 @@ module Transrate
 
     def initialize
       bowtie2_path = which('bowtie2')
-      raise Bowtie2Error.new("could not find bowtie2 in the path") if bowtie2_path.empty?
+      if bowtie2_path.empty?
+        raise Bowtie2Error.new("could not find bowtie2 in the path")
+      end
       @bowtie2 = bowtie2_path.first
       bowtie2_build_path = which('bowtie2-build')
-      raise Bowtie2Error.new("could not find bowtie2-build in the path") if bowtie2_build_path.empty?
+      if bowtie2_build_path.empty?
+        raise Bowtie2Error.new("could not find bowtie2-build in the path")
+      end
       @bowtie2_build = bowtie2_build_path.first
       @index_built = false
       @index_name = ""
     end
 
-    def map_reads(file, left, right, insertsize: 200, insertsd: 50, outputname: nil)
+    def map_reads(file, left,
+                  right, insertsize: 200,
+                  insertsd: 50, outputname: nil)
       raise Bowtie2Error.new("Index not built") if !@index_built
       lbase = File.basename(left)
       rbase = File.basename(right)
@@ -32,8 +38,9 @@ module Transrate
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive-local"
         # TODO number of cores should be variable '-p 8'
-        bowtiecmd += " -p 8 -X #{realistic_dist}"
-        bowtiecmd += " --quiet"
+        bowtiecmd += " -p 8 -k 10 -X #{realistic_dist}"
+        bowtiecmd += " --quiet --no-unal"
+        bowtiecmd += " --seed 1337"
         bowtiecmd += " -x #{@index_name}"
         bowtiecmd += " -1 #{left}"
         # paired end?

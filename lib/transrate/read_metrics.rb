@@ -21,13 +21,13 @@ module Transrate
 
     def run left, right, insertsize=200, insertsd=50
       @mapper.build_index @assembly.file
-      puts left
       @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
                                   insertsd: insertsd)
-      self.analyse_read_mappings(samfile, insertsize, insertsd)
-      self.analyse_coverage(samfile)
+      # check_bridges
+      analyse_read_mappings(samfile, insertsize, insertsd)
+      analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
       @pc_good_mapping = @pr_good_mapping * 100.0
