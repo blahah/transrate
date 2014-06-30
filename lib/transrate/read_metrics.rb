@@ -176,19 +176,35 @@ module Transrate
       end
     end
 
-    def analyse_expression samfile
-      express = Express.new
-      @expression = express.quantify_expression(@assembly.file, samfile)
-      @expression.each_pair do |target, count|
-        count = count.to_f
-        if count == 0
-          @unexpressed_contigs += 1
-        elsif count > 0
-          @expressed_contigs += 1
+    def analyse_coverage bamfile
+      bam = Bio::Db::Sam.new(:bam => bamfile, :fasta => @assembly.file)
+      # get per-base coverage and calculate mean,
+      # identify zero-coverage bases
+      @n_uncovered_bases = 0
+      @n_uncovered_base_contigs = 0 # any base cov < 1
+      @n_uncovered_contigs = 0 # mean cov < 1
+      @n_lowcovered_contigs = 0 # mean cov < 10
+      @assembly.each do |contig|
+        cov = bam.chromosome_coverage(contig.name,
+                                      0,
+                                      contig.length)
+        contig.coverage = cov
+        zerocov = 0
+        total = 0
+        cov.each do |e|
+          total += e
+          zerocov += 1 if e < 1
         end
+        mean = total / cov.length.to_f
+        @n_uncovered_bases += zerocov
+        @n_uncovered_case_contigs += 1 if zerocov
+        @n_uncovered_contigs += 1 if mean < 1
+        @n_lowcovered_contigs += 1 if mean < 10
       end
-      @prop_expressed = @expressed_contigs.to_f / @assembly.size
-      @percent_expressed = @prop_expressed * 100.0
+      @p_uncovered_bases = @n_uncovered_bases / @assembly.n_bases.to_f
+      @p_uncovered_base_contigs / @assembly.size.to_f
+      @p_uncovered_contigs / @assembly.size.to_f
+      @p_lowcovered_contigs / @assembly.size.to_f
     end
 
   end # ReadMetrics
