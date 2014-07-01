@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'rake'
   gem.add_dependency 'trollop'
-  gem.add_dependency 'bindeps', '~> 0.0.5'
+  gem.add_dependency 'bindeps', '~> 0.0.7'
   gem.add_dependency 'which'
   gem.add_dependency 'bio'
   gem.add_dependency 'bio-samtools'
