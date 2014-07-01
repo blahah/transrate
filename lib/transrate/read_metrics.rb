@@ -19,12 +19,13 @@ module Transrate
       self.initial_values
     end
 
-    def run left, right, insertsize=200, insertsd=50
+    def run left, right, insertsize:200, insertsd:50, threads:8
       @mapper.build_index @assembly.file
       @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
-                                  insertsd: insertsd)
+                                  insertsd: insertsd,
+                                  threads: threads)
       # check_bridges
       analyse_read_mappings(samfile, insertsize, insertsd)
       analyse_coverage(samfile)
@@ -43,6 +44,7 @@ module Transrate
         :pc_good_mapping => @pc_good_mapping,
         :bad_mappings => @bad,
         :potential_bridges => @supported_bridges,
+        :mean_coverage => @mean_coverage,
         :n_uncovered_bases => @n_uncovered_bases,
         :p_uncovered_bases => @p_uncovered_bases,
         :n_uncovered_base_contigs => @n_uncovered_base_contigs,
@@ -117,7 +119,7 @@ module Transrate
       @total += 1
       if ls.both_mapped?
         # reads are paired
-        @both_mapped += 1
+        @both_mapped += 1 if ls.primary_aln?
         if ls.read_properly_paired?
           # mapped in proper pair
           @properly_paired += 1
@@ -195,18 +197,24 @@ module Transrate
       end
     end
 
-    def analyse_coverage bamfile
+    def analyse_coverage samfile
+      bamfile = Samtools.sam_to_bam samfile
+      bamfile = Samtools.sort_bam bamfile
+      Samtools.index_bam bamfile
       bam = Bio::DB::Sam.new(:bam => bamfile, :fasta => @assembly.file)
+      puts @assembly.file
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       @n_uncovered_bases = 0
       @n_uncovered_base_contigs = 0 # any base cov < 1
       @n_uncovered_contigs = 0 # mean cov < 1
       @n_lowcovered_contigs = 0 # mean cov < 10
+      tot_length = 0
+      tot_coverage = 0
       @assembly.each do |contig|
         cov = bam.chromosome_coverage(contig.name,
-                                      0,
-                                      contig.length)
+                                      1,
+                                      contig.length-1)
         contig.coverage = cov
         zerocov = 0
         total = 0
@@ -214,12 +222,15 @@ module Transrate
           total += e
           zerocov += 1 if e < 1
         end
+        tot_length += cov.length
+        tot_coverage += total
         mean = total / cov.length.to_f
         @n_uncovered_bases += zerocov
         @n_uncovered_base_contigs += 1 if zerocov > 0
         @n_uncovered_contigs += 1 if mean < 1
         @n_lowcovered_contigs += 1 if mean < 10
       end
+      @mean_coverage = (tot_coverage / tot_length.to_f).round(2)
       @p_uncovered_bases = @n_uncovered_bases / @assembly.n_bases.to_f
       @p_uncovered_base_contigs = @n_uncovered_base_contigs /
                                   @assembly.size.to_f

@@ -38,7 +38,7 @@ module Transrate
     #
     # @param file [String] path to the assembly FASTA file
     def initialize file
-      @file = file
+      @file = File.expand_path file
       @assembly = []
       @n_bases = 0
       Bio::FastaFormat.open(file).each do |entry|

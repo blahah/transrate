@@ -91,11 +91,11 @@ opts.assembly.split(',').each do |assembly|
 
   a = Assembly.new assembly
   transrater = Transrater.new(a, r,
-                            opts.left,
-                            opts.right,
-                            opts.insertsize,
-                            opts.insertsd,
-                            opts.threads)
+                            left: opts.left,
+                            right: opts.right,
+                            insertsize: opts.insertsize,
+                            insertsd: opts.insertsd,
+                            threads: opts.threads)
 
 
   log "\nAnalysing assembly: #{assembly}\n\n"
@@ -120,7 +120,8 @@ opts.assembly.split(',').each do |assembly|
   if (opts.left && opts.right)
     log "\ncalculating read diagnostics..."
     t0 = Time.now
-    read_results = transrater.read_metrics(opts.left, opts.right).read_stats
+    read_results = transrater.read_metrics(opts.left,
+                                           opts.right).read_stats
 
     if read_results
       log "\n"

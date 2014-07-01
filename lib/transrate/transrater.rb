@@ -22,15 +22,23 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def initialize(assembly, reference, left=nil, right=nil, insertsize=nil,
-                   insertsd=nil, threads=1)
-      @assembly  = assembly.is_a?(Assembly)  ? assembly  : Assembly.new(assembly)
+    def initialize(assembly, reference,
+                   left: nil, right: nil,
+                   insertsize: nil, insertsd: nil,
+                   threads: 1)
+      @assembly = assembly.is_a?(Assembly) ? assembly : Assembly.new(assembly)
       if reference
-        @reference = reference.is_a?(Assembly) ? reference : Assembly.new(reference)
+        if reference.is_a?(Assembly)
+          @reference = reference
+        else
+          @reference = Assembly.new(reference)
+        end
       end
       @read_metrics = ReadMetrics.new @assembly
-      @comparative_metrics = ComparativeMetrics.new(@assembly, @reference,
+      @comparative_metrics = ComparativeMetrics.new(@assembly,
+                                                    @reference,
                                                     threads)
+      @threads = threads
     end
 
     # Run all analyses
@@ -72,7 +80,9 @@ module Transrate
     end
 
     def read_metrics left=nil, right=nil
-      @read_metrics.run(left, right) unless @read_metrics.has_run
+      unless @read_metrics.has_run
+        @read_metrics.run(left, right, threads: @threads)
+      end
       @read_metrics
     end
 
