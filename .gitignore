@@ -34,3 +34,5 @@ dryrun
 *.nsq
 *.bt2
 *.fai
+*.bam
+*.csv
