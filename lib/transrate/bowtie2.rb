@@ -33,7 +33,7 @@ module Transrate
       lbase = File.basename(left)
       rbase = File.basename(right)
       index = File.basename(@index_name)
-      @sam ||= "#{lbase}.#{rbase}.#{index}.sam"
+      @sam ||= File.expand_path("#{lbase}.#{rbase}.#{index}.sam")
       realistic_dist = insertsize + (3 * insertsd)
       unless File.exists? @sam
         # construct bowtie command
@@ -45,7 +45,7 @@ module Transrate
         bowtiecmd += " -1 #{left}"
         # paired end?
         bowtiecmd += " -2 #{right}" if right
-        bowtiecmd += " &> #{@sam}"
+        bowtiecmd += " > #{@sam}"
         # run bowtie
         `#{bowtiecmd}`
       end
