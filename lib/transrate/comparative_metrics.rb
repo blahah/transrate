@@ -26,6 +26,8 @@ module Transrate
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
       @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
       @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
+      @p_contigs_with_recip = @crbblast.reciprocals.size / @assembly.size.to_f
+      @n_contigs_with_recip = @crbblast.reciprocals.size
       @has_run = true
     end
 
@@ -33,6 +35,8 @@ module Transrate
       {
         :reciprocal_hits => @reciprocal_hits,
         :rbh_per_contig => @rbh_per_contig,
+        :p_contigs_with_recip => @p_contigs_with_recip,
+        :n_contigs_with_recip => @n_contigs_with_recip,
         :rbh_per_reference => @rbh_per_reference,
         :reference_coverage => @reference_coverage,
         :ortholog_hit_ratio => @ortholog_hit_ratio,

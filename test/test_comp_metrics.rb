@@ -7,10 +7,10 @@ class TestCompMetrics < Test::Unit::TestCase
     setup do
       querypath = File.join(File.dirname(__FILE__),
                             'data',
-                            'assembly.fasta')
+                            'assembly.2.fa')
       targetpath = File.join(File.dirname(__FILE__),
                             'data',
-                            'Os.protein.fa')
+                            'Os.protein.2.fa')
       assembly = Transrate::Assembly.new(querypath)
       reference = Transrate::Assembly.new(targetpath)
       threads = 8
@@ -103,6 +103,9 @@ class TestCompMetrics < Test::Unit::TestCase
     end
 
     should "calculate number of contigs with crbblast hit" do
+      @comp.run
+      assert_equal 11, @comp.comp_stats[:n_contigs_with_recip]
+      assert_equal 11/13.0, @comp.comp_stats[:p_contigs_with_recip]
     end
 
     should "calculate number of reference sequences with crbblast hit" do
