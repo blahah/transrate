@@ -202,7 +202,6 @@ module Transrate
       bamfile = Samtools.sort_bam bamfile
       Samtools.index_bam bamfile
       bam = Bio::DB::Sam.new(:bam => bamfile, :fasta => @assembly.file)
-      puts @assembly.file
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       @n_uncovered_bases = 0
