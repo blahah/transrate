@@ -8,7 +8,9 @@ class TestCompMetrics < Test::Unit::TestCase
       querypath = File.join(File.dirname(__FILE__),
                             'data',
                             'assembly.fasta')
-      targetpath = File.join(File.dirname(__FILE__), 'data', 'Os.protein.fa')
+      targetpath = File.join(File.dirname(__FILE__),
+                            'data',
+                            'Os.protein.fa')
       assembly = Transrate::Assembly.new(querypath)
       reference = Transrate::Assembly.new(targetpath)
       threads = 8
