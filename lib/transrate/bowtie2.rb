@@ -45,7 +45,7 @@ module Transrate
         bowtiecmd += " -1 #{left}"
         # paired end?
         bowtiecmd += " -2 #{right}" if right
-        bowtiecmd += " > #{@sam}"
+        bowtiecmd += " -S #{@sam}"
         # run bowtie
         `#{bowtiecmd}`
       end
