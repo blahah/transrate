@@ -67,7 +67,7 @@ module Transrate
         list.each do |hit|
           target_length = hit.tlen
           target_length *= 3 if crbblast.target_is_prot
-          start, stop = [hit.qstart, hit.qend].minmax
+          start, stop = [hit.tstart, hit.tend].minmax
           if blocks.empty?
             blocks << [start, stop]
           else
