@@ -2,7 +2,7 @@ require 'set'
 require 'crb-blast'
 
 module Transrate
-  
+
   class ComparativeMetrics
 
     attr_reader :rbh_per_contig
@@ -18,11 +18,11 @@ module Transrate
     end
 
     def run
-      self.reciprocal_best_blast
-      self.ortholog_hit_ratio
-      self.chimeras
-      @collapse_factor = collapse_factor @ra.target_results
-      @reciprocal_hits = @ra.size
+      @crbblast = reciprocal_best_blast
+      @ortholog_hit_ratio = ortholog_hit_ratio @crbblast
+      @potential_chimera_ratio = chimeras @crbblast
+      @collapse_factor = collapse_factor @crbblast.target_results
+      @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
       @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
       @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
@@ -41,33 +41,32 @@ module Transrate
     end
 
     def reciprocal_best_blast
-      @ra = CRB_Blast.new @assembly.file, @reference.file
-      @ra.run 1e-5, @threads
+      crbblast = CRB_Blast.new @assembly.file, @reference.file
+      crbblast.run 1e-5, @threads
+      crbblast
     end
 
     # coverage of contigs that have reciprocal hits
     # divided by
     # number of reciprocal targets
-    def ortholog_hit_ratio
+    def ortholog_hit_ratio crbblast
       return @ortholog_hit_ratio unless @ortholog_hit_ratio.nil?
-      
+
       targets = Hash.new
-      @ra.reciprocals.each_pair do |key, list|
+      crbblast.reciprocals.each_pair do |key, list|
         list.each do |hit|
           targets[hit.target] ||= [] # if key doesn't exist add it with a []
           targets[hit.target] << hit
         end
       end
-
       total_coverage=0
       total_length=0
       targets.each_pair do |key, list|
-
         blocks = []
         target_length = 0
         list.each do |hit|
           target_length = hit.tlen
-          target_length *= 3 if @ra.target_is_prot
+          target_length *= 3 if crbblast.target_is_prot
           start, stop = [hit.qstart, hit.qend].minmax
           if blocks.empty?
             blocks << [start, stop]
@@ -91,13 +90,13 @@ module Transrate
               # elsif o == 4 # full overlap
                 # nothing
               # elsif o == 5 || o == 6 # no overlap
-                
+
               end
             end
             if !found
               blocks << [start, stop]
             end
-            # if any blocks now overlap then extend one block and remove 
+            # if any blocks now overlap then extend one block and remove
             # the other
           end
         end
@@ -143,20 +142,16 @@ module Transrate
             puts "error: key = #{key}, #{blocks}"
           end
         end
-        # print "key = #{key}\t"
-        # print "length_of_coverage = #{length_of_coverage}\t"
-        # print "target_length = #{target_length}\n"
         total_coverage += length_of_coverage
         total_length += target_length
       end
-      @ortholog_hit_ratio = total_coverage / total_length.to_f
+      return ortholog_hit_ratio = total_coverage / total_length.to_f
     end
 
-    def chimeras
+    def chimeras crbblast
       return @potential_chimera_ratio unless @potential_chimera_ratio.nil?
       potential_chimeras = 0
-
-      @ra.reciprocals.each_pair do |key, list|
+      crbblast.reciprocals.each_pair do |key, list|
         blocks = []
         list.each do |hit|
           start, stop = [hit.qstart, hit.qend].minmax
@@ -182,7 +177,6 @@ module Transrate
               # elsif o == 4 # full overlap
                 # nothing
               # elsif o == 5 || o == 6 # no overlap
-                
               end
             end
             if !found
@@ -190,7 +184,7 @@ module Transrate
             end
           end
         end
-        # if any blocks now overlap then extend one block and remove 
+        # if any blocks now overlap then extend one block and remove
         # the other
         blocks.each_with_index do |block_a,a|
           blocks.each_with_index do |block_b,b|
@@ -230,7 +224,8 @@ module Transrate
         end
       end
 
-      @potential_chimera_ratio = potential_chimeras / @ra.reciprocals.length.to_f
+      return potential_chimera_ratio = potential_chimeras /
+                                       crbblast.reciprocals.length.to_f
     end
 
     def overlap(astart, astop, bstart, bstop)
@@ -265,7 +260,7 @@ module Transrate
       hits.each_pair do |query, list|
         list.each do |hit|
           target = hit.target
-          unless targets.has_key? target 
+          unless targets.has_key? target
             targets[target] = Set.new
           end
           targets[target] << query
