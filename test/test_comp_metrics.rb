@@ -71,9 +71,10 @@ class TestCompMetrics < Test::Unit::TestCase
       crb = CRBHelper.new(false)
 
       hash = Hash.new
-      (1..2).each do |i|
-        hash["q#{i}"] = []
-      end
+      # (1..3).each do |i|
+      #   hash["q#{i}"] = []
+      # end
+      hash["q1"]=[]
 
       # T1   |---------|
       # T2                 |---------|
@@ -81,8 +82,23 @@ class TestCompMetrics < Test::Unit::TestCase
       hash["q1"] << HitHelper.new("q1", "t1", 101, 200, 1, 100, 500, 100)
       hash["q1"] << HitHelper.new("q1", "t2", 301, 400, 1, 100, 400, 100)
 
+
+      # T3   |---------|
+      # T3                 |---------|
+      # Q2 |----------------------------|
+      # chimera = true because the reference has the region 1-100 duplicated
+      # hash["q2"] << HitHelper.new("q2", "t3", 101, 200, 1, 100, 500, 100)
+      # hash["q2"] << HitHelper.new("q2", "t3", 301, 400, 1, 100, 400, 100)
+
+      # # T3   |---------|
+      # # T3                 |---------|
+      # # Q2 |----------------------------|
+      # # chimera = false because the reference
+      # hash["q3"] << HitHelper.new("q3", "t4", 101, 200, 1, 100, 500, 100)
+      # hash["q3"] << HitHelper.new("q3", "t4", 301, 400, 1, 100, 400, 100)
+
       crb.hash = hash
-      chi = @comp.ortholog_hit_ratio crb
+      chi = @comp.chimeras crb
       assert_equal 1, chi
     end
 
