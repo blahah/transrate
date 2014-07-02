@@ -15,17 +15,6 @@ class TestBowtie < Test::Unit::TestCase
       @mapper = Transrate::Bowtie2.new
     end
 
-    teardown do
-      Dir.chdir("test") do |dir|
-        Dir["*bt2"].each do |file|
-          File.delete(file)
-        end
-        Dir["*sam"].each do |file|
-          File.delete(file)
-        end
-      end
-    end
-
     should "build index" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
