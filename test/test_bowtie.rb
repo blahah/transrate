@@ -10,20 +10,9 @@ class TestBowtie < Test::Unit::TestCase
     setup do
       @reference = File.join(File.dirname(__FILE__), 'data',
        'sorghum_transcript.fa')
-      @left = File.join(File.dirname(__FILE__), 'data', 'left.fastq')
-      @right = File.join(File.dirname(__FILE__), 'data', 'right.fastq')
+      @left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      @right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
       @mapper = Transrate::Bowtie2.new
-    end
-
-    teardown do
-      Dir.chdir("test") do |dir|
-        Dir["*bt2"].each do |file|
-          File.delete(file)
-        end
-        Dir["*sam"].each do |file|
-          File.delete(file)
-        end
-      end
     end
 
     should "build index" do
@@ -44,7 +33,9 @@ class TestBowtie < Test::Unit::TestCase
           index = File.basename(@mapper.index_name)
           @mapper.map_reads(@reference, @left, @right)
           sam = @mapper.sam
-          assert File.exist?("#{sam}")
+          assert File.exist?("#{sam}"), "sam file doesn't exist"
+          assert_in_delta 139895.to_f, File.size(sam).to_f, 10.0,
+                          'sam file size wrong'
         end
       end
     end

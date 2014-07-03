@@ -2,7 +2,7 @@ require 'set'
 require 'crb-blast'
 
 module Transrate
-  
+
   class ComparativeMetrics
 
     attr_reader :rbh_per_contig
@@ -18,14 +18,17 @@ module Transrate
     end
 
     def run
-      self.reciprocal_best_blast
-      self.ortholog_hit_ratio
-      self.chimeras
-      @collapse_factor = collapse_factor @ra.target_results
-      @reciprocal_hits = @ra.size
+      @crbblast = reciprocal_best_blast
+      @ortholog_hit_ratio = ortholog_hit_ratio @crbblast
+      @potential_chimera_ratio = chimeras @crbblast
+      @collapse_factor = collapse_factor @crbblast.target_results
+      @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
       @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
       @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
+      @p_contigs_with_recip = @crbblast.reciprocals.size / @assembly.size.to_f
+      @n_contigs_with_recip = @crbblast.reciprocals.size
+      @p_refs_with_recip = @n_refs_with_recip / @reference.size.to_f
       @has_run = true
     end
 
@@ -33,42 +36,60 @@ module Transrate
       {
         :reciprocal_hits => @reciprocal_hits,
         :rbh_per_contig => @rbh_per_contig,
+        :p_contigs_with_recip => @p_contigs_with_recip,
+        :n_contigs_with_recip => @n_contigs_with_recip,
+        :p_refs_with_recip => @p_refs_with_recip,
+        :n_refs_with_recip => @n_refs_with_recip,
         :rbh_per_reference => @rbh_per_reference,
         :reference_coverage => @reference_coverage,
         :ortholog_hit_ratio => @ortholog_hit_ratio,
-        :collapse_factor => @collapse_factor
+        :collapse_factor => @collapse_factor,
+        :cov25 => @cov[0],
+        :cov50 => @cov[1],
+        :cov75 => @cov[2],
+        :cov85 => @cov[3],
+        :cov95 => @cov[4],
+        :p_cov25 => @cov[0]/@reference.size.to_f,
+        :p_cov50 => @cov[1]/@reference.size.to_f,
+        :p_cov75 => @cov[2]/@reference.size.to_f,
+        :p_cov85 => @cov[3]/@reference.size.to_f,
+        :p_cov95 => @cov[4]/@reference.size.to_f
       }
     end
 
     def reciprocal_best_blast
-      @ra = CRB_Blast.new @assembly.file, @reference.file
-      @ra.run 1e-5, @threads
+      crbblast = CRB_Blast.new @assembly.file, @reference.file
+      crbblast.run 1e-5, @threads
+      crbblast
     end
 
     # coverage of contigs that have reciprocal hits
     # divided by
     # number of reciprocal targets
-    def ortholog_hit_ratio
+    def ortholog_hit_ratio crbblast
       return @ortholog_hit_ratio unless @ortholog_hit_ratio.nil?
-      
+
       targets = Hash.new
-      @ra.reciprocals.each_pair do |key, list|
+      crbblast.reciprocals.each_pair do |key, list|
         list.each do |hit|
           targets[hit.target] ||= [] # if key doesn't exist add it with a []
           targets[hit.target] << hit
         end
       end
-
+      @n_refs_with_recip = targets.size
       total_coverage=0
       total_length=0
       targets.each_pair do |key, list|
-
         blocks = []
         target_length = 0
         list.each do |hit|
           target_length = hit.tlen
-          target_length *= 3 if @ra.target_is_prot
-          start, stop = [hit.qstart, hit.qend].minmax
+          if crbblast.target_is_prot
+            target_length *= 3
+            start, stop = [hit.tstart*3, hit.tend*3].minmax
+          else
+            start, stop = [hit.tstart, hit.tend].minmax
+          end
           if blocks.empty?
             blocks << [start, stop]
           else
@@ -91,13 +112,13 @@ module Transrate
               # elsif o == 4 # full overlap
                 # nothing
               # elsif o == 5 || o == 6 # no overlap
-                
+
               end
             end
             if !found
               blocks << [start, stop]
             end
-            # if any blocks now overlap then extend one block and remove 
+            # if any blocks now overlap then extend one block and remove
             # the other
           end
         end
@@ -143,20 +164,24 @@ module Transrate
             puts "error: key = #{key}, #{blocks}"
           end
         end
-        # print "key = #{key}\t"
-        # print "length_of_coverage = #{length_of_coverage}\t"
-        # print "target_length = #{target_length}\n"
+        cov = [0.25, 0.5, 0.75, 0.85, 0.95]
+        @cov ||= [0, 0, 0, 0, 0]
+        p = length_of_coverage / target_length.to_f
+        cov.each_with_index do |c, i|
+          if p >= c
+            @cov[i] +=1
+          end
+        end
         total_coverage += length_of_coverage
         total_length += target_length
       end
-      @ortholog_hit_ratio = total_coverage / total_length.to_f
+      return ortholog_hit_ratio = total_coverage / total_length.to_f
     end
 
-    def chimeras
+    def chimeras crbblast
       return @potential_chimera_ratio unless @potential_chimera_ratio.nil?
       potential_chimeras = 0
-
-      @ra.reciprocals.each_pair do |key, list|
+      crbblast.reciprocals.each_pair do |key, list|
         blocks = []
         list.each do |hit|
           start, stop = [hit.qstart, hit.qend].minmax
@@ -182,7 +207,6 @@ module Transrate
               # elsif o == 4 # full overlap
                 # nothing
               # elsif o == 5 || o == 6 # no overlap
-                
               end
             end
             if !found
@@ -190,7 +214,7 @@ module Transrate
             end
           end
         end
-        # if any blocks now overlap then extend one block and remove 
+        # if any blocks now overlap then extend one block and remove
         # the other
         blocks.each_with_index do |block_a,a|
           blocks.each_with_index do |block_b,b|
@@ -230,7 +254,8 @@ module Transrate
         end
       end
 
-      @potential_chimera_ratio = potential_chimeras / @ra.reciprocals.length.to_f
+      return potential_chimera_ratio = potential_chimeras /
+                                       crbblast.reciprocals.length.to_f
     end
 
     def overlap(astart, astop, bstart, bstop)
@@ -265,7 +290,7 @@ module Transrate
       hits.each_pair do |query, list|
         list.each do |hit|
           target = hit.target
-          unless targets.has_key? target 
+          unless targets.has_key? target
             targets[target] = Set.new
           end
           targets[target] << query
