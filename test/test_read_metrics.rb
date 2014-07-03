@@ -24,12 +24,12 @@ class TestReadMetrics < Test::Unit::TestCase
           @read_metrics.run(left, right)
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run
-          assert_equal 7763, stats[:num_pairs], 'number of read pairs'
-          assert_equal 7017, stats[:total_mappings], 'number mapping'
-          assert_equal 90.39, stats[:percent_mapping].round(2),
+          assert_equal 257, stats[:num_pairs], 'number of read pairs'
+          assert_equal 236, stats[:total_mappings], 'number mapping'
+          assert_equal 91.83, stats[:percent_mapping].round(2),
                        'percent mapping'
-          assert_equal 7017, stats[:good_mappings], 'good mapping'
-          assert_equal 90.39, stats[:pc_good_mapping].round(2),
+          assert_equal 236, stats[:good_mappings], 'good mapping'
+          assert_equal 91.83, stats[:pc_good_mapping].round(2),
                        'percent good mapping'
           assert_equal 0, stats[:bad_mappings], 'bad mapping'
         end

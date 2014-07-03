@@ -34,7 +34,7 @@ class TestBowtie < Test::Unit::TestCase
           @mapper.map_reads(@reference, @left, @right)
           sam = @mapper.sam
           assert File.exist?("#{sam}")
-          assert_equal 4940290, File.size(sam)
+          assert_equal 162176, File.size(sam)
         end
       end
     end
