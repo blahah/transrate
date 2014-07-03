@@ -202,7 +202,6 @@ module Transrate
       bamfile = Samtools.sort_bam bamfile
       Samtools.index_bam bamfile
       bam = Bio::DB::Sam.new(:bam => bamfile, :fasta => @assembly.file)
-      puts @assembly.file
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       @n_uncovered_bases = 0
@@ -212,9 +211,7 @@ module Transrate
       tot_length = 0
       tot_coverage = 0
       @assembly.each do |contig|
-        cov = bam.chromosome_coverage(contig.name,
-                                      1,
-                                      contig.length-1)
+        cov = Samtools.coverage(bam, contig)
         contig.coverage = cov
         zerocov = 0
         total = 0
