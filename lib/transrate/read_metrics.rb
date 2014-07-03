@@ -52,8 +52,7 @@ module Transrate
         :n_uncovered_contigs => @n_uncovered_contigs,
         :p_uncovered_contigs => @p_uncovered_contigs,
         :n_lowcovered_contigs => @n_lowcovered_contigs,
-        :p_lowcovered_contigs => @p_lowcovered_contigs,
-        :n_uncovered_contigs => @n_uncovered_contigs
+        :p_lowcovered_contigs => @p_lowcovered_contigs
       }
     end
 
