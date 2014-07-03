@@ -122,7 +122,45 @@ class TestCompMetrics < Test::Unit::TestCase
       end
     end
 
-    should "calculate references sequences coverage" do
+    should "calculate reference sequence coverage" do
+      # n&p of reference sequences covered to (25, 50, 75, 85, 95%)
+      # of their length by CRB-BLAST hit
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir do
+          @comp.run
+          stats = @comp.comp_stats
+          assert_equal 10, stats[:cov25]
+          assert_equal 10, stats[:cov50]
+          assert_equal 7, stats[:cov75]
+          assert_equal 6, stats[:cov85]
+          assert_equal 3, stats[:cov95]
+        end
+      end
+    end
+
+    should "number of reference sequences coverage" do
+      # n&p of reference sequences covered to (25, 50, 75, 85, 95%)
+      # of their length by CRB-BLAST hit
+      crb = CRBHelper.new(false)
+
+      hash = Hash.new
+      (1..5).each do |i|
+        hash["q#{i}"] = []
+      end
+      hash["q1"] << HitHelper.new("q1", "t1", 1, 250, 101, 350, 250, 1000)
+      hash["q2"] << HitHelper.new("q2", "t2", 1, 500, 101, 600, 500, 1000)
+      hash["q3"] << HitHelper.new("q3", "t3", 1, 750, 101, 850, 750, 1000)
+      hash["q4"] << HitHelper.new("q4", "t4", 1, 850, 101, 950, 850, 1000)
+      hash["q5"] << HitHelper.new("q5", "t5", 1, 950, 1, 950, 950, 1000)
+
+      crb.hash = hash
+      ohr = @comp.ortholog_hit_ratio crb
+      stats = @comp.comp_stats
+      assert_equal 5, stats[:cov25]
+      assert_equal 4, stats[:cov50]
+      assert_equal 3, stats[:cov75]
+      assert_equal 2, stats[:cov85]
+      assert_equal 1, stats[:cov95]
     end
 
   end

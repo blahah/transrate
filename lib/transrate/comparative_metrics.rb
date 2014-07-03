@@ -43,7 +43,17 @@ module Transrate
         :rbh_per_reference => @rbh_per_reference,
         :reference_coverage => @reference_coverage,
         :ortholog_hit_ratio => @ortholog_hit_ratio,
-        :collapse_factor => @collapse_factor
+        :collapse_factor => @collapse_factor,
+        :cov25 => @cov[0],
+        :cov50 => @cov[1],
+        :cov75 => @cov[2],
+        :cov85 => @cov[3],
+        :cov95 => @cov[4],
+        :p_cov25 => @cov[0]/@reference.size.to_f,
+        :p_cov50 => @cov[1]/@reference.size.to_f,
+        :p_cov75 => @cov[2]/@reference.size.to_f,
+        :p_cov85 => @cov[3]/@reference.size.to_f,
+        :p_cov95 => @cov[4]/@reference.size.to_f
       }
     end
 
@@ -74,8 +84,12 @@ module Transrate
         target_length = 0
         list.each do |hit|
           target_length = hit.tlen
-          target_length *= 3 if crbblast.target_is_prot
-          start, stop = [hit.tstart, hit.tend].minmax
+          if crbblast.target_is_prot
+            target_length *= 3
+            start, stop = [hit.tstart*3, hit.tend*3].minmax
+          else
+            start, stop = [hit.tstart, hit.tend].minmax
+          end
           if blocks.empty?
             blocks << [start, stop]
           else
@@ -148,6 +162,14 @@ module Transrate
             end
           else
             puts "error: key = #{key}, #{blocks}"
+          end
+        end
+        cov = [0.25, 0.5, 0.75, 0.85, 0.95]
+        @cov ||= [0, 0, 0, 0, 0]
+        p = length_of_coverage / target_length.to_f
+        cov.each_with_index do |c, i|
+          if p >= c
+            @cov[i] +=1
           end
         end
         total_coverage += length_of_coverage
