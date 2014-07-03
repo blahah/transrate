@@ -29,12 +29,15 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 90.58, stats[:percent_mapping].round(2),
                        'percent mapping'
           assert_equal 202, stats[:good_mappings], 'good mapping'
-          assert_equal 90.58, stats[:pc_good_mapping].round(2),
+          assert_equal 90.58,
+                       stats[:pc_good_mapping].round(2),
                        'percent good mapping'
           assert_equal 0, stats[:bad_mappings], 'bad mapping'
           assert_equal 22.91, stats[:mean_coverage].round(2), 'mean coverage'
           assert_equal 11, stats[:n_uncovered_bases], 'n uncovered bases'
-          assert_equal 0.007, stats[:p_uncovered_bases].round(3), 'p uncovered bases'
+          assert_equal 0.007,
+                       stats[:p_uncovered_bases].round(3),
+                       'p uncovered bases'
         end
       end
     end
