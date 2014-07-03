@@ -43,9 +43,9 @@ module Transrate
       File.expand_path index
     end
 
-    def self.coverage(bam, contig)#
+    def self.coverage(bam, contig)
       region = "#{contig.name}:1-#{contig.length}"
-      result = []
+      result = Array.new(contig.length, 0)
       cmd = "mpileup"
       cmd += " -r #{region}" # region
       cmd += " -f #{bam.fasta}" # reference
@@ -54,8 +54,12 @@ module Transrate
       cmd += " -I" # don't do genotype calculations
       cmd += " #{bam.bam}" # the bam file
       cov_idx = 3
+      pos_idx = 1
       Samtools.run(cmd).split("\n").each do |line|
-        result << line.chomp.split("\t")[cov_idx].to_i
+        cols = line.chomp.split("\t")
+        cov = cols[cov_idx].to_i
+        pos = cols[pos_idx].to_i
+        result[pos - 1] = cov
       end
       result
     end
