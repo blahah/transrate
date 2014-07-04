@@ -50,6 +50,15 @@ class TestReadMetrics < Test::Unit::TestCase
     end
 
     should "find read pairs that support scaffolding" do
+      left = File.join(File.dirname(__FILE__), 'data', 'bridging_reads.l.fastq')
+      right = File.join(File.dirname(__FILE__), 'data', 'bridging_reads.r.fastq')
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left, right)
+          stats = @read_metrics.read_stats
+          assert_equal 1, stats[:potential_bridges], 'potential bridges'
+        end
+      end
     end
 
     should "count per-base coverage" do
