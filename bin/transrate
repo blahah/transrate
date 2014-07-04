@@ -4,6 +4,7 @@ require 'trollop'
 require 'transrate'
 require 'csv'
 require 'bindeps'
+require 'ruby-prof'
 
 gem_dir = Gem.loaded_specs['transrate'].full_gem_path
 gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
@@ -56,6 +57,11 @@ opts = Trollop::options do
   opt :outfile, "filename to use for CSV output",
       :default => 'transate_results.csv'
   opt :quiet, "don't print results - only save to file"
+  opt :profile, "debug option: profile the code as it runs"
+end
+
+if opts.profile
+  RubyProf.start
 end
 
 def pretty_print_hash hash, width
@@ -180,4 +186,10 @@ CSV.open(outfile, 'wb') do |file|
   all.each do |row|
     file << head.map { |x| row[x] }
   end
+end
+
+if opts.profile
+  result = RubyProf.stop
+  printer = RubyProf::FlatPrinter.new(result)
+  printer.print(File.open('transrate_profile.txt', 'w'))
 end

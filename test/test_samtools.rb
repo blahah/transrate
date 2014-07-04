@@ -13,7 +13,7 @@ class TestSamtools < Test::Unit::TestCase
 
     should "run commands" do
       sam = File.join(File.dirname(__FILE__), 'data', 'tiny.sam')
-      Transrate::Samtools.run "view -bS #{sam} > tiny.bam 2> /dev/null"
+      Transrate::Samtools.run "view -bS #{sam} > tiny.bam"
       assert_equal 460, File.size('tiny.bam'), 'bam file should be created'
       File.delete 'tiny.bam'
     end

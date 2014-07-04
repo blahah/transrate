@@ -47,7 +47,8 @@ module Transrate
         bowtiecmd += " -2 #{right}" if right
         bowtiecmd += " -S #{@sam}"
         # run bowtie
-        `#{bowtiecmd}`
+        runner = Cmd.new bowtiecmd
+        runner.run
       end
       @sam
     end
@@ -56,7 +57,8 @@ module Transrate
       unless File.exists?(File.basename(file) + '.1.bt2')
         @index_name = File.basename(file).split(".")[0..-2].join(".")
         cmd = "#{@bowtie2_build} --quiet --offrate 1 #{file} #{@index_name}"
-        `#{cmd} 2>&1`
+        runner = Cmd.new cmd
+        runner.run
       end
       @index_built = true
     end
