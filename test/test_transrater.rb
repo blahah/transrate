@@ -19,12 +19,6 @@ class TestTransrater < Test::Unit::TestCase
       assert @rater
     end
 
-    should "raise error when reference input is nil" do
-      assert_raise RuntimeError do
-        rater = Transrate::Transrater.new(@assembly, nil)
-      end
-    end
-
     should "raise error when assembly input is nil" do
       assert_raise RuntimeError do
         rater = Transrate::Transrater.new(nil, @reference)
@@ -45,7 +39,7 @@ class TestTransrater < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           stats = @rater.assembly_metrics
-          assert_equal 1198, stats.n50
+          assert_equal 1566, stats.n50
           assert_equal 10331, stats.n_bases
         end
       end

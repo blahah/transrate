@@ -97,11 +97,11 @@ opts.assembly.split(',').each do |assembly|
 
   a = Assembly.new assembly
   transrater = Transrater.new(a, r,
-                            left: opts.left,
-                            right: opts.right,
-                            insertsize: opts.insertsize,
-                            insertsd: opts.insertsd,
-                            threads: opts.threads)
+                              left: opts.left,
+                              right: opts.right,
+                              insertsize: opts.insertsize,
+                              insertsd: opts.insertsd,
+                              threads: opts.threads)
 
 
   log "\nAnalysing assembly: #{assembly}\n\n"
