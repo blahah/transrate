@@ -19,8 +19,12 @@ class TestCompMetrics < Test::Unit::TestCase
 
 
     should "run metrics on assembly" do
-      @comp.run
-      assert @comp.has_run
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @comp.run
+          assert @comp.has_run
+        end
+      end
     end
 
     should "calculate ortholog hit ratio" do
@@ -110,7 +114,7 @@ class TestCompMetrics < Test::Unit::TestCase
 
     should "calculate number of contigs with crbblast hit" do
       Dir.mktmpdir do |tmpdir|
-        Dir.chdir do
+        Dir.chdir tmpdir do
           @comp.run
           assert_equal 11, @comp.comp_stats[:n_contigs_with_recip]
           assert_equal 11/13.0, @comp.comp_stats[:p_contigs_with_recip]
@@ -120,7 +124,7 @@ class TestCompMetrics < Test::Unit::TestCase
 
     should "calculate number of reference sequences with crbblast hit" do
       Dir.mktmpdir do |tmpdir|
-        Dir.chdir do
+        Dir.chdir tmpdir do
           @comp.run
           assert_equal 10, @comp.comp_stats[:n_refs_with_recip]
           assert_equal 0.5, @comp.comp_stats[:p_refs_with_recip]
@@ -132,7 +136,7 @@ class TestCompMetrics < Test::Unit::TestCase
       # n&p of reference sequences covered to (25, 50, 75, 85, 95%)
       # of their length by CRB-BLAST hit
       Dir.mktmpdir do |tmpdir|
-        Dir.chdir do
+        Dir.chdir tmpdir do
           @comp.run
           stats = @comp.comp_stats
           assert_equal 10, stats[:cov25]
