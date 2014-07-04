@@ -214,85 +214,85 @@ module Transrate
                                        crbblast.reciprocals.length.to_f
     end
 
-    def chimeras crbblast
-      return @potential_chimera_ratio unless @potential_chimera_ratio.nil?
-      potential_chimeras = 0
-      crbblast.reciprocals.each_pair do |key, list|
-        blocks = []
-        list.each do |hit|
-          start, stop = [hit.qstart, hit.qend].minmax
-          if blocks.empty?
-            blocks << [start, stop]
-          else
-            found=false
-            blocks.each do |block|
-              # if query overlaps with any block extend that block
-              o = overlap(block[0], block[1], start, stop)
-              if o == 0 # perfect overlap
-                found=true
-              elsif o == 1 # partial overlap
-                block[0] = start
-                found=true
-              elsif o == 2 # partial overlap
-                block[1] = stop
-                found=true
-              elsif o == 3 # full overlap
-                block[0] = start
-                block[1] = stop
-                found=true
-              # elsif o == 4 # full overlap
-                # nothing
-              # elsif o == 5 || o == 6 # no overlap
-              end
-            end
-            if !found
-              blocks << [start, stop]
-            end
-          end
-        end
-        # if any blocks now overlap then extend one block and remove
-        # the other
-        blocks.each_with_index do |block_a,a|
-          blocks.each_with_index do |block_b,b|
-            if a != b
-              o = overlap(block_a[0], block_a[1], block_b[0], block_b[1])
-              if o == 0 # perfect overlap
-                block_b[0]=-1
-                block_b[1]=-1
-              elsif o == 1 # partial overlap
-                block_a[0] = block_b[0]
-                block_b[0] = -1
-                block_b[1] = -1
-              elsif o == 2 # partial overlap
-                block_a[1] = block_b[1]
-                block_b[0] = -1
-                block_b[1] = -1
-              elsif o == 3 # full overlap
-                block_a[0] = block_b[0]
-                block_a[1] = block_b[1]
-                block_b[0] = -1
-                block_b[1] = -1
-              elsif o == 4 # full overlap
-                block_b[0] = -1
-                block_b[1] = -1
-              # elsif o == 5 # no overlap
-                # do nothing
-              # elsif o == 6 # no overlap
-                # do nothing
-              end
-            end
-          end
-        end
+    # def chimeras crbblast
+    #   return @potential_chimera_ratio unless @potential_chimera_ratio.nil?
+    #   potential_chimeras = 0
+    #   crbblast.reciprocals.each_pair do |key, list|
+    #     blocks = []
+    #     list.each do |hit|
+    #       start, stop = [hit.qstart, hit.qend].minmax
+    #       if blocks.empty?
+    #         blocks << [start, stop]
+    #       else
+    #         found=false
+    #         blocks.each do |block|
+    #           # if query overlaps with any block extend that block
+    #           o = overlap(block[0], block[1], start, stop)
+    #           if o == 0 # perfect overlap
+    #             found=true
+    #           elsif o == 1 # partial overlap
+    #             block[0] = start
+    #             found=true
+    #           elsif o == 2 # partial overlap
+    #             block[1] = stop
+    #             found=true
+    #           elsif o == 3 # full overlap
+    #             block[0] = start
+    #             block[1] = stop
+    #             found=true
+    #           # elsif o == 4 # full overlap
+    #             # nothing
+    #           # elsif o == 5 || o == 6 # no overlap
+    #           end
+    #         end
+    #         if !found
+    #           blocks << [start, stop]
+    #         end
+    #       end
+    #     end
+    #     # if any blocks now overlap then extend one block and remove
+    #     # the other
+    #     blocks.each_with_index do |block_a,a|
+    #       blocks.each_with_index do |block_b,b|
+    #         if a != b
+    #           o = overlap(block_a[0], block_a[1], block_b[0], block_b[1])
+    #           if o == 0 # perfect overlap
+    #             block_b[0]=-1
+    #             block_b[1]=-1
+    #           elsif o == 1 # partial overlap
+    #             block_a[0] = block_b[0]
+    #             block_b[0] = -1
+    #             block_b[1] = -1
+    #           elsif o == 2 # partial overlap
+    #             block_a[1] = block_b[1]
+    #             block_b[0] = -1
+    #             block_b[1] = -1
+    #           elsif o == 3 # full overlap
+    #             block_a[0] = block_b[0]
+    #             block_a[1] = block_b[1]
+    #             block_b[0] = -1
+    #             block_b[1] = -1
+    #           elsif o == 4 # full overlap
+    #             block_b[0] = -1
+    #             block_b[1] = -1
+    #           # elsif o == 5 # no overlap
+    #             # do nothing
+    #           # elsif o == 6 # no overlap
+    #             # do nothing
+    #           end
+    #         end
+    #       end
+    #     end
 
-        blocks.delete_if {|x| x[0]==-1 && x[1]==-1}
-        if blocks.length > 1
-          potential_chimeras += 1
-        end
-      end
+    #     blocks.delete_if {|x| x[0]==-1 && x[1]==-1}
+    #     if blocks.length > 1
+    #       potential_chimeras += 1
+    #     end
+    #   end
 
-      return potential_chimera_ratio = potential_chimeras /
-                                       crbblast.reciprocals.length.to_f
-    end
+    #   return potential_chimera_ratio = potential_chimeras /
+    #                                    crbblast.reciprocals.length.to_f
+    # end
 
     def overlap(astart, astop, bstart, bstop)
       if astart == bstart and astop == bstop
