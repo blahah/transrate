@@ -204,7 +204,7 @@ module Transrate
     # analysis.
     def analyse_coverage samfile
       bamfile, sorted, index = Samtools.sam_to_sorted_indexed_bam samfile
-      bam = Bio::DB::Sam.new(:bam => bamfile, :fasta => @assembly.file)
+      bam = Bio::DB::Sam.new(:bam => sorted, :fasta => @assembly.file)
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       n, tot_length, tot_coverage = 0, 0, 0
