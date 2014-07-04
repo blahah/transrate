@@ -194,7 +194,7 @@ module Transrate
         if cumulative_length >= @n_bases * cutoff
           res << contig.length
           if x2.empty?
-            cutoff=1
+            cutoff = 1
           else
             cutoff = x2.pop / 100.0
           end
@@ -210,7 +210,7 @@ module Transrate
 
       # calculate and return the statistics as a hash
       mean = cumulative_length / @assembly.size
-      ns = Hash[x.map { |n| "N#{n}" }.zip(res)]
+      ns = Hash[x.map { |n| "n#{n}" }.zip(res)]
       {
         'n_seqs' => bin.size,
         'smallest' => bin.first.length,
