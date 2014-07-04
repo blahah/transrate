@@ -13,9 +13,9 @@ module Transrate
 
     # Run a samtools command
     def self.run cmd
-      runcmd = "#{Samtools.path} #{cmd}"
-      runcmd
-      `#{runcmd}`
+      runcmd = Cmd.new "#{Samtools.path} #{cmd}"
+      runcmd.run
+      runcmd.stdout
     end
 
     # Convert a sam file to a bam file, returning the path to the bamfile
