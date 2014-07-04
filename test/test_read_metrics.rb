@@ -12,6 +12,13 @@ class TestReadMetrics < Test::Unit::TestCase
       @read_metrics = Transrate::ReadMetrics.new(assembly)
     end
 
+    teardown do
+      if File.exist?("test/data/sorghum_transcript.fa.fai")
+        rm = "rm test/data/sorghum_transcript.fa.fai"
+        `#{rm}`
+      end
+    end
+
     should "setup correctly" do
       assert @read_metrics
     end
