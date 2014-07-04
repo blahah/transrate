@@ -34,8 +34,9 @@ class TestBowtie < Test::Unit::TestCase
           @mapper.map_reads(@reference, @left, @right)
           sam = @mapper.sam
           assert File.exist?("#{sam}"), "sam file doesn't exist"
-          assert_in_delta 139895.to_f, File.size(sam).to_f, 100.0,
-                          'sam file size wrong'
+          cmd = "grep -v \"^@\" #{sam} | wc -l "
+          line_in_sam_file = `#{cmd}`.chomp.to_i
+          assert_equal 424, line_in_sam_file
         end
       end
     end
