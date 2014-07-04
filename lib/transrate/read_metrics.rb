@@ -64,8 +64,8 @@ module Transrate
         rs = BetterSam.new
         sam = File.open(samfile)
         line = sam.readline
-        while line=~/^@/
-          line = sam.readline
+        while line and line=~/^@/
+          line = sam.readline rescue nil
         end
         while line
           ls.parse_line(line)
