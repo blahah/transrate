@@ -170,8 +170,10 @@ module Transrate
       x2 = x.clone
       cutoff = x2.pop / 100.0
       res = []
-      n1k = 0
-      n10k = 0
+      n_under_200 = 0
+      n_over_1k = 0
+      n_over_10k = 0
+      n_with_orf = 0
       orf_length_sum = 0
       # sort the contigs in ascending length order
       # and iterate over them
@@ -180,12 +182,22 @@ module Transrate
 
         # increment our long contig counters if this
         # contig is above the thresholds
-        n1k += 1 if contig.length > 1_000
-        n10k += 1 if contig.length > 10_000
+        if contig.length < 200
+          # ignore contigs less than 200 bases,
+          # but record how many there are
+          n_under_200 += 1
+          next
+        end
+        n_over_1k += 1 if contig.length > 1_000
+        n_over_10k += 1 if contig.length > 10_000
 
         # add the length of the longest orf to the
         # running total
-        orf_length_sum += contig.orf_length
+        orf_length = contig.orf_length
+        orf_length_sum += orf_length
+        # only consider orfs that are realistic length
+        # (here we set minimum amino acid length as 50)
+        n_with_orf += 1 if orf_length > 149
 
         # increment the cumulative length and check whether the Nx
         # cutoff has been reached. if it has, store the Nx value and
@@ -217,9 +229,11 @@ module Transrate
         'largest' => bin.last.length,
         'n_bases' => n_bases,
         'mean_len' => mean,
-        'n_1k' => n1k,
-        'n_10k' => n10k,
-        'orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
+        'n_under_200' => n_under_200,
+        'n_over_1k' => n_over_1k,
+        'n_over_10k' => n_over_10k,
+        'n_with_orf' => n_with_orf,
+        'mean_orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
       }.merge ns
 
     end # basic_bin_stats
@@ -263,6 +277,45 @@ module Transrate
       self.basic_stats.map do |k, v|
         "#{k}#{" " * (20 - (k.length + v.to_i.to_s.length))}#{v.to_i}"
       end.join('\n')
+    end
+
+    # Calls *block* with two arguments, the contig and an array
+    # of integer per-base coverage counts.
+    #
+    # @param bam [Bio::Db::Sam] a bam alignment of reads against this assembly
+    # @param block [Block] the block to call
+    def each_with_coverage(bam, &block)
+      # generate coverage with samtools
+      covfile = Samtools.coverage bam
+      # get an assembly enumerator
+      assembly_enum = assembly.each
+      contig = assembly_enum.next
+      # precreate an array of the correct size to contain
+      # coverage. this is necessary because samtools mpileup
+      # doesn't print a result line for bases with 0 coverage
+      contig.coverage = Array.new(contig.length, 0)
+      # the columns we need
+      name_i, pos_i, cov_i = 0, 1, 3
+      # parse the coverage file
+      File.open(covfile).each_line do |line|
+        cols = line.chomp.split("\t")
+        unless (cols && cols.length > 4)
+          # last line
+          break
+        end
+        # extract the columns
+        name, pos, cov = cols[name_i], cols[pos_i].to_i, cols[cov_i].to_i
+        unless contig.name == name
+          while contig.name != name
+            block.call(contig, contig.coverage)
+            contig = assembly_enum.next
+            contig.coverage = Array.new(contig.length, 0)
+          end
+        end
+        contig.coverage[pos - 1] = cov
+      end
+      # yield the final contig
+      block.call(contig, contig.coverage)
     end
 
   end # Assembly

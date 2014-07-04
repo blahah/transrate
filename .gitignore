@@ -36,3 +36,4 @@ dryrun
 *.fai
 *.bam
 *.csv
+*.coverage

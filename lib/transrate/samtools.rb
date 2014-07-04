@@ -43,25 +43,28 @@ module Transrate
       File.expand_path index
     end
 
-    def self.coverage(bam, contig)
-      region = "#{contig.name}:1-#{contig.length}"
-      result = Array.new(contig.length, 0)
+    # Convert a sam file to bam, sort and index the bam, returning
+    # an array of paths to the bamfile, sorted bamfile and index respectively
+    def self.sam_to_sorted_indexed_bam samfile
+      bamfile = Samtools.sam_to_bam samfile
+      sorted = Samtools.sort_bam bamfile
+      index = Samtools.index_bam bamfile
+      [bamfile, sorted, index]
+    end
+
+    # Calculate per-base coverage from a sorted, indexed bam file
+    # return the path to the coverage file
+    def self.coverage bam
+      outfile = "#{bam.fasta}.coverage"
       cmd = "mpileup"
-      cmd += " -r #{region}" # region
       cmd += " -f #{bam.fasta}" # reference
       cmd += " -B" # don't calculate BAQ quality scores
       cmd += " -Q0" # include all reads ignoring quality
       cmd += " -I" # don't do genotype calculations
       cmd += " #{bam.bam}" # the bam file
-      cov_idx = 3
-      pos_idx = 1
-      Samtools.run(cmd).split("\n").each do |line|
-        cols = line.chomp.split("\t")
-        cov = cols[cov_idx].to_i
-        pos = cols[pos_idx].to_i
-        result[pos - 1] = cov
-      end
-      result
+      cmd += " > #{outfile}"
+      Samtools.run cmd
+      outfile
     end
 
   end

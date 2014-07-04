@@ -102,8 +102,10 @@ module Transrate
       @unrealistic_overlap = 0
       @realistic_fragment = 0
       @unrealistic_fragment = 0
-      @unexpressed_contigs = 0
-      @expressed_contigs = 0
+      @n_uncovered_bases = 0
+      @n_uncovered_base_contigs = 0 # any base cov < 1
+      @n_uncovered_contigs = 0 # mean cov < 1
+      @n_lowcovered_contigs = 0 # mean cov < 10
     end
 
     def realistic_distance insertsize, insertsd
@@ -197,31 +199,22 @@ module Transrate
       end
     end
 
+    # Generate per-base and contig read coverage statistics.
+    # Note that contigs less than 200 bases long are ignored in this
+    # analysis.
     def analyse_coverage samfile
-      bamfile = Samtools.sam_to_bam samfile
-      bamfile = Samtools.sort_bam bamfile
-      Samtools.index_bam bamfile
+      bamfile, sorted, index = Samtools.sam_to_sorted_indexed_bam samfile
       bam = Bio::DB::Sam.new(:bam => bamfile, :fasta => @assembly.file)
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
-      @n_uncovered_bases = 0
-      @n_uncovered_base_contigs = 0 # any base cov < 1
-      @n_uncovered_contigs = 0 # mean cov < 1
-      @n_lowcovered_contigs = 0 # mean cov < 10
-      tot_length = 0
-      tot_coverage = 0
-      @assembly.each do |contig|
-        cov = Samtools.coverage(bam, contig)
-        contig.coverage = cov
-        zerocov = 0
-        total = 0
-        cov.each do |e|
-          total += e
-          zerocov += 1 if e < 1
-        end
-        tot_length += cov.length
+      n, tot_length, tot_coverage = 0, 0, 0
+      @assembly.each_with_coverage(bam) do |contig, coverage|
+        next if contig.length < 200
+        zerocov, total = 0, 0
+        coverage.each { |e| total += e; zerocov += 1 if e < 1 }
+        tot_length += coverage.length
         tot_coverage += total
-        mean = total / cov.length.to_f
+        mean = total / coverage.length.to_f
         @n_uncovered_bases += zerocov
         @n_uncovered_base_contigs += 1 if zerocov > 0
         @n_uncovered_contigs += 1 if mean < 1
