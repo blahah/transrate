@@ -20,7 +20,7 @@ module Transrate
     def run
       @crbblast = reciprocal_best_blast
       @ortholog_hit_ratio = ortholog_hit_ratio @crbblast
-      @potential_chimera_ratio = chimeras @crbblast
+      @potential_chimera_ratio = chimeras2 @crbblast
       @collapse_factor = collapse_factor @crbblast.target_results
       @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
@@ -178,6 +178,42 @@ module Transrate
       return ortholog_hit_ratio = total_coverage / total_length.to_f
     end
 
+    def chimeras2 crbblast
+      return @potential_chimera_ratio unless @potential_chimera_ratio.nil?
+      potential_chimeras = 0
+      crbblast.reciprocals.each_pair do |key, list|
+        p = 0
+        list.each_with_index do |a, i|
+          list.each_with_index do |b, j|
+            if j>i
+              if a.target == b.target
+                astart, astop = [a.tstart, a.tend].minmax
+                bstart, bstop = [b.tstart, b.tend].minmax
+
+                oa = overlap_amount(astart, astop, bstart, bstop)
+                if oa > 0.75
+                  p += 1
+                end
+              else
+                astart, astop = [a.qstart, a.qend].minmax
+                bstart, bstop = [b.qstart, b.qend].minmax
+
+                oa = overlap_amount(astart, astop, bstart, bstop)
+                if oa < 0.25
+                  p += 1
+                end
+              end
+            end
+          end
+        end
+        if p/list.size.to_f >= 0.5
+          potential_chimeras += 1
+        end
+      end
+      return potential_chimera_ratio = potential_chimeras /
+                                       crbblast.reciprocals.length.to_f
+    end
+
     def chimeras crbblast
       return @potential_chimera_ratio unless @potential_chimera_ratio.nil?
       potential_chimeras = 0
@@ -280,6 +316,32 @@ module Transrate
           end
         else
           return 6 # no overlap
+        end
+      end
+    end
+
+    def overlap_amount(astart, astop, bstart, bstop)
+      if astart == bstart and astop == bstop
+        return 1
+      elsif astart < bstart
+        if astop > bstart
+          if astop > bstop
+            return (bstop-bstart+1)/(astop-astart+1).to_f # 4
+          else
+            return (astop-bstart+1)/(bstop-astart+1).to_f # 2
+          end
+        else
+          return 0 # 5 no overlap
+        end
+      else
+        if bstop > astart
+          if bstop > astop
+            return (astop-astart+1)/(bstop-bstart+1).to_f # 3
+          else
+            return (bstop-astart+1)/(astop-bstart+1).to_f # 1
+          end
+        else
+          return 0 # 6 no overlap
         end
       end
     end
