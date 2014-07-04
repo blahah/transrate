@@ -39,6 +39,7 @@ module Transrate
     # @param file [String] path to the assembly FASTA file
     def initialize file
       @file = File.expand_path file
+      raise RuntimeError.new("#{file} not found") if !File.exist?("#{@file}")
       @assembly = []
       @n_bases = 0
       Bio::FastaFormat.open(file).each do |entry|
