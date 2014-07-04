@@ -58,6 +58,13 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
+    def run left=nil, right=nil, insertsize=nil, insertsd=nil
+      assembly_metrics
+      if left && right
+        read_metrics left, right
+      end
+      comparative_metrics
+    end
 
     # Reduce all metrics for the assembly to a single quality score.
     #
