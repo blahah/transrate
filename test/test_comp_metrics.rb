@@ -19,8 +19,12 @@ class TestCompMetrics < Test::Unit::TestCase
 
 
     should "run metrics on assembly" do
-      @comp.run
-      assert @comp.has_run
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @comp.run
+          assert @comp.has_run
+        end
+      end
     end
 
     should "calculate ortholog hit ratio" do
@@ -71,10 +75,9 @@ class TestCompMetrics < Test::Unit::TestCase
       crb = CRBHelper.new(false)
 
       hash = Hash.new
-      # (1..3).each do |i|
-      #   hash["q#{i}"] = []
-      # end
-      hash["q1"]=[]
+      (1..3).each do |i|
+        hash["q#{i}"] = []
+      end
 
       # T1   |---------|
       # T2                 |---------|
@@ -87,24 +90,31 @@ class TestCompMetrics < Test::Unit::TestCase
       # T3                 |---------|
       # Q2 |----------------------------|
       # chimera = true because the reference has the region 1-100 duplicated
-      # hash["q2"] << HitHelper.new("q2", "t3", 101, 200, 1, 100, 500, 100)
-      # hash["q2"] << HitHelper.new("q2", "t3", 301, 400, 1, 100, 400, 100)
+      hash["q2"] << HitHelper.new("q2", "t3", 101, 200, 1, 100, 500, 100)
+      hash["q2"] << HitHelper.new("q2", "t3", 301, 400, 1, 100, 400, 100)
 
-      # # T3   |---------|
-      # # T3                 |---------|
-      # # Q2 |----------------------------|
+      # # T4   |---------|
+      # # T4                 |---------|
+      # # Q3 |----------------------------|
       # # chimera = false because the reference
-      # hash["q3"] << HitHelper.new("q3", "t4", 101, 200, 1, 100, 500, 100)
-      # hash["q3"] << HitHelper.new("q3", "t4", 301, 400, 1, 100, 400, 100)
+      hash["q3"] << HitHelper.new("q3", "t4", 101, 200, 1, 100, 500, 200)
+      hash["q3"] << HitHelper.new("q3", "t4", 301, 400, 101, 200, 400, 200)
 
       crb.hash = hash
-      chi = @comp.chimeras crb
-      assert_equal 1, chi
+      chi = @comp.chimeras2 crb
+      assert_equal 0.667, chi.round(3)
+    end
+
+    should "calculate overlap amount" do
+      assert_equal 0.5, @comp.overlap_amount(201,500,101,400), "1"
+      assert_equal 0.5, @comp.overlap_amount(101,400,201,500), "2"
+      assert_equal 0.5, @comp.overlap_amount(201,400,101,500), "3"
+      assert_equal 0.5, @comp.overlap_amount(101,500,201,400), "4"
     end
 
     should "calculate number of contigs with crbblast hit" do
       Dir.mktmpdir do |tmpdir|
-        Dir.chdir do
+        Dir.chdir tmpdir do
           @comp.run
           assert_equal 11, @comp.comp_stats[:n_contigs_with_recip]
           assert_equal 11/13.0, @comp.comp_stats[:p_contigs_with_recip]
@@ -114,7 +124,7 @@ class TestCompMetrics < Test::Unit::TestCase
 
     should "calculate number of reference sequences with crbblast hit" do
       Dir.mktmpdir do |tmpdir|
-        Dir.chdir do
+        Dir.chdir tmpdir do
           @comp.run
           assert_equal 10, @comp.comp_stats[:n_refs_with_recip]
           assert_equal 0.5, @comp.comp_stats[:p_refs_with_recip]
@@ -126,7 +136,7 @@ class TestCompMetrics < Test::Unit::TestCase
       # n&p of reference sequences covered to (25, 50, 75, 85, 95%)
       # of their length by CRB-BLAST hit
       Dir.mktmpdir do |tmpdir|
-        Dir.chdir do
+        Dir.chdir tmpdir do
           @comp.run
           stats = @comp.comp_stats
           assert_equal 10, stats[:cov25]
