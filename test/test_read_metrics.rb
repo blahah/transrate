@@ -44,7 +44,9 @@ class TestReadMetrics < Test::Unit::TestCase
 
     should "find read pairs that support scaffolding" do
       left = File.join(File.dirname(__FILE__), 'data', 'bridging_reads.l.fastq')
-      right = File.join(File.dirname(__FILE__), 'data', 'bridging_reads.r.fastq')
+      right = File.join(File.dirname(__FILE__),
+                        'data',
+                        'bridging_reads.r.fastq')
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           @read_metrics.run(left, right)
@@ -55,6 +57,7 @@ class TestReadMetrics < Test::Unit::TestCase
     end
 
     should "count per-base coverage" do
+
     end
 
     should "find median coverage" do
