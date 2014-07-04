@@ -23,7 +23,7 @@ module Transrate
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
     def initialize(assembly, reference,
-                   #left: nil, right: nil,
+                   left: nil, right: nil,
                    insertsize: nil, insertsd: nil,
                    threads: 1)
       if assembly
@@ -46,8 +46,6 @@ module Transrate
         @comparative_metrics = ComparativeMetrics.new(@assembly,
                                                       @reference,
                                                       threads)
-      else
-        raise RuntimeError.new("reference is nil")
       end
       @threads = threads
     end
