@@ -27,7 +27,7 @@ module Transrate
                                   insertsd: insertsd,
                                   threads: threads)
       # check_bridges
-      analyse_read_mappings(samfile, insertsize, insertsd)
+      analyse_read_mappings(samfile, insertsize, insertsd, true)
       analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
@@ -81,6 +81,7 @@ module Transrate
             line = sam.readline rescue nil
           end
         end
+        check_bridges
       else
         raise "samfile #{samfile} not found"
       end
