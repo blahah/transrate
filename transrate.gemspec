@@ -25,7 +25,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'RubyInline', '~> 3.12'
   gem.add_dependency 'crb-blast'
   gem.add_dependency 'bettersam', '~> 0.0.3'
-
+  gem.add_dependency 'ruby-prof'
+  
   gem.add_development_dependency 'turn'
   gem.add_development_dependency 'minitest'
   gem.add_development_dependency 'simplecov'
