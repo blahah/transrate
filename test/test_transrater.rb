@@ -55,6 +55,17 @@ class TestTransrater < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           stats = @rater.read_metrics(@left, @right)
+          assert_equal 223, stats.read_stats[:num_pairs]
+        end
+      end
+    end
+
+    should "get assembly score" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          all = @rater.all_metrics(@left, @right)
+          score = @rater.assembly_score
+          assert_equal 0.23282, score.round(5)
         end
       end
     end
