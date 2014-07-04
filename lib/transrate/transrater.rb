@@ -23,21 +23,32 @@ module Transrate
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
     def initialize(assembly, reference,
-                   left: nil, right: nil,
+                   #left: nil, right: nil,
                    insertsize: nil, insertsd: nil,
                    threads: 1)
-      @assembly = assembly.is_a?(Assembly) ? assembly : Assembly.new(assembly)
+      if assembly
+        if assembly.is_a?(Assembly)
+          @assembly = assembly
+        else
+          @assembly = Assembly.new(assembly)
+        end
+        @read_metrics = ReadMetrics.new @assembly
+      else
+        raise RuntimeError.new("assembly is nil")
+      end
+
       if reference
         if reference.is_a?(Assembly)
           @reference = reference
         else
           @reference = Assembly.new(reference)
         end
+        @comparative_metrics = ComparativeMetrics.new(@assembly,
+                                                      @reference,
+                                                      threads)
+      else
+        raise RuntimeError.new("reference is nil")
       end
-      @read_metrics = ReadMetrics.new @assembly
-      @comparative_metrics = ComparativeMetrics.new(@assembly,
-                                                    @reference,
-                                                    threads)
       @threads = threads
     end
 
@@ -47,13 +58,6 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def run left=nil, right=nil, insertsize=nil, insertsd=nil
-      assembly_metrics
-      if left && right
-        read_metrics left, right
-      end
-      comparative_metrics
-    end
 
     # Reduce all metrics for the assembly to a single quality score.
     #
