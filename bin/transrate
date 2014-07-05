@@ -6,10 +6,6 @@ require 'csv'
 require 'bindeps'
 require 'ruby-prof'
 
-gem_dir = Gem.loaded_specs['transrate'].full_gem_path
-gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
-Bindeps.require gem_deps
-
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
@@ -37,7 +33,6 @@ opts = Trollop::options do
 
   EOS
   opt :assembly, "assembly file(s) in FASTA format, comma-separated",
-      :required => true,
       :type => String
   opt :reference, "reference proteome file in FASTA format",
       :type => String
@@ -57,7 +52,22 @@ opts = Trollop::options do
   opt :outfile, "filename to use for CSV output",
       :default => 'transate_results.csv'
   opt :quiet, "don't print results - only save to file"
+  opt :install_deps, "install any missing dependencies"
   opt :profile, "debug option: profile the code as it runs"
+end
+
+if opts.install_deps
+  puts "checking dependencies"
+  gem_dir = Gem.loaded_specs['transrate'].full_gem_path
+  gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
+  Bindeps.require gem_deps
+  puts "all dependencies installed"
+  exit
+end
+
+unless opts.assembly
+  puts "Error: option --assembly must be specified."
+  puts "Try --help for help."
 end
 
 if opts.profile
