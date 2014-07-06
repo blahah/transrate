@@ -2,6 +2,7 @@
 require 'rbconfig'
 RbConfig::CONFIG['CFLAGS'] = ''
 
+require 'transrate/log'
 require 'transrate/transrater'
 require 'transrate/version'
 require 'transrate/contig'
@@ -18,5 +19,9 @@ require 'transrate/cmd'
 # Transrate is a comprehensive transcriptome assembly
 # quality assessment tool.
 module Transrate
+
+  self.log
+    Log.instance
+  end
 
 end # Transrate
