@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = %w( lib )
 
-  gem.add_dependency 'rake'
+  gem.add_dependency 'yell'
   gem.add_dependency 'trollop'
   gem.add_dependency 'bindeps', '~> 0.0.7'
   gem.add_dependency 'which'
@@ -26,7 +26,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'crb-blast', '~> 0.2'
   gem.add_dependency 'bettersam', '~> 0.0.3'
   gem.add_dependency 'ruby-prof'
-  
+
+  gem.add_development_dependency 'rake'
   gem.add_development_dependency 'turn'
   gem.add_development_dependency 'minitest'
   gem.add_development_dependency 'simplecov'

@@ -1,4 +1,4 @@
-require 'logger'
+require 'yell'
 require 'singleton'
 
 module Transrate
