@@ -80,6 +80,9 @@ def pretty_print_hash hash, width
     if v.to_f.round(2).to_s.split('.').last.to_i > 0
       v = v.to_f.round(2)
     end
+    if v.is_a? Float
+      v = v.round(2)
+    end
     pad = (width - (k.to_s.length + v.to_s.length))
     pad = [pad, 0].max
     "#{k.to_s.split('_').join(' ')}" +
