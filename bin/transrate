@@ -104,7 +104,7 @@ include Transrate
 log "\nLoading reference dataset"
 
 r = opts.reference ? Assembly.new(opts.reference) : nil
-report_width = 30
+report_width = 35
 
 # loop through the assemblies, storing their outputs in an array of hashes
 all = []
