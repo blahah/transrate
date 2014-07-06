@@ -33,6 +33,7 @@ module Transrate
     attr_reader :has_run
     attr_accessor :n_bases
     attr_reader :n50
+    attr_accessor :contig_metrics
 
     # Create a new Assembly.
     #
@@ -45,17 +46,7 @@ module Transrate
         @n_bases += entry.length
         @assembly << Contig.new(entry)
       end
-    end
-
-    # Return basic statistics about the assembly in
-    # the specified FASTA file
-    #
-    # @param file [String] path to assebmly FASTA file
-    #
-    # @return [Hash] basic statistics about the assembly
-    def self.stats_from_fasta file
-      a = Assembly.new file
-      a.basic_stats
+      @contig_metrics = ContigMetrics.new self
     end
 
     # Generate and store the basic statistics for this assembly
@@ -70,6 +61,7 @@ module Transrate
         singleton_class.class_eval { attr_accessor attr_ivar }
         self.instance_variable_set(ivar, value)
       end
+      @contig_metrics.run
       @has_run = true
     end
 
@@ -82,6 +74,8 @@ module Transrate
     #
     # @return [Hash] basic statistics about the assembly
     def basic_stats threads=8
+
+      return @basic_stats if @basic_stats
 
       # disable threading basic stats for now
       threads = 1
@@ -130,8 +124,8 @@ module Transrate
       # merge the collected stats and return then
       # merge_basic_stats stats
       # as threading is currently disabled there's no need to do merging
-      stats[0]
-
+      @basic_stats = stats[0]
+      @basic_stats
     end # basic_stats
 
 
@@ -237,47 +231,6 @@ module Transrate
       }.merge ns
 
     end # basic_bin_stats
-
-    def merge_basic_stats stats
-      # convert the array of hashes into a hash of arrays
-      collect = Hash.new{ |h, k| h[k] = [] }
-      stats.each_with_object(collect) do |collect, result|
-        collect.each{ |k, v| result[k] << v }
-      end
-      merged = {}
-      collect.each_pair do |stat, values|
-        if stat == 'orf_percent' || /N[0-9]{2}/ =~ stat
-          # store the mean
-          merged[stat] = values.inject(0, :+) / values.size
-        elsif stat == 'smallest'
-          merged[stat] = values.min
-        elsif stat == 'largest'
-          merged[stat] = values.max
-        else
-          # store the sum
-          merged[stat] = values.inject(0, :+)
-        end
-      end
-
-      merged
-
-    end # merge_basic_stats
-
-    # return the number of bases in the assembly, calculating
-    # from the assembly if it hasn't already been done.
-    def n_bases
-      unless @n_bases
-        @n_bases = 0
-        @assembly.each { |s| @n_bases += s.length }
-      end
-      @n_bases
-    end
-
-    def print_stats
-      self.basic_stats.map do |k, v|
-        "#{k}#{" " * (20 - (k.length + v.to_i.to_s.length))}#{v.to_i}"
-      end.join('\n')
-    end
 
     # Calls *block* with two arguments, the contig and an array
     # of integer per-base coverage counts.
