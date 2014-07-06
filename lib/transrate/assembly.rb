@@ -73,58 +73,9 @@ module Transrate
     # @param threads [Integer] number of threads to use
     #
     # @return [Hash] basic statistics about the assembly
-    def basic_stats threads=8
-
+    def basic_stats threads=1
       return @basic_stats if @basic_stats
-
-      # disable threading basic stats for now
-      threads = 1
-
-      # create a work queue to process contigs in parallel
-      queue = Queue.new
-
-      # split the contigs into equal sized bins, one bin per thread
-      binsize = (@assembly.size / threads.to_f).ceil
-      @assembly.each_slice(binsize) do |bin|
-        queue << bin
-      end
-      # a classic threadpool - an Array of threads that allows
-      # us to assign work to each thread and then aggregate their
-      # results when they are all finished
-      threadpool = []
-
-      # assign one bin of contigs to each thread from the queue.
-      # each thread will process its bin of contigs and then wait
-      # for the others to finish.
-      semaphore = Mutex.new
-      stats = []
-
-      threads.times do
-        threadpool << Thread.new do |thread|
-          # keep looping until we run out of bins
-          until queue.empty?
-
-            # use non-blocking pop, so an exception is raised
-            # when the queue runs dry
-            bin = queue.pop(true) rescue nil
-            if bin
-              # calculate basic stats for the bin, storing them
-              # in the current thread so they can be collected
-              # in the main thread.
-              bin_stats = basic_bin_stats bin
-              semaphore.synchronize { stats << bin_stats }
-            end
-          end
-        end
-      end
-
-      # collect the stats calculated in each thread and join
-      # the threads to terminate them
-      threadpool.each(&:join)
-      # merge the collected stats and return then
-      # merge_basic_stats stats
-      # as threading is currently disabled there's no need to do merging
-      @basic_stats = stats[0]
+      @basic_stats = basic_bin_stats @assembly
       @basic_stats
     end # basic_stats
 
@@ -164,11 +115,7 @@ module Transrate
       x2 = x.clone
       cutoff = x2.pop / 100.0
       res = []
-      n_under_200 = 0
-      n_over_1k = 0
-      n_over_10k = 0
-      n_with_orf = 0
-      orf_length_sum = 0
+      n_under_200, n_over_1k, n_over_10k, n_with_orf, orf_length_sum = 0,0,0,0,0
       # sort the contigs in ascending length order
       # and iterate over them
       bin.sort_by! { |c| c.seq.length }
