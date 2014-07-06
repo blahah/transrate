@@ -94,6 +94,7 @@ def pretty_print_hash hash, width
 end
 
 include Transrate
+log = Transrate::log
 
 unless %w[error info warn debug].include? opts.loglevel
   raise "Loglevel #{opts.loglevel} is not valid. \n" +
