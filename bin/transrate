@@ -98,12 +98,16 @@ end
 
 include Transrate
 
+log "\nLoading reference dataset"
+
 r = opts.reference ? Assembly.new(opts.reference) : nil
 report_width = 30
 
 # loop through the assemblies, storing their outputs in an array of hashes
 all = []
 opts.assembly.split(',').each do |assembly|
+
+  log "\Loading assembly: #{assembly}"
 
   a = Assembly.new assembly
   transrater = Transrater.new(a, r,
@@ -121,7 +125,7 @@ opts.assembly.split(',').each do |assembly|
   log "Calculating contig metrics..."
   t0 = Time.now
   contig_results = transrater.assembly_metrics.basic_stats
-  contig_results.merge transrater.assembly.contig_metrics.results
+  contig_results.merge! transrater.assembly.contig_metrics.results
   if contig_results
     log "\n"
     log "Contig metrics:"
