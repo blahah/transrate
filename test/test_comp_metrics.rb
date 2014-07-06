@@ -101,8 +101,8 @@ class TestCompMetrics < Test::Unit::TestCase
       hash["q3"] << HitHelper.new("q3", "t4", 301, 400, 101, 200, 400, 200)
 
       crb.hash = hash
-      chi = @comp.chimeras2 crb
-      assert_equal 0.667, chi.round(3)
+      @comp.chimeras crb
+      assert_equal 0.667, @comp.p_chimeras.round(3)
     end
 
     should "calculate overlap amount" do
