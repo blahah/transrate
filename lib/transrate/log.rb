@@ -9,7 +9,7 @@ module Transrate
 
     def initialize
       logger = Yell.new do |l|
-        l.level = 'gte.info'
+        l.level = :info
         l.adapter STDOUT, level: [:debug, :info, :warn]
         l.adapter STDERR, level: [:error, :fatal]
       end

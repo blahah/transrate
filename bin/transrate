@@ -101,7 +101,7 @@ unless %w[error info warn debug].include? opts.loglevel
         "It must be one of: error, info, warn, debug."
 end
 
-log.level = "gte.#{opts.loglevel}"
+log.level = opts.loglevel.to_sym
 
 log.info "Loading reference dataset"
 
