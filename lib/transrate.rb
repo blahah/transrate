@@ -20,7 +20,7 @@ require 'transrate/cmd'
 # quality assessment tool.
 module Transrate
 
-  self.log
+  def self.log
     Log.instance
   end
 
