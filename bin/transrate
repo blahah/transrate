@@ -59,16 +59,16 @@ opts = Trollop::options do
 end
 
 if opts.install_deps
-  puts "checking dependencies"
+  puts "Checking dependencies"
   gem_dir = Gem.loaded_specs['transrate'].full_gem_path
   gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
   Bindeps.require gem_deps
-  puts "all dependencies installed"
+  puts "All dependencies installed"
   exit
 end
 
 unless opts.assembly
-  raise "option --assembly must be specified.\n" +
+  raise "Option --assembly must be specified. " +
         "Try --help for help."
 end
 
@@ -97,7 +97,7 @@ end
 include Transrate
 
 unless %w[error info warn debug].include? opts.loglevel
-  raise "Loglevel #{opts.loglevel} is not valid. \n" +
+  raise "Loglevel #{opts.loglevel} is not valid. " +
         "It must be one of: error, info, warn, debug."
 end
 
@@ -123,7 +123,7 @@ opts.assembly.split(',').each do |assembly|
                               threads: opts.threads)
 
 
-  logger.info "Analysing assembly: #{assembly}\n"
+  logger.info "Analysing assembly: #{assembly}"
 
   contig_results = {}
 
@@ -132,7 +132,6 @@ opts.assembly.split(',').each do |assembly|
   contig_results = transrater.assembly_metrics.basic_stats
   contig_results.merge! transrater.assembly.contig_metrics.results
   if contig_results
-    logger.info "\n"
     logger.info "Contig metrics:"
     logger.info "-" *  report_width
     pretty_print_hash(contig_results, report_width)
@@ -149,7 +148,6 @@ opts.assembly.split(',').each do |assembly|
                                            opts.right).read_stats
 
     if read_results
-      logger.info "\n"
       logger.info "Read mapping metrics:"
       logger.info "-" *  report_width
       pretty_print_hash(read_results, report_width)
@@ -169,7 +167,6 @@ opts.assembly.split(',').each do |assembly|
     comparative_results = comparative_metrics.comp_stats
 
     if comparative_results
-      logger.info "\n"
       logger.info "Comparative metrics:"
       logger.info "-" *  report_width
       pretty_print_hash(comparative_results, report_width)
@@ -177,7 +174,6 @@ opts.assembly.split(',').each do |assembly|
 
     logger.info "Comparative metrics done in #{Time.now - t0} seconds"
 
-    logger.info "\n"
     logger.info "-" * report_width
     score = transrater.assembly_score
     unless score.nil?
