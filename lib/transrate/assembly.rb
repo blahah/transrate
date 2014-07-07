@@ -186,10 +186,11 @@ module Transrate
     # @param block [Block] the block to call
     def each_with_coverage(bam, &block)
       logger.debug 'enumerating assembly with coverage'
+      logger.debug "first contig: #{@assembly.first}"
       # generate coverage with samtools
       covfile = Samtools.coverage bam
       # get an assembly enumerator
-      assembly_enum = @assembly.each
+      assembly_enum = @assembly.to_enum
       contig = assembly_enum.next
       # precreate an array of the correct size to contain
       # coverage. this is necessary because samtools mpileup
