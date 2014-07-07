@@ -101,7 +101,7 @@ unless %w[error info warn debug].include? opts.loglevel
         "It must be one of: error, info, warn, debug."
 end
 
-log.level = opts.loglevel.to_sym
+log.level = Yell::Level.new opts.loglevel.to_sym
 
 log.info "Loading reference dataset"
 
