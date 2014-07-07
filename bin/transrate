@@ -87,10 +87,10 @@ def pretty_print_hash hash, width
     end
     pad = (width - (k.to_s.length + v.to_s.length))
     pad = [pad, 0].max
-    "#{k.to_s.split('_').join(' ')}" +
+    logger.info "#{k.to_s.split('_').join(' ')}" +
     "#{" " * pad}" +
     "#{v}"
-  end.join("\n")
+  end
 end
 
 include Transrate
@@ -134,7 +134,7 @@ opts.assembly.split(',').each do |assembly|
     logger.info "\n"
     logger.info "Contig metrics:"
     logger.info "-" *  report_width
-    logger.info pretty_print_hash(contig_results, report_width)
+    pretty_print_hash(contig_results, report_width)
   end
 
   logger.info "Contig metrics done in #{Time.now - t0} seconds"
@@ -151,7 +151,7 @@ opts.assembly.split(',').each do |assembly|
       logger.info "\n"
       logger.info "Read mapping metrics:"
       logger.info "-" *  report_width
-      logger.info pretty_print_hash(read_results, report_width)
+      pretty_print_hash(read_results, report_width)
     end
 
     logger.info "Read metrics done in #{Time.now - t0} seconds"
@@ -171,7 +171,7 @@ opts.assembly.split(',').each do |assembly|
       logger.info "\n"
       logger.info "Comparative metrics:"
       logger.info "-" *  report_width
-      logger.info pretty_print_hash(comparative_results, report_width)
+      pretty_print_hash(comparative_results, report_width)
     end
 
     logger.info "Comparative metrics done in #{Time.now - t0} seconds"
