@@ -189,7 +189,7 @@ module Transrate
       # generate coverage with samtools
       covfile = Samtools.coverage bam
       # get an assembly enumerator
-      assembly_enum = assembly.each
+      assembly_enum = @assembly.each
       contig = assembly_enum.next
       # precreate an array of the correct size to contain
       # coverage. this is necessary because samtools mpileup
@@ -208,7 +208,8 @@ module Transrate
         name, pos, cov = cols[name_i], cols[pos_i].to_i, cols[cov_i].to_i
         unless contig.name == name
           while contig.name != name
-            logger.debug "getting next contig for coverage results"
+            logger.debug "getting next coverage contig; " +
+                         "#{contig.name} != #{name}"
             begin
               block.call(contig, contig.coverage)
               contig = assembly_enum.next
