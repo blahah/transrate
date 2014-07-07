@@ -1,8 +1,8 @@
 # before the
 require 'rbconfig'
+require 'yell'
 RbConfig::CONFIG['CFLAGS'] = ''
 
-require 'transrate/log'
 require 'transrate/transrater'
 require 'transrate/version'
 require 'transrate/contig'
@@ -20,8 +20,12 @@ require 'transrate/cmd'
 # quality assessment tool.
 module Transrate
 
-  def self.log
-    Log.instance
+  Yell.new do |l|
+    l.level = :info
+    l.name = Object
+    l.adapter STDOUT, level: [:debug, :info, :warn]
+    l.adapter STDERR, level: [:error, :fatal]
   end
+  Object.send :include, Yell::Loggable
 
 end # Transrate

@@ -47,7 +47,6 @@ module Transrate
         @assembly << Contig.new(entry)
       end
       @contig_metrics = ContigMetrics.new self
-      @log = Transrate.log
     end
 
     # Generate and store the basic statistics for this assembly
@@ -186,7 +185,7 @@ module Transrate
     # @param bam [Bio::Db::Sam] a bam alignment of reads against this assembly
     # @param block [Block] the block to call
     def each_with_coverage(bam, &block)
-      @log.debug 'enumerating assembly with coverage'
+      logger.debug 'enumerating assembly with coverage'
       # generate coverage with samtools
       covfile = Samtools.coverage bam
       # get an assembly enumerator
@@ -209,16 +208,16 @@ module Transrate
         name, pos, cov = cols[name_i], cols[pos_i].to_i, cols[cov_i].to_i
         unless contig.name == name
           while contig.name != name
-            @log.debug "getting next contig for coverage results"
+            logger.debug "getting next contig for coverage results"
             begin
               block.call(contig, contig.coverage)
               contig = assembly_enum.next
               contig.coverage = Array.new(contig.length, 0)
             rescue StopIteration => stop_error
-              @log.error 'reached the end of assembly enumerator while ' +
+              logger.error 'reached the end of assembly enumerator while ' +
                         'there were contigs left in the coverage results'
-              @log.error "final assembly contig: #{@assembly.last.name}"
-              @log.error "coverage contig: #{name}"
+              logger.error "final assembly contig: #{@assembly.last.name}"
+              logger.error "coverage contig: #{name}"
               raise stop_error
             end
           end
