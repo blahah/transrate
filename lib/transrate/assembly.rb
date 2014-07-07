@@ -75,7 +75,8 @@ module Transrate
     # @return [Hash] basic statistics about the assembly
     def basic_stats threads=1
       return @basic_stats if @basic_stats
-      @basic_stats = basic_bin_stats @assembly
+      bin = @assembly.dup
+      @basic_stats = basic_bin_stats bin
       @basic_stats
     end # basic_stats
 
@@ -99,7 +100,7 @@ module Transrate
     # representing contigs in the assembly
 
     def basic_bin_stats bin
-
+      
       # cumulative length is a float so we can divide it
       # accurately later to get the mean length
       cumulative_length = 0.0
@@ -186,7 +187,6 @@ module Transrate
     # @param block [Block] the block to call
     def each_with_coverage(bam, &block)
       logger.debug 'enumerating assembly with coverage'
-      logger.debug "first contig: #{@assembly.first}"
       # generate coverage with samtools
       covfile = Samtools.coverage bam
       # get an assembly enumerator
@@ -209,8 +209,6 @@ module Transrate
         name, pos, cov = cols[name_i], cols[pos_i].to_i, cols[cov_i].to_i
         unless contig.name == name
           while contig.name != name
-            logger.debug "getting next coverage contig; " +
-                         "#{contig.name} != #{name}"
             begin
               block.call(contig, contig.coverage)
               contig = assembly_enum.next
