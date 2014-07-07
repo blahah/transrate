@@ -68,8 +68,12 @@ if opts.install_deps
 end
 
 unless opts.assembly
-  raise "Option --assembly must be specified. " +
-        "Try --help for help."
+  raise ArgumentError.new "Option --assembly must be specified. " +
+                          "Try --help for help."
+end
+
+if opts.reference && !File.exist?(opts.reference)
+  raise IOError.new "Reference fasta file does not exist: #{opts.reference}"
 end
 
 if opts.profile
