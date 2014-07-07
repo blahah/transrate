@@ -94,16 +94,15 @@ def pretty_print_hash hash, width
 end
 
 include Transrate
-log = Transrate::log
 
 unless %w[error info warn debug].include? opts.loglevel
   raise "Loglevel #{opts.loglevel} is not valid. \n" +
         "It must be one of: error, info, warn, debug."
 end
 
-log.level = Yell::Level.new opts.loglevel.to_sym
+logger.level = Yell::Level.new opts.loglevel.to_sym
 
-log.info "Loading reference dataset"
+logger.info "Loading reference dataset"
 
 r = opts.reference ? Assembly.new(opts.reference) : nil
 report_width = 35
@@ -112,7 +111,7 @@ report_width = 35
 all = []
 opts.assembly.split(',').each do |assembly|
 
-  log.info "Loading assembly: #{assembly}"
+  logger.info "Loading assembly: #{assembly}"
 
   a = Assembly.new assembly
   transrater = Transrater.new(a, r,
@@ -123,69 +122,69 @@ opts.assembly.split(',').each do |assembly|
                               threads: opts.threads)
 
 
-  log.info "Analysing assembly: #{assembly}\n"
+  logger.info "Analysing assembly: #{assembly}\n"
 
   contig_results = {}
 
-  log.info "Calculating contig metrics..."
+  logger.info "Calculating contig metrics..."
   t0 = Time.now
   contig_results = transrater.assembly_metrics.basic_stats
   contig_results.merge! transrater.assembly.contig_metrics.results
   if contig_results
-    log.info "\n"
-    log.info "Contig metrics:"
-    log.info "-" *  report_width
-    log.info pretty_print_hash(contig_results, report_width)
+    logger.info "\n"
+    logger.info "Contig metrics:"
+    logger.info "-" *  report_width
+    logger.info pretty_print_hash(contig_results, report_width)
   end
 
-  log.info "Contig metrics done in #{Time.now - t0} seconds"
+  logger.info "Contig metrics done in #{Time.now - t0} seconds"
 
   read_results = {}
 
   if (opts.left && opts.right)
-    log.info "Calculating read diagnostics..."
+    logger.info "Calculating read diagnostics..."
     t0 = Time.now
     read_results = transrater.read_metrics(opts.left,
                                            opts.right).read_stats
 
     if read_results
-      log.info "\n"
-      log.info "Read mapping metrics:"
-      log.info "-" *  report_width
-      log.info pretty_print_hash(read_results, report_width)
+      logger.info "\n"
+      logger.info "Read mapping metrics:"
+      logger.info "-" *  report_width
+      logger.info pretty_print_hash(read_results, report_width)
     end
 
-    log.info "Read metrics done in #{Time.now - t0} seconds"
+    logger.info "Read metrics done in #{Time.now - t0} seconds"
   else
-    log.info "No reads provided, skipping read diagnostics"
+    logger.info "No reads provided, skipping read diagnostics"
   end
 
   comparative_results={}
 
   if opts.reference
-    log.info "Calculating comparative metrics..."
+    logger.info "Calculating comparative metrics..."
     t0 = Time.now
     comparative_metrics = transrater.comparative_metrics
     comparative_results = comparative_metrics.comp_stats
 
     if comparative_results
-      log.info "\n"
-      log.info "Comparative metrics:"
-      log.info "-" *  report_width
-      log.info pretty_print_hash(comparative_results, report_width)
+      logger.info "\n"
+      logger.info "Comparative metrics:"
+      logger.info "-" *  report_width
+      logger.info pretty_print_hash(comparative_results, report_width)
     end
 
-    log.info "Comparative metrics done in #{Time.now - t0} seconds"
+    logger.info "Comparative metrics done in #{Time.now - t0} seconds"
 
-    log.info "\n"
-    log.info "-" * report_width
+    logger.info "\n"
+    logger.info "-" * report_width
     score = transrater.assembly_score
     unless score.nil?
-      log.info "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
-      log.info "-" * report_width
+      logger.info "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
+      logger.info "-" * report_width
     end
   else
-    log.info "No reference provided, skipping comparative diagnostics"
+    logger.info "No reference provided, skipping comparative diagnostics"
   end
 
   all << contig_results.
