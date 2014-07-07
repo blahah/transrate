@@ -20,7 +20,9 @@ require 'transrate/cmd'
 # quality assessment tool.
 module Transrate
 
-  Yell.new do |l|
+  # Create the universal logger and include it in Object
+  # making the logger object available everywhere
+  Yell.new(:format => "[%5L]: %m") do |l|
     l.level = :info
     l.name = Object
     l.adapter STDOUT, level: [:debug, :info, :warn]
