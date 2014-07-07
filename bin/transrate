@@ -197,6 +197,7 @@ end
 
 # write out all resuls to .csv
 outfile = opts.out || 'transrate.csv'
+logger.info "Writing analysis results to #{outfile}"
 CSV.open(outfile, 'wb') do |file|
   keys = all[0].keys
   keys.delete(:assembly)
