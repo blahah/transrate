@@ -73,6 +73,7 @@ unless opts.assembly
 end
 
 if opts.profile
+  logger.info "Starting profiler"
   RubyProf.start
 end
 
@@ -207,6 +208,7 @@ CSV.open(outfile, 'wb') do |file|
 end
 
 if opts.profile
+  logger.info "Writing profiling results to transrate_profile.txt"
   result = RubyProf.stop
   printer = RubyProf::FlatPrinter.new(result)
   printer.print(File.open('transrate_profile.txt', 'w'))
