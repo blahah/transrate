@@ -27,12 +27,12 @@ Quality analysis and comparison of transcriptome assemblies.
 5. [Requirements](https://github.com/Blahah/transrate#requirements)
     - [Ruby](https://github.com/Blahah/transrate#ruby)
     - [RubyGems](https://github.com/Blahah/transrate#rubygems)
-    - [USEARCH, Bowtie 2, and eXpress](https://github.com/Blahah/transrate#usearch-bowtie2-and-express)
+    - [Blast+, Bowtie 2](https://github.com/Blahah/transrate#blast+-and-bowtie2)
 6. [Getting help](https://github.com/Blahah/transrate#getting-help)
 
 ## Development status
 
-This software is in early development. Users should be aware that until the first release is made, features may change faster than the documentation is updated. Nevertheless, we welcome bug reports.
+This software is being actively developed. Please be aware that they may be bugs. If you find any, please report them on the [issue tracker](https://github.com/Blahah/transrate/issues).
 
 ## Transcriptome assembly quality metrics
 
@@ -40,57 +40,59 @@ This software is in early development. Users should be aware that until the firs
 
 ## Installation
 
-Assuming all the requirements are met (see below), you can install transrate very easily. Just run at the terminal:
+Assuming you've got a recent version of Ruby installed (see below), you can install transrate very easily. Just run at the terminal:
 
 `gem install transrate`
 
-If you're new to linux/unix, there's a detailed tutorial for installing transrate with all the dependencies [on my blog](http://blahah.net/bioinformatics/2013/10/19/installing-transrate/).
+Next all the software Transrate depends on needs to be installed. Luckily, transrate is clever enough to do this itself. Simply run
+
+`transrate --install-deps`
+
+Transrate will check whether its dependencies are installed, and if not will download and install them for you.
 
 ## Usage
 
 ### Command line
 
-`transrate --help` will give you...
+`transrate --help` will display basic usage instructions.
 
 ```
-Transrate v0.0.10 by Richard Smith <rds45@cam.ac.uk>
+  Transrate v0.2.0 by Richard Smith-Unna <rds45@cam.ac.uk>
 
-DESCRIPTION:
-Analyse a de-novo transcriptome
-assembly using three kinds of metrics:
+  DESCRIPTION:
+  Analyse a de-novo transcriptome
+  assembly using three kinds of metrics:
 
-1. contig-based
-2. read-mapping
-3. reference-based
+  1. contig-based
+  2. read-mapping (if --left and --right are provided)
+  3. reference-based (if --reference is provided)
 
-Please make sure USEARCH, bowtie 2 and eXpress are installed
-and in the PATH.
+  Bug reports and feature requests at:
+  http://github.com/blahah/transrate
 
-Bug reports and feature requests at:
-http://github.com/blahah/transrate
+  USAGE:
+  transrate <options>
 
-USAGE:
-transrate <options>
+  EXAMPLES:
+  transrate --assembly contigs.fa --reference Athaliana_protein.fa --threads 8
 
-OPTIONS:
-    --assembly, -a <s>:   assembly file in FASTA format
+  OPTIONS:
+    --assembly, -a <s>:   assembly file(s) in FASTA format, comma-separated
    --reference, -r <s>:   reference proteome file in FASTA format
         --left, -l <s>:   left reads file in FASTQ format
        --right, -i <s>:   right reads file in FASTQ format
   --insertsize, -n <i>:   mean insert size (default: 200)
     --insertsd, -s <i>:   insert size standard deviation (default: 50)
      --threads, -t <i>:   number of threads to use (default: 8)
+     --outfile, -o <s>:   filename to use for CSV output (default: transate_results.csv)
+    --loglevel, -g <s>:   the amount of information to print. one of [error, info, warn, debug] (default: info)
+    --install-deps, -d:   install any missing dependencies
+         --profile, -p:   debug option: profile the code as it runs
          --version, -v:   Print version and exit
             --help, -h:   Show this message
 ```
 
-If you don't include --left and --right read files, the read-mapping based analysis will be skipped. I recommend that you don't align all your reads - just a subset of 500,000 will give you a very good idea of the quality. You can get a subset by running (on a linux system):
-
-`head -2000000 left.fastq > left_500k.fastq`
-
-`head -2000000 right.fastq > right_500k.fastq`
-
-FASTQ records are 4 lines long, so make sure you multiply the number of reads you want by 4, and be sure to run the same command on both the left and right read files.
+See the [getting started guide] on the website for more instructions, and see the [command-line options] part of the manual for details.
 
 #### Example
 
@@ -123,13 +125,13 @@ puts t.assembly_score
 
 ### Ruby
 
-First, you'll need Ruby v1.9.3 or greater installed. You can check with:
+First, you'll need Ruby v2.0.0 or greater installed. You can check with:
 
 `ruby --version`
 
 If you don't have Ruby installed, or you need a higher version, I recommend using [RVM](http://rvm.io/) as your Ruby Version Manager. To install RVM along with the latest Ruby, just run:
 
-`\curl -L https://get.rvm.io | bash -s stable`
+`\curl -L https://get.rvm.io | bash -s stable --ruby`
 
 ### Rubygems
 
@@ -139,9 +141,9 @@ Your Ruby installation *should* come with RubyGems, the package manager for Ruby
 
 If you don't have it installed, I recommend installing the latest version of Ruby and RubyGems using the RVM instructions above (in the [Requirements:Ruby](https://github.com/Blahah/transrate#ruby) section).
 
-### Usearch, Bowtie2 and eXpress
+## Other software
 
-Usearch (http://drive5.com/usearch), Bowtie2 (https://sourceforge.net/projects/bowtie-bio/files/bowtie2) and eXpress (http://bio.math.berkeley.edu/eXpress/) must be installed and in your PATH. Additionally, the Usearch binary executable should be named `usearch`.
+Transrate uses a variety of other software including NCBI BLAST+, Bowtie2 and Samtools. But you don't need to worry about installing those yourself - Transrate does that automatically using the [bindeps](https://github.com/Blahah/bindeps) gem.
 
 ## Getting help
 
