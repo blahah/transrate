@@ -22,3 +22,14 @@ This software is being actively developed. Please be aware that they may be bugs
 ## Documentation
 
 **transrate** is documented [on the website](http://hibberdlab.com/transrate).
+
+## Contributing
+
+Interested in helping? Great! We particularly would like help with the following:
+
+- code review
+- documentation review
+- adding features
+- tackling bugs
+
+For any of these, please just pick an appropriate issue [on the tracker](https://github.com/Blahah/transrate/issues) and make a pull request.
