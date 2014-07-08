@@ -10,11 +10,13 @@ module Transrate
     attr_reader :reciprocal_hits
     attr_reader :has_run
     attr_reader :reference_coverage
+    attr_reader :comp_stats
 
     def initialize assembly, reference, threads
       @assembly = assembly
       @reference = reference
       @threads = threads
+      @comp_stats = Hash.new
     end
 
     def run
@@ -25,36 +27,24 @@ module Transrate
       @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
       @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
-      @rbh_per_contig = @reciprocal_hits.to_f / @assembly.assembly.size.to_f
       @p_contigs_with_recip = @crbblast.reciprocals.size / @assembly.size.to_f
       @n_contigs_with_recip = @crbblast.reciprocals.size
       @p_refs_with_recip = @n_refs_with_recip / @reference.size.to_f
+      self.run_comp_stats
       @has_run = true
     end
 
-    def comp_stats
-      {
-        :reciprocal_hits => @reciprocal_hits,
-        :rbh_per_contig => @rbh_per_contig,
-        :p_contigs_with_recip => @p_contigs_with_recip,
-        :n_contigs_with_recip => @n_contigs_with_recip,
-        :p_refs_with_recip => @p_refs_with_recip,
-        :n_refs_with_recip => @n_refs_with_recip,
-        :rbh_per_reference => @rbh_per_reference,
-        :reference_coverage => @reference_coverage,
-        :ortholog_hit_ratio => @ortholog_hit_ratio,
-        :collapse_factor => @collapse_factor,
-        :cov25 => @cov[0],
-        :cov50 => @cov[1],
-        :cov75 => @cov[2],
-        :cov85 => @cov[3],
-        :cov95 => @cov[4],
-        :p_cov25 => @cov[0]/@reference.size.to_f,
-        :p_cov50 => @cov[1]/@reference.size.to_f,
-        :p_cov75 => @cov[2]/@reference.size.to_f,
-        :p_cov85 => @cov[3]/@reference.size.to_f,
-        :p_cov95 => @cov[4]/@reference.size.to_f
-      }
+    def run_comp_stats
+      @comp_stats[:reciprocal_hits] = @reciprocal_hits
+      @comp_stats[:rbh_per_contig] = @rbh_per_contig
+      @comp_stats[:p_contigs_with_recip] = @p_contigs_with_recip
+      @comp_stats[:n_contigs_with_recip] = @n_contigs_with_recip
+      @comp_stats[:p_refs_with_recip] = @p_refs_with_recip
+      @comp_stats[:n_refs_with_recip] = @n_refs_with_recip
+      @comp_stats[:rbh_per_reference] = @rbh_per_reference
+      @comp_stats[:reference_coverage] = @reference_coverage
+      @comp_stats[:ortholog_hit_ratio] = @ortholog_hit_ratio
+      @comp_stats[:collapse_factor] = @collapse_factor
     end
 
     def reciprocal_best_blast
@@ -171,6 +161,10 @@ module Transrate
           if p >= c
             @cov[i] +=1
           end
+        end
+        cov.each_with_index do |p, i|
+          @comp_stats["cov#{(100*p).to_i}".to_sym] = @cov[i]
+          @comp_stats["p_cov#{(100*p).to_i}".to_sym] = @cov[i]/@reference.size.to_f
         end
         total_coverage += length_of_coverage
         total_length += target_length
