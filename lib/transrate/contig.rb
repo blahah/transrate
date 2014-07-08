@@ -198,15 +198,66 @@ module Transrate
 SRC
     end
 
-    def linguistic_complexity k
-      d = 4 ** k
-      set = Set.new
-      (0..@seq.length-k).each do |i|
-        set << @seq.seq.slice(i,k).upcase # slice(start, length)
-      end # count how many kmers in seq
-      set.size / d.to_f
+    inline do |builder|
+      builder.c <<SRC
+        VALUE
+        kmer_count(VALUE _k, VALUE _s) {
+          int n, i, start, k, len, h, size = 0;
+          char * c_str;
+          len = RSTRING_LEN(_s);
+          c_str = StringValueCStr(_s);
+          k = NUM2INT(_k);
+          size = 1;
+          for(h=0;h<k;h++) {
+            size *= 4;
+          }
+          short set[size];
+          for(start=0;start<size;start++) {
+            set[start]=0;
+          }
+          for(start=0; start<len-k+1; start++) {
+            i = 0;
+            h = 0;
+            n = 0;
+            for(i = start; i < start+k; i++) {
+              if (c_str[i]=='N') {
+                n++;
+              }
+              if (c_str[i]=='A') {
+                h = h << 2;
+                h += 0;
+              }
+              if (c_str[i]=='C') {
+                h = h << 2;
+                h += 1;
+              }
+              if (c_str[i]=='G') {
+                h = h << 2;
+                h += 2;
+              }
+              if (c_str[i]=='T') {
+                h = h << 2;
+                h += 3;
+              }
+            }
+            if (n==0) {
+              set[h] += 1;
+            }
+          }
+          i = 0; // count how many in array are set //
+          for(start = 0; start < size; start++) {
+            if (set[start]>0) {
+              i++;
+            }
+          }
+          return INT2NUM(i);
+        }
+SRC
     end
 
+    def linguistic_complexity k
+      return kmer_count(k, @seq.seq)/(4**k).to_f
+    end
   end
 
 end
