@@ -4,7 +4,7 @@ require File.expand_path('../lib/transrate/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name          = 'transrate'
-  gem.authors       = [ "Richard Smith" ]
+  gem.authors       = [ "Richard Smith-Unna", "Chris Boursnell" ]
   gem.email         = "rds45@cam.ac.uk"
   gem.licenses      = ["MIT"]
   gem.homepage      = 'https://github.com/Blahah/transrate'
