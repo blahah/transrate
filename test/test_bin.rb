@@ -1,4 +1,5 @@
 require 'helper'
+require 'csv'
 
 class TestTransrateBin < Test::Unit::TestCase
 
@@ -68,7 +69,20 @@ class TestTransrateBin < Test::Unit::TestCase
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"
-      assert_equal 1249, File.size("transrate.csv")
+      assert File.exist?("transrate.csv")
+      hash = {}
+      CSV.foreach("transrate.csv", :headers => true,
+                                   :header_converters => :symbol,
+                                   :converters => :all) do |row|
+        row.headers
+        row.fields
+        row.headers.zip(row.fields).each do |header, field|
+          hash[header]=field
+        end
+      end
+      assert_equal 10331, hash[:n_bases]
+      assert_equal 1566, hash[:n50]
+      assert_equal 10, hash[:n_refs_with_recip]
     end
 
     should "fail when one of multiple assemblies is missing" do
