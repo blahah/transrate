@@ -19,12 +19,6 @@ class TestTransrater < Test::Unit::TestCase
       assert @rater
     end
 
-    should "raise error when reference input is nil" do
-      assert_raise RuntimeError do
-        rater = Transrate::Transrater.new(@assembly, nil)
-      end
-    end
-
     should "raise error when assembly input is nil" do
       assert_raise RuntimeError do
         rater = Transrate::Transrater.new(nil, @reference)
