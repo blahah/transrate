@@ -40,5 +40,11 @@ Rake::TestTask.new do |t|
   t.test_files = ['test/test_transrater.rb']
 end
 
+Rake::TestTask.new do |t|
+  t.name = :bin
+  t.libs << 'test'
+  t.test_files = ['test/test_bin.rb']
+end
+
 desc "Run tests"
 task :default => :test

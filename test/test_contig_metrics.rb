@@ -38,7 +38,7 @@ class TestContigMetrics < Test::Unit::TestCase
 
     should "get linguistic complexity" do
       @contig_metrics.run
-      assert_equal 0.26599, @contig_metrics.linguistic_complexity.round(5)
+      assert_equal 0.26526, @contig_metrics.linguistic_complexity.round(5)
     end
 
     should "get the number and proportion of Ns" do
