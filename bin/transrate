@@ -73,7 +73,13 @@ if opts.install_deps
   exit
 end
 
-unless opts.assembly
+if opts.assembly
+  opts.assembly.split(',').each do |assembly_file|
+    unless File.exist?(assembly_file)
+      raise IOError.new "Assembly fasta file does not exist: #{assembly_file}"
+    end
+  end
+else
   raise ArgumentError.new "Option --assembly must be specified. " +
                           "Try --help for help."
 end
