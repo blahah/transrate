@@ -39,7 +39,7 @@ class TestTransrater < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           stats = @rater.assembly_metrics
-          assert_equal 1198, stats.n50
+          assert_equal 1566, stats.n50
           assert_equal 10331, stats.n_bases
         end
       end

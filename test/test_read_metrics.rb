@@ -63,22 +63,6 @@ class TestReadMetrics < Test::Unit::TestCase
       end
     end
 
-    should "count per-base coverage" do
-
-    end
-
-    should "find median coverage" do
-    end
-
-    should "identify contigs with at least one uncovered base" do
-    end
-
-    should "identify contigs with coverage <1" do
-    end
-
-    should "identify contigs with coverage <10" do
-    end
-
   end
 
 end

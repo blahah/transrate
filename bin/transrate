@@ -6,19 +6,14 @@ require 'csv'
 require 'bindeps'
 require 'ruby-prof'
 
-gem_dir = Gem.loaded_specs['transrate'].full_gem_path
-gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
-Bindeps.require gem_deps
-
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
 
-  Transrate v#{Transrate::VERSION::STRING.dup} by Richard Smith <rds45@cam.ac.uk>
+  Transrate v#{Transrate::VERSION::STRING.dup} by Richard Smith-Unna <rds45@cam.ac.uk>
 
   DESCRIPTION:
-  Analyse a de-novo transcriptome
-  assembly using three kinds of metrics:
+  Analyse a de-novo transcriptome assembly using three kinds of metrics:
 
   1. contig-based
   2. read-mapping (if --left and --right are provided)
@@ -31,13 +26,19 @@ opts = Trollop::options do
   transrate <options>
 
   EXAMPLES:
+  # just check dependencies and install any that are missing
+  transrate --install-deps
+  # contig metrics only
+  transrate --assembly contigs.fa
+  # contig and reference-based metrics with 8 threads
   transrate --assembly contigs.fa --reference Athaliana_protein.fa --threads 8
+  # contig and read-based metrics for two assemblies with 32 threads
+  transrate --assembly one.fa,two.fa --left l.fq --right r.fq --threads 32
 
   OPTIONS:
 
   EOS
   opt :assembly, "assembly file(s) in FASTA format, comma-separated",
-      :required => true,
       :type => String
   opt :reference, "reference proteome file in FASTA format",
       :type => String
@@ -56,11 +57,33 @@ opts = Trollop::options do
       :type => Integer
   opt :outfile, "filename to use for CSV output",
       :default => 'transate_results.csv'
-  opt :quiet, "don't print results - only save to file"
+  opt :loglevel, "the amount of information to print. " +
+                 "one of [error, info, warn, debug]",
+      :default => 'info'
+  opt :install_deps, "install any missing dependencies"
   opt :profile, "debug option: profile the code as it runs"
 end
 
+if opts.install_deps
+  puts "Checking dependencies"
+  gem_dir = Gem.loaded_specs['transrate'].full_gem_path
+  gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
+  Bindeps.require gem_deps
+  puts "All dependencies installed"
+  exit
+end
+
+unless opts.assembly
+  raise ArgumentError.new "Option --assembly must be specified. " +
+                          "Try --help for help."
+end
+
+if opts.reference && !File.exist?(opts.reference)
+  raise IOError.new "Reference fasta file does not exist: #{opts.reference}"
+end
+
 if opts.profile
+  logger.info "Starting profiler"
   RubyProf.start
 end
 
@@ -70,103 +93,105 @@ def pretty_print_hash hash, width
     if v.to_f.round(2).to_s.split('.').last.to_i > 0
       v = v.to_f.round(2)
     end
+    if v.is_a? Float
+      v = v.round(2)
+    end
     pad = (width - (k.to_s.length + v.to_s.length))
     pad = [pad, 0].max
-    "#{k.to_s.split('_').join(' ')}" +
+    logger.info "#{k.to_s.split('_').join(' ')}" +
     "#{" " * pad}" +
     "#{v}"
-  end.join("\n")
-end
-
-# don't log if --quiet is set
-$quiet = opts.quiet
-def log msg
-  unless $quiet
-    puts msg
   end
 end
 
 include Transrate
 
+unless %w[error info warn debug].include? opts.loglevel
+  raise "Loglevel #{opts.loglevel} is not valid. " +
+        "It must be one of: error, info, warn, debug."
+end
+
+logger.level = Yell::Level.new opts.loglevel.to_sym
+
+logger.info "Loading reference dataset"
+
 r = opts.reference ? Assembly.new(opts.reference) : nil
-report_width = 30
+report_width = 35
 
 # loop through the assemblies, storing their outputs in an array of hashes
 all = []
 opts.assembly.split(',').each do |assembly|
 
+  logger.info "Loading assembly: #{assembly}"
+
   a = Assembly.new assembly
   transrater = Transrater.new(a, r,
-                            left: opts.left,
-                            right: opts.right,
-                            insertsize: opts.insertsize,
-                            insertsd: opts.insertsd,
-                            threads: opts.threads)
+                              left: opts.left,
+                              right: opts.right,
+                              insertsize: opts.insertsize,
+                              insertsd: opts.insertsd,
+                              threads: opts.threads)
 
 
-  log "\nAnalysing assembly: #{assembly}\n\n"
+  logger.info "Analysing assembly: #{assembly}"
 
   contig_results = {}
 
-  log "Calculating contig metrics..."
+  logger.info "Calculating contig metrics..."
   t0 = Time.now
   contig_results = transrater.assembly_metrics.basic_stats
-
+  contig_results.merge! transrater.assembly.contig_metrics.results
   if contig_results
-    log "\n"
-    log "Contig metrics:"
-    log "-" *  report_width
-    log pretty_print_hash(contig_results, report_width)
+    logger.info "Contig metrics:"
+    logger.info "-" *  report_width
+    pretty_print_hash(contig_results, report_width)
   end
 
-  log "Contig metrics done in #{Time.now - t0} seconds"
+  logger.info "Contig metrics done in #{Time.now - t0} seconds"
 
   read_results = {}
 
   if (opts.left && opts.right)
-    log "\ncalculating read diagnostics..."
+    logger.info "Calculating read diagnostics..."
     t0 = Time.now
     read_results = transrater.read_metrics(opts.left,
                                            opts.right).read_stats
 
     if read_results
-      log "\n"
-      log "Read mapping metrics:"
-      log "-" *  report_width
-      log pretty_print_hash(read_results, report_width)
+      logger.info "Read mapping metrics:"
+      logger.info "-" *  report_width
+      pretty_print_hash(read_results, report_width)
     end
 
-    log "Read metrics done in #{Time.now - t0} seconds"
+    logger.info "Read metrics done in #{Time.now - t0} seconds"
   else
-    log "\nNo reads provided, skipping read diagnostics"
+    logger.info "No reads provided, skipping read diagnostics"
   end
 
   comparative_results={}
 
   if opts.reference
-    log "\nCalculating comparative metrics..."
+    logger.info "Calculating comparative metrics..."
     t0 = Time.now
     comparative_metrics = transrater.comparative_metrics
     comparative_results = comparative_metrics.comp_stats
 
     if comparative_results
-      log "\n"
-      log "Comparative metrics:"
-      log "-" *  report_width
-      log pretty_print_hash(comparative_results, report_width)
+      logger.info "Comparative metrics:"
+      logger.info "-" *  report_width
+      pretty_print_hash(comparative_results, report_width)
     end
 
-    log "Comparative metrics done in #{Time.now - t0} seconds"
+    logger.info "Comparative metrics done in #{Time.now - t0} seconds"
 
-    log "\n"
-    log "-" * report_width
+    logger.info "-" * report_width
     score = transrater.assembly_score
     unless score.nil?
-      log "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
-      log "-" * report_width
+      logger.info "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
+      logger.info "-" * report_width
     end
   else
-    log "\nNo reference provided, skipping comparative diagnostics"
+    logger.info "No reference provided, skipping comparative diagnostics"
   end
 
   all << contig_results.
@@ -178,6 +203,7 @@ end
 
 # write out all resuls to .csv
 outfile = opts.out || 'transrate.csv'
+logger.info "Writing analysis results to #{outfile}"
 CSV.open(outfile, 'wb') do |file|
   keys = all[0].keys
   keys.delete(:assembly)
@@ -189,6 +215,7 @@ CSV.open(outfile, 'wb') do |file|
 end
 
 if opts.profile
+  logger.info "Writing profiling results to transrate_profile.txt"
   result = RubyProf.stop
   printer = RubyProf::FlatPrinter.new(result)
   printer.print(File.open('transrate_profile.txt', 'w'))

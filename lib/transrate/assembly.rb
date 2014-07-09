@@ -33,30 +33,23 @@ module Transrate
     attr_reader :has_run
     attr_accessor :n_bases
     attr_reader :n50
+    attr_accessor :contig_metrics
 
     # Create a new Assembly.
     #
     # @param file [String] path to the assembly FASTA file
     def initialize file
       @file = File.expand_path file
-      raise RuntimeError.new("#{file} not found") if !File.exist?("#{@file}")
+      unless File.exist? @file
+        raise IOError.new "Assembly file doesn't exist: #{@file}"
+      end
       @assembly = []
       @n_bases = 0
       Bio::FastaFormat.open(file).each do |entry|
         @n_bases += entry.length
         @assembly << Contig.new(entry)
       end
-    end
-
-    # Return basic statistics about the assembly in
-    # the specified FASTA file
-    #
-    # @param file [String] path to assebmly FASTA file
-    #
-    # @return [Hash] basic statistics about the assembly
-    def self.stats_from_fasta file
-      a = Assembly.new file
-      a.basic_stats
+      @contig_metrics = ContigMetrics.new self
     end
 
     # Generate and store the basic statistics for this assembly
@@ -71,6 +64,7 @@ module Transrate
         singleton_class.class_eval { attr_accessor attr_ivar }
         self.instance_variable_set(ivar, value)
       end
+      @contig_metrics.run
       @has_run = true
     end
 
@@ -82,57 +76,11 @@ module Transrate
     # @param threads [Integer] number of threads to use
     #
     # @return [Hash] basic statistics about the assembly
-    def basic_stats threads=8
-
-      # disable threading basic stats for now
-      threads = 1
-
-      # create a work queue to process contigs in parallel
-      queue = Queue.new
-
-      # split the contigs into equal sized bins, one bin per thread
-      binsize = (@assembly.size / threads.to_f).ceil
-      @assembly.each_slice(binsize) do |bin|
-        queue << bin
-      end
-      # a classic threadpool - an Array of threads that allows
-      # us to assign work to each thread and then aggregate their
-      # results when they are all finished
-      threadpool = []
-
-      # assign one bin of contigs to each thread from the queue.
-      # each thread will process its bin of contigs and then wait
-      # for the others to finish.
-      semaphore = Mutex.new
-      stats = []
-
-      threads.times do
-        threadpool << Thread.new do |thread|
-          # keep looping until we run out of bins
-          until queue.empty?
-
-            # use non-blocking pop, so an exception is raised
-            # when the queue runs dry
-            bin = queue.pop(true) rescue nil
-            if bin
-              # calculate basic stats for the bin, storing them
-              # in the current thread so they can be collected
-              # in the main thread.
-              bin_stats = basic_bin_stats bin
-              semaphore.synchronize { stats << bin_stats }
-            end
-          end
-        end
-      end
-
-      # collect the stats calculated in each thread and join
-      # the threads to terminate them
-      threadpool.each(&:join)
-      # merge the collected stats and return then
-      # merge_basic_stats stats
-      # as threading is currently disabled there's no need to do merging
-      stats[0]
-
+    def basic_stats threads=1
+      return @basic_stats if @basic_stats
+      bin = @assembly.dup
+      @basic_stats = basic_bin_stats bin
+      @basic_stats
     end # basic_stats
 
 
@@ -171,9 +119,7 @@ module Transrate
       x2 = x.clone
       cutoff = x2.pop / 100.0
       res = []
-      n1k = 0
-      n10k = 0
-      orf_length_sum = 0
+      n_under_200, n_over_1k, n_over_10k, n_with_orf, orf_length_sum = 0,0,0,0,0
       # sort the contigs in ascending length order
       # and iterate over them
       bin.sort_by! { |c| c.seq.length }
@@ -181,12 +127,22 @@ module Transrate
 
         # increment our long contig counters if this
         # contig is above the thresholds
-        n1k += 1 if contig.length > 1_000
-        n10k += 1 if contig.length > 10_000
+        if contig.length < 200
+          # ignore contigs less than 200 bases,
+          # but record how many there are
+          n_under_200 += 1
+          next
+        end
+        n_over_1k += 1 if contig.length > 1_000
+        n_over_10k += 1 if contig.length > 10_000
 
         # add the length of the longest orf to the
         # running total
-        orf_length_sum += contig.orf_length
+        orf_length = contig.orf_length
+        orf_length_sum += orf_length
+        # only consider orfs that are realistic length
+        # (here we set minimum amino acid length as 50)
+        n_with_orf += 1 if orf_length > 149
 
         # increment the cumulative length and check whether the Nx
         # cutoff has been reached. if it has, store the Nx value and
@@ -218,52 +174,61 @@ module Transrate
         'largest' => bin.last.length,
         'n_bases' => n_bases,
         'mean_len' => mean,
-        'n_1k' => n1k,
-        'n_10k' => n10k,
-        'orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
+        'n_under_200' => n_under_200,
+        'n_over_1k' => n_over_1k,
+        'n_over_10k' => n_over_10k,
+        'n_with_orf' => n_with_orf,
+        'mean_orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
       }.merge ns
 
     end # basic_bin_stats
 
-    def merge_basic_stats stats
-      # convert the array of hashes into a hash of arrays
-      collect = Hash.new{ |h, k| h[k] = [] }
-      stats.each_with_object(collect) do |collect, result|
-        collect.each{ |k, v| result[k] << v }
-      end
-      merged = {}
-      collect.each_pair do |stat, values|
-        if stat == 'orf_percent' || /N[0-9]{2}/ =~ stat
-          # store the mean
-          merged[stat] = values.inject(0, :+) / values.size
-        elsif stat == 'smallest'
-          merged[stat] = values.min
-        elsif stat == 'largest'
-          merged[stat] = values.max
-        else
-          # store the sum
-          merged[stat] = values.inject(0, :+)
+    # Calls *block* with two arguments, the contig and an array
+    # of integer per-base coverage counts.
+    #
+    # @param bam [Bio::Db::Sam] a bam alignment of reads against this assembly
+    # @param block [Block] the block to call
+    def each_with_coverage(bam, &block)
+      logger.debug 'enumerating assembly with coverage'
+      # generate coverage with samtools
+      covfile = Samtools.coverage bam
+      # get an assembly enumerator
+      assembly_enum = @assembly.to_enum
+      contig = assembly_enum.next
+      # precreate an array of the correct size to contain
+      # coverage. this is necessary because samtools mpileup
+      # doesn't print a result line for bases with 0 coverage
+      contig.coverage = Array.new(contig.length, 0)
+      # the columns we need
+      name_i, pos_i, cov_i = 0, 1, 3
+      # parse the coverage file
+      File.open(covfile).each_line do |line|
+        cols = line.chomp.split("\t")
+        unless (cols && cols.length > 4)
+          # last line
+          break
         end
+        # extract the columns
+        name, pos, cov = cols[name_i], cols[pos_i].to_i, cols[cov_i].to_i
+        unless contig.name == name
+          while contig.name != name
+            begin
+              block.call(contig, contig.coverage)
+              contig = assembly_enum.next
+              contig.coverage = Array.new(contig.length, 0)
+            rescue StopIteration => stop_error
+              logger.error 'reached the end of assembly enumerator while ' +
+                        'there were contigs left in the coverage results'
+              logger.error "final assembly contig: #{@assembly.last.name}"
+              logger.error "coverage contig: #{name}"
+              raise stop_error
+            end
+          end
+        end
+        contig.coverage[pos - 1] = cov
       end
-
-      merged
-
-    end # merge_basic_stats
-
-    # return the number of bases in the assembly, calculating
-    # from the assembly if it hasn't already been done.
-    def n_bases
-      unless @n_bases
-        @n_bases = 0
-        @assembly.each { |s| @n_bases += s.length }
-      end
-      @n_bases
-    end
-
-    def print_stats
-      self.basic_stats.map do |k, v|
-        "#{k}#{" " * (20 - (k.length + v.to_i.to_s.length))}#{v.to_i}"
-      end.join('\n')
+      # yield the final contig
+      block.call(contig, contig.coverage)
     end
 
   end # Assembly

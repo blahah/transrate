@@ -17,7 +17,7 @@ module Transrate
     end
 
     def initial_values
-      @gc = -1
+      @gc_prop = -1
       @gc_skew = -1
       @at_skew = -1
       @cpg = -1
@@ -69,15 +69,6 @@ module Transrate
               'proportion_n' => @proportion_n,
               'linguistic_complexity' => @linguistic_complexity
              }
-    end
-
-    def get_linguistic_complexity seq, k
-      d = 4 ** k
-      set = Set.new
-      (0..seq.length-k).each do |i|
-        set << seq.slice(i,k).upcase # slice(start, length)
-      end # count how many kmers in seq
-      set.size / d.to_f
     end
 
   end
