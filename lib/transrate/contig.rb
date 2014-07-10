@@ -9,15 +9,51 @@ module Transrate
     include Enumerable
     extend Forwardable
     def_delegators :@seq, :size, :length
-    attr_accessor :seq, :name, :coverage
+    attr_accessor :seq, :name
+    # read-based metrics
+    attr_accessor :coverage, :uncovered_bases, :mean_coverage
+    # reference-based metrics
+    attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
+    attr_accessor :hits
 
     def initialize(seq, name: nil)
       @seq = seq
       @name = seq.respond_to?(:entry_id) ? seq.entry_id : name
+      @hits = []
+      @reference_coverage = 0
+      @collapse_factor = 0
+      @is_chimera = false
     end
 
     def each &block
       @seq.seq.each_char &block
+    end
+
+    # Get all metrics available for this contig
+    def metrics
+      basic = {
+        :length => length,
+        :prop_gc => prop_gc,
+        :gc_skew => gc_skew,
+        :at_skew => at_skew,
+        :cpg_count => cpg_count,
+        :cpg_ratio => cpg_ratio,
+        :orf_length => orf_length,
+        :linguistic_complexity_6 => linguistic_complexity(6)
+      }
+      read = @coverage ? {
+        :uncovered_bases => uncovered_bases,
+        :mean_coverage => mean_coverage,
+        :in_bridge => in_bridge
+      } : {}
+      reference = @comp ? {
+        :has_crb => has_crb,
+        :collapse_factor => collapse_factor,
+        :reference_coverage => reference_coverage,
+        :is_chimera => is_chimera,
+        :hits => hits.map{ |h|  }
+      } : {}
+      basic.merge(read).merge(reference)
     end
 
     # Base composition of the contig

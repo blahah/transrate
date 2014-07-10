@@ -23,12 +23,13 @@ module Transrate
     def run
       @crbblast = reciprocal_best_blast
       @ortholog_hit_ratio = ortholog_hit_ratio @crbblast
-      @collapse_factor = collapse_factor @crbblast.target_results
+      @collapse_factor = collapse_factor @crbblast.reciprocals
       @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
       @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
       @p_contigs_with_recip = @crbblast.reciprocals.size / @assembly.size.to_f
       @n_contigs_with_recip = @crbblast.reciprocals.size
+      count_ref_crbbs
       @p_refs_with_recip = @n_refs_with_recip / @reference.size.to_f
       chimeras @crbblast
       self.run_comp_stats
@@ -57,22 +58,30 @@ module Transrate
     end
 
     # coverage of contigs that have reciprocal hits
-    # divided by
-    # number of reciprocal targets
+    # divided by number of reciprocal targets
     def ortholog_hit_ratio crbblast
       return @ortholog_hit_ratio unless @ortholog_hit_ratio.nil?
-
-      targets = Hash.new
-      crbblast.reciprocals.each_pair do |key, list|
-        list.each do |hit|
-          targets[hit.target] ||= [] # if key doesn't exist add it with a []
-          targets[hit.target] << hit
+      crbblast.reciprocals.each do |key, list|
+        list.each_with_index do |hit, i|
+          unless @reference.assembly.key? hit.target
+            raise "#{hit.target} not in reference"
+          end
+          r = @reference[hit.target]
+          r.hits << hit
+          unless @assembly.assembly.key? hit.query
+            raise "#{hit.query} not in assembly"
+          end
+          a = @assembly[hit.query]
+          a.hits << hit
         end
       end
-      @n_refs_with_recip = targets.size
-      total_coverage=0
-      total_length=0
-      targets.each_pair do |key, list|
+      total_coverage = 0
+      total_length = 0
+      @reference.each_value do |ref_contig|
+        key = ref_contig.name
+        list = ref_contig.hits
+        total_length += ref_contig.length
+        next if list.empty?
         blocks = []
         target_length = 0
         list.each do |hit|
@@ -147,32 +156,51 @@ module Transrate
           end # each_with_index b
         end # each_with_index a
         # sum blocks to find total coverage
-        length_of_coverage=0
-        blocks.each do |block|
-          if block[0] and block[1]
-            if block[0]>=0 and block[1]>=0
-              length_of_coverage += block[1] - block[0] + 1
-            end
-          else
-            puts "error: key = #{key}, #{blocks}"
-          end
-        end
+        length_of_coverage = total_coverage blocks
         cov = [0.25, 0.5, 0.75, 0.85, 0.95]
         @cov ||= [0, 0, 0, 0, 0]
-        p = length_of_coverage / target_length.to_f
+        ref_p = length_of_coverage / target_length.to_f
+        ref_contig.reference_coverage = ref_p
         cov.each_with_index do |c, i|
-          if p >= c
+          if ref_p >= c
             @cov[i] +=1
           end
         end
         cov.each_with_index do |p, i|
-          @comp_stats["cov#{(100*p).to_i}".to_sym] = @cov[i]
-          @comp_stats["p_cov#{(100*p).to_i}".to_sym] = @cov[i]/@reference.size.to_f
+          @comp_stats["cov#{(100*p).to_i}".to_sym] =
+            @cov[i]
+          @comp_stats["p_cov#{(100*p).to_i}".to_sym] =
+            @cov[i]/@reference.size.to_f
         end
         total_coverage += length_of_coverage
-        total_length += target_length
       end
-      return ortholog_hit_ratio = total_coverage / total_length.to_f
+      puts total_coverage
+      puts total_length
+      total_coverage / total_length.to_f
+    end
+
+    # Calculate the total coverage from a set of coverage blocks
+    def total_coverage blocks
+      coverage = 0
+      blocks.each do |block|
+        if block[0] and block[1]
+          if block[0]>=0 and block[1]>=0
+            coverage += block[1] - block[0] + 1
+          end
+        else
+          puts "error: key = #{key}, #{blocks}"
+        end
+      end
+      coverage
+    end
+
+    # Count reference proteins with at least one recprocal hit
+    def count_ref_crbbs
+      @n_refs_with_recip =
+        @reference.assembly.inject(0) do |sum, entry|
+        name, contig = entry
+        sum + (contig.hits.length > 0 ? 1 : 0)
+      end
     end
 
     def chimeras crbblast
@@ -204,6 +232,10 @@ module Transrate
         end
         if p/list.size.to_f >= 0.5
           @n_chimeras += 1
+          unless @assembly.assembly.key? key
+            puts "key not in assembly: #{key}"
+          end
+          @assembly[key].is_chimera = true
         end
       end
       @p_chimeras = @n_chimeras / crbblast.reciprocals.length.to_f
@@ -261,20 +293,17 @@ module Transrate
       end
     end
 
-    def collapse_factor hits=nil
+    # Count unique reference proteins per contig
+    def collapse_factor reciprocals
       return @collapse_factor unless @collapse_factor.nil?
-      targets = {}
-      hits.each_pair do |query, list|
-        list.each do |hit|
-          target = hit.target
-          unless targets.has_key? target
-            targets[target] = Set.new
-          end
-          targets[target] << query
-        end
+      cf_sum = 0
+      reciprocals.each do |query, hits|
+        uniq_hits = Set.new hits.map{ |h| h.target }
+        cf = uniq_hits.length
+        @assembly[query].collapse_factor = cf
+        cf_sum += cf
       end
-      sum = targets.values.reduce(0.0){ |summer, val| summer += val.size }
-      sum / targets.size
+      cf_sum / reciprocals.size
     end
 
   end # ComparativeMetrics
