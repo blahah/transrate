@@ -19,18 +19,38 @@ module Transrate
       self.initial_values
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8
-      [left, right].each do |readfile|
-        unless File.exist? readfile
-          raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
-        end
-      end
+    def run left=nil, right=nil, unpaired=nil, insertsize:200, insertsd:50, threads:8
+      #[left, right, unpaired].each do |readfile|
+      #  unless File.exist? readfile
+      #    raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
+      #  end
+      #end
       @mapper.build_index @assembly.file
-      @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
-      samfile = @mapper.map_reads(@assembly.file, left, right,
+
+      if unpaired && right && left
+        @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
+        @num_reads = @num_pairs*2 + `wc -l #{unpaired}`.strip.split(/\s+/)[0].to_i/4
+        samfile = @mapper.map_reads(@assembly.file, left, right, unpaired,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
                                   threads: threads)
+      elsif right && left
+        @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
+        @num_reads = @num_pairs*2
+        samfile = @mapper.map_reads(@assembly.file, left, right, nil,
+                                  insertsize: insertsize,
+                                  insertsd: insertsd,
+                                  threads: threads)
+      elsif unpaired
+        @num_pairs = 0
+        @num_reads = `wc -l #{unpaired}`.strip.split(/\s+/)[0].to_i/4
+         samfile = @mapper.map_reads(@assembly.file, nil, nil, unpaired,
+                                  insertsize: insertsize,
+                                  insertsd: insertsd,
+                                  threads: threads)
+      else
+        raise IOError.new "ReadMetrics read files not supplied:\nleft:#{left}\nright:#{right}\nunpaired:#{unpaired}"
+      end
       # check_bridges
       analyse_read_mappings(samfile, insertsize, insertsd, true)
       analyse_coverage(samfile)
@@ -42,6 +62,7 @@ module Transrate
 
     def read_stats
       {
+        :num_reads => @num_reads,
         :num_pairs => @num_pairs,
         :total_mappings => @total,
         :percent_mapping => @percent_mapping,

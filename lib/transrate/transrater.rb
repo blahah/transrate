@@ -20,10 +20,11 @@ module Transrate
     #   path to the FASTA
     # @param left [String] path to the left reads
     # @param right [String] path to the right reads
+    # @param unpaired [String] path to the unpaired reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
     def initialize(assembly, reference,
-                   left: nil, right: nil,
+                   left: nil, right: nil, unpaired: nil,
                    insertsize: nil, insertsd: nil,
                    threads: 1)
       if assembly
@@ -54,12 +55,19 @@ module Transrate
     #
     # @param left [String] path to the left reads
     # @param right [String] path to the right reads
+    # @param unpaired [String] path to the unpaired reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def run left=nil, right=nil, insertsize=nil, insertsd=nil
+    def run left=nil, right=nil, unpaired=nil, insertsize=nil, insertsd=nil
       assembly_metrics
-      if left && right
-        read_metrics left, right
+      if unpaired && left && right
+        read_metrics left, right, unpaired
+      elsif left && right
+        read_metrics left, right, nil
+      elsif unpaired
+        read_metrics nil, nil, unpaired
+      else 
+        raise IOError.new("Transrater read files not supplied:\nleft:#{left}\nright:#{right}\nunpaired:#{unpaired}")
       end
       comparative_metrics
     end
@@ -88,9 +96,9 @@ module Transrate
       @assembly
     end
 
-    def read_metrics left=nil, right=nil
+    def read_metrics left=nil, right=nil, unpaired=nil
       unless @read_metrics.has_run
-        @read_metrics.run(left, right, threads: @threads)
+        @read_metrics.run(left, right, unpaired, threads: @threads)
       end
       @read_metrics
     end
@@ -100,8 +108,8 @@ module Transrate
       @comparative_metrics
     end
 
-    def all_metrics left, right, insertsize=nil, insertsd=nil
-      self.run(left, right, insertsize, insertsd)
+    def all_metrics left=nil, right=nil, unpaired=nil, insertsize=nil, insertsd=nil
+      self.run(left, right, unpaired, insertsize, insertsd)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
       all.merge!(@comparative_metrics.comp_stats)
