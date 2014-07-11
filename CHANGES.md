@@ -1,0 +1,2 @@
+7/10/14 - I have added some minor features to transrate. I have included support
+for the use of unpaired reads as input. They can be used instead of or in addition to paired reads. However, currently the statistics only reflect the traditional statistics. The motivation for this feature was to produce updated statistics that incorporate information from both paired and unpaired reads. This is a goal for this project.
