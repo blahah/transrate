@@ -103,7 +103,7 @@ module Transrate
     # representing contigs in the assembly
 
     def basic_bin_stats bin
-      
+
       # cumulative length is a float so we can divide it
       # accurately later to get the mean length
       cumulative_length = 0.0
