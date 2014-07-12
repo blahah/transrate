@@ -2,6 +2,8 @@
   <img alt="Transrate - understand your transcriptome assembly" src="https://github.com/Blahah/transrate/raw/master/docs/transrate_logo_full.png">
 </p>
 
+## Development status
+
 [![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
 [![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
 [![Dependency Status](https://gemnasium.com/Blahah/transrate.png?travis)][gemnasium]
@@ -14,9 +16,7 @@
 [codeclimate]: https://codeclimate.com/github/Blahah/transrate
 [coveralls]: https://coveralls.io/r/Blahah/transrate
 
-## Development status
-
-This software is being actively developed. Please be aware that they may be bugs. If you find any, please report them on the [issue tracker](https://github.com/Blahah/transrate/issues).
+This software is being actively developed. Please be aware that there may be bugs. If you find any, please report them on the [issue tracker](https://github.com/Blahah/transrate/issues).
 
 ## Documentation
 
