@@ -1,4 +1,6 @@
-![Transrate - understand your transcriptome assembly](https://github.com/Blahah/transrate/raw/master/docs/transrate_logo_full.png)
+<p align="center">
+  <img alt="Transrate - understand your transcriptome assembly" src="https://github.com/Blahah/transrate/raw/master/docs/transrate_logo_full.png">
+</p>
 
 [![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
 [![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
