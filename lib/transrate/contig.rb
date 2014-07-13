@@ -208,6 +208,7 @@ SRC
         kmer_count(VALUE _k, VALUE _s) {
           int n, i, start, k, len, h, size = 0;
           char * c_str;
+          char base;
           len = RSTRING_LEN(_s);
           c_str = StringValueCStr(_s);
           k = NUM2INT(_k);
@@ -224,24 +225,32 @@ SRC
             h = 0;
             n = 0;
             for(i = start; i < start+k; i++) {
-              if (c_str[i]=='N') {
-                n++;
-              }
-              if (c_str[i]=='A') {
-                h = h << 2;
-                h += 0;
-              }
-              if (c_str[i]=='C') {
-                h = h << 2;
-                h += 1;
-              }
-              if (c_str[i]=='G') {
-                h = h << 2;
-                h += 2;
-              }
-              if (c_str[i]=='T') {
-                h = h << 2;
-                h += 3;
+              base = c_str[i];
+              switch (base) {
+                case 'A': {
+                  h = h << 2;
+                  h += 0;
+                  break;
+                }
+                case 'C': {
+                  h = h << 2;
+                  h += 1;
+                  break;
+                }
+                case 'G': {
+                  h = h << 2;
+                  h += 2;
+                  break;
+                }
+                case 'T': {
+                  h = h << 2;
+                  h += 3;
+                  break;
+                }
+                default: {
+                  n++;
+                  break;
+                }
               }
             }
             if (n==0) {
