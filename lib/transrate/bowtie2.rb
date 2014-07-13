@@ -49,6 +49,9 @@ module Transrate
         # run bowtie
         runner = Cmd.new bowtiecmd
         runner.run
+        if !runner.status.success?
+          raise Bowtie2Error.new("Bowtie2 failed\n#{runner.stderr}")
+        end
       end
       @sam
     end
@@ -59,6 +62,10 @@ module Transrate
         cmd = "#{@bowtie2_build} --quiet --offrate 1 #{file} #{@index_name}"
         runner = Cmd.new cmd
         runner.run
+        if !runner.status.success?
+          msg = "Failed to build Bowtie2 index\n#{runner.stderr}"
+          raise Bowtie2Error.new(msg)
+        end
       end
       @index_built = true
     end
