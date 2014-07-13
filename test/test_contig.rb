@@ -49,6 +49,17 @@ class TestContig < Test::Unit::TestCase
       assert_equal 6, @contig.orf_length, "orf length"
     end
 
+    should "not fail on bases that aren't ACGTN" do
+      seq = Bio::Sequence.new 'ATGCGTGTARATACGCGTAG'
+      contig = Transrate::Contig.new seq
+      assert_equal 1, contig.base_composition[:n]
+    end
+
+    should "get kmer count with non ACGTN bases" do
+      seq = Bio::Sequence.new 'ATGCGTGTARATACGCGTAG'
+      contig = Transrate::Contig.new seq
+      assert_equal 0, contig.kmer_count(6, "RRRRRRRRRRRRRRRR")
+    end
 
     should "know its own linguistic complexity" do
       assert_equal 0.0586, @contig.linguistic_complexity(4).round(4),
