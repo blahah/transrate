@@ -50,5 +50,17 @@ class TestBowtie < Test::Unit::TestCase
         end
       end
     end
+
+    should "raise error when bowtie fails" do
+      not_reads = File.join(File.dirname(__FILE__), 'data', 'not_a_file.fq')
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          assert_raise Transrate::Bowtie2Error do
+            @mapper.build_index @reference
+            @mapper.map_reads(@reference, @left, not_reads)
+          end
+        end
+      end
+    end
   end
 end
