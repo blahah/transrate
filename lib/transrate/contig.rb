@@ -39,7 +39,11 @@ module Transrate
       @seq.seq.each_char do |base|
         # single bases
         key = base.downcase.to_sym
-        base_comp[key] += 1
+        if base_comp[key]
+          base_comp[key] += 1
+        else
+          base_comp[:n] += 1
+        end
         if last_base
           # pairs of bases
           dikey = "#{last_base}#{base}".downcase.to_sym
