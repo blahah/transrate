@@ -1,5 +1,6 @@
 require 'helper'
 require 'bio'
+require 'benchmark'
 
 class TestContig < Test::Unit::TestCase
 
@@ -21,6 +22,27 @@ class TestContig < Test::Unit::TestCase
       assert_equal 0.3, @contig.prop_t, "proportion of base t"
       assert_equal 0, @contig.bases_n, "count of base n"
       assert_equal 0.0, @contig.prop_n, "proportion of base n"
+    end
+
+    should "calculate dibase composition with ambiguous bases" do
+      seq = Bio::Sequence.new "ATGGGNCRYTAG"
+      contig = Transrate::Contig.new seq
+      assert_equal 1, contig.dibase_composition[:at]
+      assert_equal 1, contig.dibase_composition[:nn]
+      assert_equal 1, contig.dibase_composition[:gn]
+    end
+
+    should "benchmark composition" do
+      seq = "GCCGTGAGCTTCTTGATCGAGTTCTTCTCCCGCTTCGCGAACGCCTTGGACTCCTNGCACGGG"
+      seq << "GTCAGCCCCGCGATGTCGGCGGCCGCGGGCGGGGGG"
+      seq = seq * 100000
+      seq = Bio::Sequence.new seq
+      contig = Transrate::Contig.new seq
+      ruby_time = 11 # time taken with the ruby version
+      c_time = Benchmark.realtime do |x|
+        contig.dibase_composition
+      end
+      assert c_time*100 < ruby_time, "c faster than ruby"
     end
 
     should "know how many of each two-base pair it contains" do
