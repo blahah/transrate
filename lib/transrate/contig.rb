@@ -21,43 +21,37 @@ module Transrate
     end
 
     # Base composition of the contig
+    #
+    # If called and the instance variable @base_composition is nil
+    # then call the c method to count the bases and dibases in the sequence
+    # then get the info out of the c array and store it in the hash
+    # then if it is called again just return the hash as before
     def base_composition
       if @base_composition
         return @base_composition
       end
-      base_comp = {
-        :a => 0,
-        :t => 0,
-        :c => 0,
-        :g => 0,
-        :n => 0
-      }
-      dibase_comp = {
-        :cg => 0
-      }
-      last_base = nil
-      @seq.seq.each_char do |base|
-        # single bases
-        key = base.downcase.to_sym
-        if base_comp[key]
-          base_comp[key] += 1
-        else
-          base_comp[:n] += 1
-        end
-        if last_base
-          # pairs of bases
-          dikey = "#{last_base}#{base}".downcase.to_sym
-          if dibase_comp[dikey]
-            dibase_comp[dikey] += 1
-          else
-            dibase_comp[dikey] = 1
-          end
-        end
-        last_base = base
+      # else run the C method
+      composition(@seq.seq)
+      alphabet = ['a', 'c', 'g', 't', 'n']
+      @base_composition = {}
+      @dibase_composition={}
+      bases = []
+      dibases = []
+      alphabet.each do |c|
+        bases << "#{c}".to_sym
       end
-      @base_composition = base_comp
-      @dibase_composition = dibase_comp
-      return base_comp
+      alphabet.each do |c|
+        alphabet.each do |d|
+          dibases << "#{c}#{d}".to_sym
+        end
+      end
+      bases.each_with_index do |a,i|
+        @base_composition[a] = base_count(i)
+      end
+      dibases.each_with_index do |a,i|
+        @dibase_composition[a] = dibase_count(i)
+      end
+      return @base_composition
     end
 
     # Dibase composition of the contig
@@ -148,128 +142,11 @@ module Transrate
 
     # Find the longest orf in the contig
     def orf_length
-      longest = longest_orf @seq.seq
-      return longest
-    end
-
-    # Inlined C longest-ORF function
-    inline do |builder|
-      builder.c <<SRC
-        static
-        void
-        longest_orf(VALUE _s) {
-          int i,sl,longest=0;
-          int len[6];
-          char * c_str;
-
-          sl = RSTRING_LEN(_s);
-          c_str = StringValueCStr(_s);
-          for (i=0;i<6;i++) {
-            len[i]=0;
-          }
-          for (i=0;i<sl-2;i++) {
-            if (c_str[i]=='T' &&
-              ((c_str[i+1]=='A' && c_str[i+2]=='G') ||
-              (c_str[i+1]=='A' && c_str[i+2]=='A') ||
-              (c_str[i+1]=='G' && c_str[i+2]=='A'))) {
-              if (len[i%3] > longest) {
-                longest = len[i%3];
-              }
-              len[i%3]=0;
-            } else {
-              len[i%3]++;
-            }
-            if (c_str[i+2]=='A' &&
-              ((c_str[i]=='C' && c_str[i+1]=='T') ||
-              (c_str[i]=='T' && c_str[i+1]=='T') ||
-              (c_str[i]=='T' && c_str[i+1]=='C'))) {
-              if (len[3+i%3] > longest) {
-                longest = len[3+i%3];
-              }
-              len[3+i%3]=0;
-            } else {
-              len[3+i%3]++;
-            }
-          }
-          if (len[i%3] > longest) {
-            longest = len[i%3];
-          }
-          if (len[3+i%3] > longest) {
-            longest = len[3+i%3];
-          }
-          return INT2NUM(longest);
-        }
-SRC
-    end
-
-    inline do |builder|
-      builder.c <<SRC
-        VALUE
-        kmer_count(VALUE _k, VALUE _s) {
-          int n, i, start, k, len, h, size = 0;
-          char * c_str;
-          char base;
-          len = RSTRING_LEN(_s);
-          c_str = StringValueCStr(_s);
-          k = NUM2INT(_k);
-          size = 1;
-          for(h=0;h<k;h++) {
-            size *= 4;
-          }
-          short set[size];
-          for(start=0;start<size;start++) {
-            set[start]=0;
-          }
-          for(start=0; start<len-k+1; start++) {
-            i = 0;
-            h = 0;
-            n = 0;
-            for(i = start; i < start+k; i++) {
-              base = c_str[i];
-              switch (base) {
-                case 'A': {
-                  h = h << 2;
-                  h += 0;
-                  break;
-                }
-                case 'C': {
-                  h = h << 2;
-                  h += 1;
-                  break;
-                }
-                case 'G': {
-                  h = h << 2;
-                  h += 2;
-                  break;
-                }
-                case 'T': {
-                  h = h << 2;
-                  h += 3;
-                  break;
-                }
-                default: {
-                  n++;
-                  break;
-                }
-              }
-            }
-            if (n==0) {
-              set[h] += 1;
-            }
-          }
-          i = 0; // count how many in array are set //
-          for(start = 0; start < size; start++) {
-            if (set[start]>0) {
-              i++;
-            }
-          }
-          return INT2NUM(i);
-        }
-SRC
+      return longest_orf(@seq.seq) # call to C
     end
 
     def linguistic_complexity k
-      return kmer_count(k, @seq.seq)/(4**k).to_f
+      return kmer_count(k, @seq.seq)/(4**k).to_f # call to C
     end
   end
 
