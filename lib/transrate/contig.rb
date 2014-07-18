@@ -1,5 +1,4 @@
 require 'forwardable'
-require 'inline'
 
 module Transrate
 
