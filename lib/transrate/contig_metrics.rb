@@ -1,5 +1,4 @@
 require 'set'
-require 'inline'
 
 module Transrate
 
