@@ -22,11 +22,10 @@ module Transrate
 
     def run
       @crbblast = reciprocal_best_blast
-      @ortholog_hit_ratio = ortholog_hit_ratio @crbblast
+      @reference_coverage = coverage @crbblast
       @collapse_factor = collapse_factor @crbblast.reciprocals
       @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
-      @reference_coverage = @ortholog_hit_ratio * @rbh_per_reference
       @p_contigs_with_recip = @crbblast.reciprocals.size / @assembly.size.to_f
       @n_contigs_with_recip = @crbblast.reciprocals.size
       count_ref_crbbs
@@ -45,7 +44,6 @@ module Transrate
       @comp_stats[:n_refs_with_recip] = @n_refs_with_recip
       @comp_stats[:rbh_per_reference] = @rbh_per_reference
       @comp_stats[:reference_coverage] = @reference_coverage
-      @comp_stats[:ortholog_hit_ratio] = @ortholog_hit_ratio
       @comp_stats[:collapse_factor] = @collapse_factor
       @comp_stats[:n_chimeras] = @n_chimeras
       @comp_stats[:p_chimeras] = @p_chimeras
@@ -59,36 +57,39 @@ module Transrate
 
     # coverage of contigs that have reciprocal hits
     # divided by number of reciprocal targets
-    def ortholog_hit_ratio crbblast
-      return @ortholog_hit_ratio unless @ortholog_hit_ratio.nil?
+    def coverage crbblast
+      return @reference_coverage unless @reference_coverage.nil?
       crbblast.reciprocals.each do |key, list|
         list.each_with_index do |hit, i|
           unless @reference.assembly.key? hit.target
             raise "#{hit.target} not in reference"
           end
-          r = @reference[hit.target]
-          r.hits << hit
+          @reference[hit.target].hits << hit
+
           unless @assembly.assembly.key? hit.query
             raise "#{hit.query} not in assembly"
           end
-          a = @assembly[hit.query]
-          a.hits << hit
+          @assembly[hit.query].hits << hit
         end
       end
       total_coverage = 0
       total_length = 0
+      cov = [0.25, 0.5, 0.75, 0.85, 0.95]
       @reference.each_value do |ref_contig|
         key = ref_contig.name
         list = ref_contig.hits
-        total_length += ref_contig.length
-        next if list.empty?
+        total_length += crbblast.target_is_prot ? ref_contig.length : ref_contig.length*3
+
+        next if list.empty? # ah this is what was breaking everything
         blocks = []
         target_length = 0
         list.each do |hit|
           target_length = hit.tlen
           if crbblast.target_is_prot
             target_length *= 3
-            start, stop = [hit.tstart*3, hit.tend*3].minmax
+            start, stop = [hit.tstart, hit.tend].minmax
+            start = start*3-2
+            stop = stop*3
           else
             start, stop = [hit.tstart, hit.tend].minmax
           end
@@ -111,7 +112,8 @@ module Transrate
                 block[0] = start
                 block[1] = stop
                 found=true
-              # elsif o == 4 # full overlap
+              elsif o == 4 # full overlap
+                found=true
                 # nothing
               # elsif o == 5 || o == 6 # no overlap
 
@@ -156,31 +158,34 @@ module Transrate
           end # each_with_index b
         end # each_with_index a
         # sum blocks to find total coverage
-        length_of_coverage = total_coverage blocks
-        cov = [0.25, 0.5, 0.75, 0.85, 0.95]
+        length_of_coverage = calculate_coverage blocks
         @cov ||= [0, 0, 0, 0, 0]
-        ref_p = length_of_coverage / target_length.to_f
+        if target_length > 0
+          # puts "#{length_of_coverage} / #{target_length.to_f}"
+          ref_p = length_of_coverage / target_length.to_f
+        else
+          ref_p = 0
+        end
         ref_contig.reference_coverage = ref_p
+
         cov.each_with_index do |c, i|
           if ref_p >= c
             @cov[i] +=1
           end
         end
-        cov.each_with_index do |p, i|
-          @comp_stats["cov#{(100*p).to_i}".to_sym] =
-            @cov[i]
-          @comp_stats["p_cov#{(100*p).to_i}".to_sym] =
-            @cov[i]/@reference.size.to_f
-        end
+
         total_coverage += length_of_coverage
       end
-      puts total_coverage
-      puts total_length
+      cov.each_with_index do |p, i|
+        @comp_stats["cov#{(100*p).to_i}".to_sym] = @cov[i]
+        @comp_stats["p_cov#{(100*p).to_i}".to_sym] =
+                                                  @cov[i]/@reference.size.to_f
+      end
       total_coverage / total_length.to_f
     end
 
     # Calculate the total coverage from a set of coverage blocks
-    def total_coverage blocks
+    def calculate_coverage blocks
       coverage = 0
       blocks.each do |block|
         if block[0] and block[1]
