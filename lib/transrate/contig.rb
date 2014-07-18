@@ -11,7 +11,7 @@ module Transrate
     attr_accessor :seq, :name, :coverage
 
     def initialize(seq, name: nil)
-      seq.gsub!("\0", "") # there is probably a better fix than this
+      seq.seq.gsub!("\0", "") # there is probably a better fix than this
       @seq = seq
       @name = seq.respond_to?(:entry_id) ? seq.entry_id : name
     end
