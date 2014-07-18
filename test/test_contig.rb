@@ -71,6 +71,12 @@ class TestContig < Test::Unit::TestCase
       assert_equal 6, @contig.orf_length, "orf length"
     end
 
+    should "should not break when there is a null byte in the sequence" do
+      seq = Bio::Sequence.new "AAAAAAAAAAAA\0AAAAAAAAAAA"
+      contig = Transrate::Contig.new seq
+      assert_equal 7, contig.orf_length, "orf length"
+    end
+
     should "not fail on bases that aren't ACGTN" do
       seq = Bio::Sequence.new 'ATGCGTGTARATACGCGTAG'
       contig = Transrate::Contig.new seq
