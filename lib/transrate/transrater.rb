@@ -23,7 +23,7 @@ module Transrate
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
     def initialize(assembly, reference,
-                   left: nil, right: nil,
+                   left: nil, right: nil, library: nil
                    insertsize: nil, insertsd: nil,
                    threads: 1)
       if assembly
@@ -56,12 +56,12 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def run left=nil, right=nil, insertsize=nil, insertsd=nil
+    def run left=nil, right=nil, library=nil, insertsize=nil, insertsd=nil
       assembly_metrics
       if left && right
         read_metrics left, right
       end
-      comparative_metrics
+      comparative_metrics if @comparative_metrics
     end
 
     # Reduce all metrics for the assembly to a single quality score.
@@ -104,7 +104,7 @@ module Transrate
       self.run(left, right, insertsize, insertsd)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
-      all.merge!(@comparative_metrics.comp_stats)
+      all.merge!(@comparative_metrics.comp_stats) if @comparative_metrics
       all[:score] = @score
       all
     end

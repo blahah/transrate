@@ -46,6 +46,8 @@ opts = Trollop::options do
       :type => String
   opt :right, "right reads file in FASTQ format",
       :type => String
+  opt :strand_specific, "paired and/or f-oriented unpaired reads: [fr,rf,ff,f]",
+      :type => String
   opt :insertsize, "mean insert size",
       :default => 200,
       :type => Integer
@@ -82,6 +84,25 @@ if opts.assembly
 else
   raise ArgumentError.new "Option --assembly must be specified. " +
                           "Try --help for help."
+end
+
+def sserror library
+  "Options --left and --right must be specified for #{library} strand specificity"
+end
+
+if opts.strand_specific
+  case opts.strand_specific
+  when "fr"
+    raise ArgumentError.new sserror("fr") unless opts.left && opts.right
+  when "rf"
+    raise ArgumentError.new sserror("rf") unless opts.left && opts.right
+  when "ff"
+    raise ArgumentError.new sserror("ff") unless opts.left && opts.right
+  when "f"
+    raise ArgumentError.new "Option --unpaired must be specified for --strand-specific f. Use [FR, RF, FF] for combined input." unless opts.unpaired && !opts.left && !opts.right
+  else
+    raise ArgumentError.new "Note: All unpaired reads must be forward oriented.\nOption --strand-specific must be one of the following: [FR, RF, FF, F] for {F}orward and {R}everse oriented reads. Use [FR, RF, FF] for combined input."
+  end
 end
 
 if opts.reference && !File.exist?(opts.reference)
@@ -134,6 +155,7 @@ opts.assembly.split(',').each do |assembly|
   transrater = Transrater.new(a, r,
                               left: opts.left,
                               right: opts.right,
+                              library: opts.strand_specific,
                               insertsize: opts.insertsize,
                               insertsd: opts.insertsd,
                               threads: opts.threads)
