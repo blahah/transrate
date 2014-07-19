@@ -45,7 +45,7 @@ module Transrate
         bowtiecmd += " -1 #{left}" if left
         # paired end?
         bowtiecmd += " -2 #{right}" if right
-        library == "f" ? bowtiecmd += " --norc" : bowtiecmd += " --norc --#{library}"
+        (library == "f" ? bowtiecmd += " --norc" : bowtiecmd += " --norc --#{library}") if library
         bowtiecmd += " -S #{@sam}"
         # run bowtie
         runner = Cmd.new bowtiecmd

@@ -19,7 +19,7 @@ module Transrate
       self.initial_values
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8
+    def run left, right, library, insertsize:200, insertsd:50, threads:8
       [left, right].each do |readfile|
         unless File.exist? readfile
           raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
@@ -28,6 +28,7 @@ module Transrate
       @mapper.build_index @assembly.file
       @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
       samfile = @mapper.map_reads(@assembly.file, left, right,
+                                  library,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
                                   threads: threads)

@@ -12,6 +12,7 @@ class TestBowtie < Test::Unit::TestCase
        'sorghum_transcript.fa')
       @left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       @right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      @library = "fr"
       @mapper = Transrate::Bowtie2.new
     end
 
@@ -31,12 +32,12 @@ class TestBowtie < Test::Unit::TestCase
           left = File.basename(@left)
           right = File.basename(@right)
           index = File.basename(@mapper.index_name)
-          @mapper.map_reads(@reference, @left, @right)
+          @mapper.map_reads(@reference, @left, @right, @library)
           sam = @mapper.sam
           assert File.exist?("#{sam}"), "sam file doesn't exist"
           cmd = "grep -v \"^@\" #{sam} | wc -l "
           line_in_sam_file = `#{cmd}`.chomp.to_i
-          assert_equal 424, line_in_sam_file
+          assert_equal 193, line_in_sam_file
         end
       end
     end
@@ -45,7 +46,7 @@ class TestBowtie < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           assert_raise Transrate::Bowtie2Error do
-            @mapper.map_reads(@reference, @left, @right)
+            @mapper.map_reads(@reference, @left, @right, @library)
           end
         end
       end
@@ -57,7 +58,7 @@ class TestBowtie < Test::Unit::TestCase
         Dir.chdir tmpdir do
           assert_raise Transrate::Bowtie2Error do
             @mapper.build_index @reference
-            @mapper.map_reads(@reference, @left, not_reads)
+            @mapper.map_reads(@reference, @left, not_reads, @library)
           end
         end
       end

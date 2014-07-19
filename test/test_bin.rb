@@ -39,7 +39,7 @@ class TestTransrateBin < Test::Unit::TestCase
     should "run help" do
       c=Transrate::Cmd.new("bundle exec bin/transrate --help")
       c.run
-      assert_equal 1755, c.stdout.length, "stdout"
+      assert_equal 1977, c.stdout.length, "stdout"
       assert_equal true, c.status.success?, "exit status"
     end
 
@@ -57,15 +57,33 @@ class TestTransrateBin < Test::Unit::TestCase
       assert_equal false, c.status.success?, "exit status"
     end
 
+    should "fail with improper strand-specific argument" do
+      assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
+      left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      a=Transrate::Cmd.new("bundle exec bin/transrate --assembly #{assembly} --left #{left} --right #{right} --strand-specific rr")
+      b=Transrate::Cmd.new("bundle exec bin/transrate --assembly #{assembly} --right #{right} --strand-specific fr")
+      c=Transrate::Cmd.new("bundle exec bin/transrate --assembly #{assembly} --left #{left} --strand-specific fr")
+      a.run;b.run;c.run
+      assert_equal 250, a.stderr.length, "error"
+      assert_equal 117, b.stderr.length, "error"
+      assert_equal 117, c.stderr.length, "error"
+      assert_equal false, a.status.success?, "exit status"
+      assert_equal false, b.status.success?, "exit status"
+      assert_equal false, c.status.success?, "exit status"
+    end
+      
     should "run on test data" do
       assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
       reference = File.join(File.dirname(__FILE__), 'data', 'Os.protein.2.fa')
       left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      library = "fr"
       cmd = "bundle exec bin/transrate --assembly #{assembly}"
       cmd << " --reference #{reference}"
       cmd << " --left #{left}"
       cmd << " --right #{right}"
+      cmd << " --strand-specific #{library}"
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"

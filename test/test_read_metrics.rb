@@ -28,7 +28,7 @@ class TestReadMetrics < Test::Unit::TestCase
       right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          @read_metrics.run(left, right)
+          @read_metrics.run(left, right, nil)
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run
           assert_equal 223, stats[:num_pairs], 'number of read pairs'
@@ -56,7 +56,7 @@ class TestReadMetrics < Test::Unit::TestCase
                         'bridging_reads.r.fastq')
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          @read_metrics.run(left, right)
+          @read_metrics.run(left, right, nil)
           stats = @read_metrics.read_stats
           assert_equal 1, stats[:potential_bridges], 'potential bridges'
         end
