@@ -160,7 +160,7 @@ opts.assembly.split(',').each do |assembly|
 
   read_results = {}
   if (opts.unpaired && opts.left && opts.right)
-    logger.info "Calculating read diagnostics..."
+    logger.info "Calculating read diagnostics for paired and unpaired input..."
     t0 = Time.now
     read_results= transrater.read_metrics(opts.left,opts.right,opts.unpaired).read_stats
     if read_results
@@ -171,7 +171,7 @@ opts.assembly.split(',').each do |assembly|
     logger.info "Read metrics done in #{Time.now - t0} seconds"
 
   elsif (opts.left && opts.right)
-    logger.info "Calculating read diagnostics..."
+    logger.info "Calculating read diagnostics for paired input..."
     t0 = Time.now
     read_results = transrater.read_metrics(opts.left,
                                            opts.right).read_stats
@@ -182,6 +182,16 @@ opts.assembly.split(',').each do |assembly|
       pretty_print_hash(read_results, report_width)
     end
 
+    logger.info "Read metrics done in #{Time.now - t0} seconds"
+  elsif (opts.unpaired && !opts.left && !opts.right)
+    logger.info "Calculating read diagnostics for unpaired input..."
+    t0 = Time.now
+    read_results = transrater.read_metrics(nil, nil, opts.unpaired).read_stats
+    if read_results
+      logger.info "Read mapping metrics"
+      logger.info "-" * report_width
+      pretty_print_hash(read_results, report_width)
+    end
     logger.info "Read metrics done in #{Time.now - t0} seconds"
   else
     logger.info "No reads provided, skipping read diagnostics"

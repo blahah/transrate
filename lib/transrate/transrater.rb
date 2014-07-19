@@ -69,7 +69,7 @@ module Transrate
       else 
         raise IOError.new("Transrater read files not supplied:\nleft:#{left}\nright:#{right}\nunpaired:#{unpaired}")
       end
-      comparative_metrics
+      comparative_metrics if @comparative_metrics
     end
 
     # Reduce all metrics for the assembly to a single quality score.
@@ -112,7 +112,7 @@ module Transrate
       self.run(left, right, unpaired, insertsize, insertsd)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
-      all.merge!(@comparative_metrics.comp_stats)
+      all.merge!(@comparative_metrics.comp_stats) if @comparative_metrics
       all[:score] = @score
       all
     end

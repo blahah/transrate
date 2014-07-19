@@ -56,6 +56,7 @@ class TestTransrater < Test::Unit::TestCase
         end
       end
     end
+
     should "run read metrics with paired input" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do

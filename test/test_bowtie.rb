@@ -59,7 +59,7 @@ class TestBowtie < Test::Unit::TestCase
         Dir.chdir tmpdir do
           assert_raise Transrate::Bowtie2Error do
             @mapper.build_index @reference
-            @mapper.map_reads(@reference, @left, not_reads)
+            @mapper.map_reads(@reference, @left, not_reads, nil)
           end
         end
       end

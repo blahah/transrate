@@ -22,6 +22,10 @@ class TestTransrateBin < Test::Unit::TestCase
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.sam",
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.sorted.bam",
       "150uncovered.l.fq.150uncovered.r.fq.150uncovered.u.fq.assembly.2.bai",
+      "..150uncovered.u.fq.assembly.2.bai",
+      "..150uncovered.u.fq.assembly.2.bam",
+      "..150uncovered.u.fq.assembly.2.sam",
+      "..150uncovered.u.fq.assembly.2.sorted.bam",
       "assembly.2.1.bt2",
       "assembly.2.2.bt2",
       "assembly.2.3.bt2",
@@ -95,7 +99,7 @@ class TestTransrateBin < Test::Unit::TestCase
       assert_equal 10, hash[:n_refs_with_recip]
     end
 
-should "run on test data with unpaired" do
+should "run on test data with unpaired input" do
       assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
       reference = File.join(File.dirname(__FILE__), 'data', 'Os.protein.2.fa')
       unpaired = File.join(File.dirname(__FILE__), 'data', '150uncovered.u.fq')
