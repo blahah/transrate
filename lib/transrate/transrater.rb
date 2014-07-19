@@ -25,7 +25,7 @@ module Transrate
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
     def initialize(assembly, reference, genome,
-                   left: nil, right: nil, unpaired: nil,
+                   left: nil, right: nil,
                    insertsize: nil, insertsd: nil,
                    threads: 1, evalue: 1e-5, percent_threshold: 90.0, maxIntron: 750000)
       if assembly
@@ -116,8 +116,8 @@ module Transrate
       @reference_alignment
     end
 
-    def all_metrics left=nil, right=nil, unpaired=nil, insertsize=nil, insertsd=nil
-      self.run(left, right, unpaired, insertsize, insertsd)
+    def all_metrics left=nil, right=nil, insertsize=nil, insertsd=nil
+      self.run(left, right, insertsize, insertsd)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
       all.merge!(@comparative_metrics.comp_stats) if @comparative_metrics

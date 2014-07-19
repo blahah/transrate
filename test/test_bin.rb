@@ -47,7 +47,7 @@ class TestTransrateBin < Test::Unit::TestCase
     should "run help" do
       c=Transrate::Cmd.new("bundle exec bin/transrate --help")
       c.run
-      assert_equal 2305, c.stdout.length, "stdout"
+      assert_equal 2244, c.stdout.length, "stdout"
       assert_equal true, c.status.success?, "exit status"
     end
 
@@ -83,6 +83,7 @@ class TestTransrateBin < Test::Unit::TestCase
       cmd << " --right #{right}"
       c = Transrate::Cmd.new("#{cmd}")
       c.run
+      puts c.stderr
       assert_equal true, c.status.success?, "exit status"
       assert File.exist?("transrate.csv")
       hash = {}
