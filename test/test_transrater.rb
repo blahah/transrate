@@ -10,7 +10,10 @@ class TestTransrater < Test::Unit::TestCase
     setup do
       @assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
       @reference = File.join(File.dirname(__FILE__), 'data', 'Os.protein.2.fa')
-      @rater = Transrate::Transrater.new(@assembly, @reference)
+      @test_assembly = File.join(File.dirname(__FILE__), 'data', 'test_ref_align_assembly.fa')
+      @test_genome = File.join(File.dirname(__FILE__), 'data', 'test_ref_align_genome.fa')
+      @rater = Transrate::Transrater.new(@assembly, @reference, nil)
+      @rater_aligner = Transrate::Transrater.new(@test_assembly, nil, @test_genome)
       @left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       @right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
     end
@@ -21,18 +24,23 @@ class TestTransrater < Test::Unit::TestCase
 
     should "raise error when assembly input is nil" do
       assert_raise RuntimeError do
-        rater = Transrate::Transrater.new(nil, @reference)
+        rater = Transrate::Transrater.new(nil, @reference, nil)
       end
     end
 
     should "handle assembly as an assemby object" do
       assembly_object = Transrate::Assembly.new(@assembly)
-      rater = Transrate::Transrater.new(assembly_object, @reference)
+      rater = Transrate::Transrater.new(assembly_object, @reference, nil)
     end
 
     should "handle reference as an assemby object" do
       reference_object = Transrate::Assembly.new(@reference)
-      rater = Transrate::Transrater.new(@assembly, reference_object)
+      rater = Transrate::Transrater.new(@assembly, reference_object, nil)
+    end
+
+    should "handle genome as an assembly object" do
+      genome_object = Transrate::Assembly.new(@test_genome)
+      rater = Transrate::Transrater.new(@test_assembly, nil, genome_object)
     end
 
     should "run assembly metrics without input fastq files" do

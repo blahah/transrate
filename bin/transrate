@@ -42,6 +42,8 @@ opts = Trollop::options do
       :type => String
   opt :reference, "reference proteome file in FASTA format",
       :type => String
+  opt :genome, "reference genome in FASTA format",
+      :type => String
   opt :left, "left reads file in FASTQ format",
       :type => String
   opt :right, "right reads file in FASTQ format",
@@ -55,6 +57,15 @@ opts = Trollop::options do
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
+  opt :evalue, "minimum evalue for alignment to the genome",
+      :default => 1e-5,
+      :type => Float
+  opt :min_percent_id, "minimum percentage identity for genome alignment",
+      :default => 90.0,
+      :type => Float
+  opt :maxIntron, "maximum intron size for genome alignment",
+      :default => 750000,
+      :type => Integer
   opt :outfile, "filename to use for CSV output",
       :default => 'transate_results.csv'
   opt :loglevel, "the amount of information to print. " +
@@ -64,11 +75,33 @@ opts = Trollop::options do
   opt :profile, "debug option: profile the code as it runs"
 end
 
+def require_blat blatdep
+  blat = YAML.load_file(blatdep)['blat']
+  d = Bindeps::Dependency.new('blat', blat['binaries'],blat['version'],blat['url'])
+  unless d.all_installed?
+    puts "binary dependency blat not installed"
+    puts "it will now be downloaded and installed"
+    install_blat d
+  end
+end
+
+def install_blat blat_dependency
+  Dir.mktmpdir do |tmpdir|
+    Dir.chdir tmpdir do
+      blat_dependency.download
+      `chmod +x blat`
+      blat_dependency.install 'blat'
+    end
+  end
+end
+
 if opts.install_deps
   puts "Checking dependencies"
   gem_dir = Gem.loaded_specs['transrate'].full_gem_path
   gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
+  blat_dep = File.join(gem_dir, 'deps', 'blat.yaml')
   Bindeps.require gem_deps
+  require_blat blat_dep
   puts "All dependencies installed"
   exit
 end
@@ -86,6 +119,10 @@ end
 
 if opts.reference && !File.exist?(opts.reference)
   raise IOError.new "Reference fasta file does not exist: #{opts.reference}"
+end
+
+if opts.genome && !File.exist?(opts.genome)
+  raise IOError.new "Reference genome fasta file does not exist: #{opts.reference}"
 end
 
 if opts.profile
@@ -122,6 +159,7 @@ logger.level = Yell::Level.new opts.loglevel.to_sym
 logger.info "Loading reference dataset"
 
 r = opts.reference ? Assembly.new(opts.reference) : nil
+g = opts.genome ? Assembly.new(opts.genome) : nil
 report_width = 35
 
 # loop through the assemblies, storing their outputs in an array of hashes
@@ -131,12 +169,15 @@ opts.assembly.split(',').each do |assembly|
   logger.info "Loading assembly: #{assembly}"
 
   a = Assembly.new assembly
-  transrater = Transrater.new(a, r,
+  transrater = Transrater.new(a, r, g,
                               left: opts.left,
                               right: opts.right,
                               insertsize: opts.insertsize,
                               insertsd: opts.insertsd,
-                              threads: opts.threads)
+                              threads: opts.threads,
+                              evalue: opts.evalue,
+                              percent_threshold: opts.min_percent_id,
+                              maxIntron: opts.maxIntron)
 
 
   logger.info "Analysing assembly: #{assembly}"
@@ -200,9 +241,26 @@ opts.assembly.split(',').each do |assembly|
     logger.info "No reference provided, skipping comparative diagnostics"
   end
 
+  if opts.genome
+    logger.info "Calculating assembly alignment metrics..."
+    t0 = Time.now
+    ref_alignment = transrater.reference_alignment
+    alignment_results = ref_alignment.genome_stats
+    if alignment_results
+      logger.info "Assembly alignment metrics:"
+      logger.info "-" * report_width
+      pretty_print_hash(alignment_results, report_width)
+    end
+    logger.info "Assembly alignment metrics done in #{Time.now - t0} seconds"
+    logger.info "-" * report_width
+  else
+    logger.info "No reference genome provided, skipping assembly alignment"
+  end
+
   all << contig_results.
            merge(read_results).
            merge(comparative_results).
+           #merge(alignment_results).
            merge({ :assembly => assembly })
 
 end
