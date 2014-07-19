@@ -6,5 +6,5 @@ blat:
     command: 'blat'
   url:
     64bit:
-      linux: http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/blat
-      macosx: http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/blat
+      linux: http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/blat/blat
+      macosx: http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/blat/blat

@@ -83,7 +83,6 @@ class TestTransrateBin < Test::Unit::TestCase
       cmd << " --right #{right}"
       c = Transrate::Cmd.new("#{cmd}")
       c.run
-      puts c.stderr
       assert_equal true, c.status.success?, "exit status"
       assert File.exist?("transrate.csv")
       hash = {}
