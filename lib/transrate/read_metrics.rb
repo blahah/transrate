@@ -48,6 +48,7 @@ module Transrate
       # Sanity check
       (raise "num_pairs is #{@num_pairs}: a read is missing" if @num_pairs%@num_pairs.to_i != 0.0 || @num_pairs != @pairs.size) unless @num_pairs == 0
       {
+        :unmapped_reads_singletons => @num_reads - @mapped,
         :num_reads => @num_reads,
         :total_mapped_reads =>@mapped,
         :num_pairs => @num_pairs.to_i,
