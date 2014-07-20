@@ -40,7 +40,7 @@ module Transrate
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive"
         bowtiecmd += " -p #{threads} -X #{realistic_dist}"
-        bowtiecmd += " --quiet --no-unal"
+        #bowtiecmd += " --quiet"
         bowtiecmd += " --seed 1337"
         bowtiecmd += " -x #{@index_name}"
         bowtiecmd += " -1 #{left}" if left

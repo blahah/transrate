@@ -34,12 +34,12 @@ class TestReadMetrics < Test::Unit::TestCase
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run
           assert_equal 223, stats[:num_pairs], 'number of read pairs'
-          assert_equal 213, stats[:total_mappings], 'number mapping'
-          assert_equal 95.52, stats[:percent_mapping].round(2),
+          assert_equal 222, stats[:mapped_pairs], 'number mapping'
+          assert_equal 94.90, stats[:percent_mapping].round(2),
                        'percent mapping'
-          #assert_equal 205, stats[:good_mappings], 'good mapping'
-          #assert_equal 91.93, stats[:pc_good_mapping].round(2),'percent good mapping'
-          #assert_equal 1, stats[:bad_mappings], 'bad mapping'
+          assert_equal 215, stats[:good_mappings], 'good mapping'
+          assert_equal 96.41, stats[:pc_good_mapping].round(2),'percent good mapping'
+          assert_equal 7, stats[:bad_mappings], 'bad mapping'
           assert_equal 24.25, stats[:mean_coverage].round(2), 'mean coverage'
           assert_equal 11, stats[:n_uncovered_bases], 'n uncovered bases'
           assert_equal 0.007,
@@ -57,14 +57,14 @@ left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run
           assert_equal 223, stats[:num_pairs], 'number of read pairs'
-          assert_equal 202, stats[:total_mappings], 'number mapping'
-          assert_equal 90.58, stats[:percent_mapping].round(2),
+          assert_equal 222, stats[:mapped_pairs], 'number mapping'
+          assert_equal 95.07, stats[:percent_mapping].round(2),
                        'percent mapping'
-          assert_equal 202, stats[:good_mappings], 'good mapping'
-          assert_equal 90.58,
+          assert_equal 215, stats[:good_mappings], 'good mapping'
+          assert_equal 96.41,
                        stats[:pc_good_mapping].round(2),
                        'percent good mapping'
-          assert_equal 0, stats[:bad_mappings], 'bad mapping'
+          assert_equal 7, stats[:bad_mappings], 'bad mapping'
           assert_equal 22.91, stats[:mean_coverage].round(2), 'mean coverage'
           assert_equal 11, stats[:n_uncovered_bases], 'n uncovered bases'
           assert_equal 0.007,
@@ -82,12 +82,11 @@ left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run
           assert_equal 0, stats[:num_pairs], 'number of read pairs'
-          assert_equal 11, stats[:total_mappings], 'number mapping'
-          assert_equal Float::INFINITY, stats[:percent_mapping].round(2),
+          assert_equal 23, stats[:mapped_single_reads], 'number mapping'
+          assert_equal 92.0, stats[:percent_mapping].round(2),
                        'percent mapping'
-          #assert_equal 2, stats[:good_mappings], 'good mapping'
-          #assert_equal Float::INFINITY,stats[:pc_good_mapping].round(2),'percent good mapping'
-          #assert_equal 9, stats[:bad_mappings], 'bad mapping'
+          assert_equal 0, stats[:good_mappings], 'good mapping'
+          assert_equal 0, stats[:bad_mappings], 'bad mapping'
           assert_equal 1.34, stats[:mean_coverage].round(2), 'mean coverage'
           assert_equal 689, stats[:n_uncovered_bases], 'n uncovered bases'
           assert_equal 0.443,
@@ -109,7 +108,5 @@ left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
         end
       end
     end
-
   end
-
 end

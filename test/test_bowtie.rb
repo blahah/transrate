@@ -38,7 +38,7 @@ class TestBowtie < Test::Unit::TestCase
           assert File.exist?("#{sam}"), "sam file doesn't exist"
           cmd = "grep -v \"^@\" #{sam} | wc -l "
           line_in_sam_file = `#{cmd}`.chomp.to_i
-          assert_equal 447, line_in_sam_file
+          assert_equal 471, line_in_sam_file, "lines in sam file"
         end
       end
     end
