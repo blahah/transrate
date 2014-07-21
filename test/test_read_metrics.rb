@@ -95,6 +95,15 @@ left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
         end
       end
     end
+
+    should "fail with paired reads that are non-sequential" do
+      test={}
+      testsam = File.join(File.dirname(__FILE__), 'data', 'nonsequential.sam')
+      assert_raise RuntimeError do
+        @read_metrics.analyse_read_mappings(testsam, 200, 50, true)
+      end
+    end
+
     should "find read pairs that support scaffolding" do
       left = File.join(File.dirname(__FILE__), 'data', 'bridging_reads.l.fastq')
       right = File.join(File.dirname(__FILE__),
