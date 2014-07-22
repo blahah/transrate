@@ -50,6 +50,17 @@ class TestContig < Test::Unit::TestCase
     end
 
 
+    should "calculate linguistic complexity for a long sequence" do
+      alphabet = ["A", "C", "G", "T"]
+      seq = ""
+      50000.times do
+        seq << alphabet.sample
+      end
+      seq = Bio::Sequence.new seq
+      contig = Transrate::Contig.new seq
+      assert contig.linguistic_complexity(6) > 0.98, "linguistic complexity"
+    end
+
     should "know its own linguistic complexity" do
       assert_equal 0.0586, @contig.linguistic_complexity(4).round(4),
                    "linguistic complexity k=4"
