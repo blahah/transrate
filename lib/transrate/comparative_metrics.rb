@@ -36,12 +36,11 @@ module Transrate
     end
 
     def run_comp_stats
-      @comp_stats[:reciprocal_hits] = @reciprocal_hits
-      @comp_stats[:rbh_per_contig] = @rbh_per_contig
-      @comp_stats[:p_contigs_with_recip] = @p_contigs_with_recip
-      @comp_stats[:n_contigs_with_recip] = @n_contigs_with_recip
-      @comp_stats[:p_refs_with_recip] = @p_refs_with_recip
-      @comp_stats[:n_refs_with_recip] = @n_refs_with_recip
+      @comp_stats[:CRBB_hits] = @reciprocal_hits # CRBB hits
+      @comp_stats[:p_contigs_with_CRBB] = @p_contigs_with_recip
+      @comp_stats[:n_contigs_with_CRBB] = @n_contigs_with_recip
+      @comp_stats[:p_refs_with_CRBB] = @p_refs_with_recip
+      @comp_stats[:n_refs_with_CRBB] = @n_refs_with_recip
       @comp_stats[:rbh_per_reference] = @rbh_per_reference
       @comp_stats[:reference_coverage] = @reference_coverage
       @comp_stats[:collapse_factor] = @collapse_factor
