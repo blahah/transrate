@@ -17,7 +17,7 @@ Rake::TestTask.new do |t|
 end
 
 Rake::TestTask.new do |t|
-  t.name = :contig
+  t.name = :contig_metrics
   t.libs << 'test'
   t.test_files = ['test/test_contig_metrics.rb']
 end
@@ -44,6 +44,12 @@ Rake::TestTask.new do |t|
   t.name = :bin
   t.libs << 'test'
   t.test_files = ['test/test_bin.rb']
+end
+
+Rake::TestTask.new do |t|
+  t.name = :contig
+  t.libs << 'test'
+  t.test_files = ['test/test_contig.rb']
 end
 
 desc "Run tests"
