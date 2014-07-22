@@ -36,8 +36,8 @@ class TestContig < Test::Unit::TestCase
     end
 
     should "know its own base-pair skew" do
-      assert_equal 0.45, @contig.gc_skew.round(2), "gc skew"
-      assert_equal 0.55, @contig.at_skew.round(2), "at skew"
+      assert_equal 0.33, @contig.gc_skew.round(2), "gc skew"
+      assert_equal -0.09, @contig.at_skew.round(2), "at skew"
     end
 
     should "know its own CpG count and density" do

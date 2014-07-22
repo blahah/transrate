@@ -200,8 +200,7 @@ module Transrate
 
     # Count reference proteins with at least one recprocal hit
     def count_ref_crbbs
-      @n_refs_with_recip =
-        @reference.assembly.inject(0) do |sum, entry|
+      @n_refs_with_recip = @reference.assembly.inject(0) do |sum, entry|
         name, contig = entry
         sum + (contig.hits.length > 0 ? 1 : 0)
       end

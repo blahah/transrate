@@ -160,12 +160,12 @@ module Transrate
 
     # GC skew
     def gc_skew
-      prop_gc / (prop_a + prop_t + prop_gc)
+      (bases_g - bases_c) / (bases_g + bases_c).to_f
     end
 
     # AT skew
     def at_skew
-      prop_a + prop_t / (prop_a + prop_t + prop_gc)
+      (bases_a - bases_t) / (bases_a + bases_t).to_f
     end
 
     # CpG count
