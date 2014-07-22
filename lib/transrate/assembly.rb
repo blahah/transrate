@@ -210,7 +210,8 @@ module Transrate
           break
         end
         # extract the columns
-        name, pos, cov = cols[name_i], cols[pos_i].to_i, cols[cov_i].to_i
+        name = Bio::FastaDefline.new(cols[name_i]).entry_id
+        pos, cov =  cols[pos_i].to_i, cols[cov_i].to_i
         unless contig_name == name
           while contig_name != name
             begin
