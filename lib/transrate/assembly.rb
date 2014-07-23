@@ -26,7 +26,7 @@ module Transrate
 
     include Enumerable
     extend Forwardable
-    def_delegators :@assembly, :each, :<<, :size, :length
+    def_delegators :@assembly, :each, :each_value, :<<, :size, :length, :[]
 
     attr_accessor :file
     attr_reader :assembly
@@ -43,11 +43,12 @@ module Transrate
       unless File.exist? @file
         raise IOError.new "Assembly file doesn't exist: #{@file}"
       end
-      @assembly = []
+      @assembly = {}
       @n_bases = 0
       Bio::FastaFormat.open(file).each do |entry|
         @n_bases += entry.length
-        @assembly << Contig.new(entry)
+        contig = Contig.new(entry)
+        @assembly[contig.name] = contig
       end
       @contig_metrics = ContigMetrics.new self
     end
@@ -78,7 +79,7 @@ module Transrate
     # @return [Hash] basic statistics about the assembly
     def basic_stats threads=1
       return @basic_stats if @basic_stats
-      bin = @assembly.dup
+      bin = @assembly.values
       @basic_stats = basic_bin_stats bin
       @basic_stats
     end # basic_stats
@@ -194,7 +195,7 @@ module Transrate
       covfile = Samtools.coverage bam
       # get an assembly enumerator
       assembly_enum = @assembly.to_enum
-      contig = assembly_enum.next
+      contig_name, contig = assembly_enum.next
       # precreate an array of the correct size to contain
       # coverage. this is necessary because samtools mpileup
       # doesn't print a result line for bases with 0 coverage
@@ -209,12 +210,13 @@ module Transrate
           break
         end
         # extract the columns
-        name, pos, cov = cols[name_i], cols[pos_i].to_i, cols[cov_i].to_i
-        unless contig.name == name
-          while contig.name != name
+        name = Bio::FastaDefline.new(cols[name_i]).entry_id
+        pos, cov =  cols[pos_i].to_i, cols[cov_i].to_i
+        unless contig_name == name
+          while contig_name != name
             begin
               block.call(contig, contig.coverage)
-              contig = assembly_enum.next
+              contig_name, contig = assembly_enum.next
               contig.coverage = Array.new(contig.length, 0)
             rescue StopIteration => stop_error
               logger.error 'reached the end of assembly enumerator while ' +

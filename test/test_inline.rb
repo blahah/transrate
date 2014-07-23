@@ -14,7 +14,7 @@ class TestInline < Test::Unit::TestCase
 
     should 'find longest orf in file' do
       orfs = []
-      @a.assembly.each do |contig|
+      @a.assembly.each_value do |contig|
         orfs << contig.orf_length
       end
       assert_equal 4, orfs.length

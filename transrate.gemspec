@@ -23,6 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'which', '~> 0.0', '>= 0.0.2'
   gem.add_dependency 'bio', '~> 1.4', '>= 1.4.3'
   gem.add_dependency 'bio-samtools', '~> 2.0', '>= 2.0.5'
+  gem.add_dependency 'RubyInline', '~> 3.12'
   gem.add_dependency 'crb-blast', '~> 0.3', '>= 0.3.1'
   gem.add_dependency 'bettersam', '~> 0.0', '>= 0.0.3'
   gem.add_dependency 'ruby-prof', '~> 0.15', '>= 0.15.1'
