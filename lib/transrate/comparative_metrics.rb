@@ -72,7 +72,11 @@ module Transrate
           unless @assembly.assembly.key? hit.query
             raise "#{hit.query} not in assembly"
           end
-          @assembly[hit.query].hits << hit
+          contig = @assembly[hit.query]
+          contig.has_crb = true
+          # how much of the reference is covered by this single contig
+          contig.reference_coverage = hit.alnlen / hit.tlen
+          contig.hits << hit
         end
       end
       total_coverage = 0

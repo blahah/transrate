@@ -196,6 +196,8 @@ module Transrate
       CSV.open('supported_bridges.csv', 'w') do |f|
         @bridges.each_pair do |b, count|
           start, finish = b.to_s.split('<>')
+          @assembly[start].in_bridges += 1
+          @assembly[finish].in_bridges += 1
           if count > 1
             f << [start, finish, count]
             @supported_bridges += 1
@@ -216,7 +218,10 @@ module Transrate
       @assembly.each_with_coverage(bam) do |contig, coverage|
         next if contig.length < 200
         contig.uncovered_bases, total = 0, 0
-        coverage.each { |e| total += e; contig.uncovered_bases += 1 if e < 1 }
+        coverage.each do |e|
+          total += e
+          contig.uncovered_bases += 1 if e < 1
+        end
         tot_length += coverage.length
         tot_coverage += total
         contig.mean_coverage = total / coverage.length.to_f
@@ -236,3 +241,4 @@ module Transrate
   end # ReadMetrics
 
 end # Transrate
+
