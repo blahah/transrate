@@ -9,7 +9,7 @@ module Transrate
   # Semantic Versioning 2.0 (http://semver.org/).
   module VERSION
     MAJOR = 0
-    MINOR = 2
+    MINOR = 3
     PATCH = 0
     BUILD = nil
 
