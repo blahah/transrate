@@ -72,7 +72,7 @@ if opts.install_deps
   puts "All dependencies installed"
   exit
 else
-  missing = Bindeps.missing
+  missing = Bindeps.missing gem_deps
   if missing.length > 0
     puts "Dependencies are missing:"
     missing.each do |dep|
