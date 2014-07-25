@@ -64,13 +64,23 @@ opts = Trollop::options do
   opt :profile, "debug option: profile the code as it runs"
 end
 
+gem_dir = Gem.loaded_specs['transrate'].full_gem_path
+gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
 if opts.install_deps
   puts "Checking dependencies"
-  gem_dir = Gem.loaded_specs['transrate'].full_gem_path
-  gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
   Bindeps.require gem_deps
   puts "All dependencies installed"
   exit
+else
+  missing = Bindeps.missing
+  if missing.length > 0
+    puts "Dependencies are missing:"
+    missing.each do |dep|
+      puts "  - #{dep}"
+    end
+    puts "To install all missing dependencies, run `transrate --install-deps`"
+    exit(1)
+  end
 end
 
 if opts.assembly
