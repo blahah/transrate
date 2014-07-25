@@ -18,6 +18,10 @@
 
 This software is being actively developed. Please be aware that there may be bugs. If you find any, please report them on the [issue tracker](https://github.com/Blahah/transrate/issues).
 
+## Citation
+
+Transrate is pre-publication academic software. If you use it, please cite the github repository and the DOI: [![DOI](https://zenodo.org/badge/3687/Blahah/transrate.png)](http://dx.doi.org/10.5281/zenodo.11037).
+
 ## Documentation
 
 **transrate** is documented [on the website](http://hibberdlab.com/transrate).
