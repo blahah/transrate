@@ -26,26 +26,28 @@ module Transrate
     end
 
     def map_reads(file, left,
-                  right, library, insertsize: 200,
+                  right, unpaired, library, insertsize: 200,
                   insertsd: 50, outputname: nil,
                   threads: 8)
       raise Bowtie2Error.new("Index not built") if !@index_built
       lbase = File.basename(left) if left
       rbase = File.basename(right) if right
+      ubase = File.basename(unpaired) if unpaired
       index = File.basename(@index_name)
-      @sam = File.expand_path("#{lbase}.#{rbase}.#{index}.sam")
+      @sam = File.expand_path("#{lbase}.#{rbase}.#{ubase}.#{index}.sam")
       realistic_dist = insertsize + (3 * insertsd)
       unless File.exists? @sam
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive"
         bowtiecmd += " -p #{threads} -X #{realistic_dist}"
-        bowtiecmd += " --quiet --no-unal"
+        #bowtiecmd += " --quiet"
         bowtiecmd += " --seed 1337"
         bowtiecmd += " -x #{@index_name}"
         bowtiecmd += " -1 #{left}" if left
         # paired end?
         bowtiecmd += " -2 #{right}" if right
-        (library == "f" ? bowtiecmd += " --norc" : bowtiecmd += " --norc --#{library}") if library
+        bowtiecmd += " -U #{unpaired}" if unpaired
+		(library == "f" ? bowtiecmd += " --norc" : bowtiecmd += " --norc --#{library}") if library
         bowtiecmd += " -S #{@sam}"
         # run bowtie
         runner = Cmd.new bowtiecmd
