@@ -62,8 +62,9 @@ class TestTransrateBin < Test::Unit::TestCase
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"
-      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exit"
-      assert File.exist?("transrate_contigs.csv"), "csv file doesn't exit"
+      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
+      assert File.exist?("transrate_assembly.2.fa_contigs.csv"),
+             "csv file doesn't exist"
       hash = {}
       CSV.foreach("transrate_assemblies.csv", :headers => true,
                                    :header_converters => :symbol,
