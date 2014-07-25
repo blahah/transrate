@@ -1,52 +1,38 @@
 require 'helper'
 
-class CRB_Blast
-  def pprint_reciprocals
-    @reciprocals.each do |contig, hits|
-      puts "#{contig} {"
+module CRB_Blast
+  class CRB_Blast
+    def change_hit(query_name, target_name, qstart, qend, tstart, tend, qlen, tlen)
+      hits = @reciprocals[query_name]
       hits.each do |hit|
-        puts "    {"
-        puts "       #{hit.target}"
-        puts "       #{hit.qstart}"
-        puts "       #{hit.qend}"
-        puts "       #{hit.tstart}"
-        puts "       #{hit.tend}"
-        puts "    }"
-      end
-      puts "}"
-    end
-  end
-
-  def change_hit(query_name, target_name, qstart, qend, tstart, tend, qlen, tlen)
-    hits = @reciprocals[query_name]
-    hits.each do |hit|
-      if hit.target == target_name
-        hit.qstart = qstart
-        hit.qend = qend
-        hit.tstart = tstart
-        hit.tend = tend
-        hit.qlen = qlen
-        hit.tlen = tlen
+        if hit.target == target_name
+          hit.qstart = qstart
+          hit.qend = qend
+          hit.tstart = tstart
+          hit.tend = tend
+          hit.qlen = qlen
+          hit.tlen = tlen
+        end
       end
     end
-  end
 
-  def add_hit(query_name, target_name, qstart, qend, tstart, tend, qlen, tlen)
-    @reciprocals[query_name] ||= []
-    list = Array.new(14)
-    list[0] = query_name
-    list[1] = target_name
-    list[6] = qstart
-    list[7] = qend
-    list[8] = tstart
-    list[9] = tend
-    list[12] = qlen
-    list[13] = tlen
-    @reciprocals[query_name] << Hit.new(list)
-  end
+    def add_hit(query_name, target_name, qstart, qend, tstart, tend, qlen, tlen)
+      @reciprocals[query_name] ||= []
+      list = Array.new(14)
+      list[0] = query_name
+      list[1] = target_name
+      list[6] = qstart
+      list[7] = qend
+      list[8] = tstart
+      list[9] = tend
+      list[12] = qlen
+      list[13] = tlen
+      @reciprocals[query_name] << Hit.new(list)
+    end
 
-  def remove_hit(query_name)
-    @reciprocals.delete(query_name)
+    def remove_hit(query_name)
+      @reciprocals.delete(query_name)
+    end
   end
 end
 
@@ -212,8 +198,8 @@ class TestCompMetrics < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           @comp.run
-          assert_equal 11, @comp.comp_stats[:n_contigs_with_recip]
-          assert_equal 11/13.0, @comp.comp_stats[:p_contigs_with_recip]
+          assert_equal 11, @comp.comp_stats[:n_contigs_with_CRBB]
+          assert_equal 11/13.0, @comp.comp_stats[:p_contigs_with_CRBB]
         end
       end
     end
@@ -222,8 +208,8 @@ class TestCompMetrics < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           @comp.run
-          assert_equal 10, @comp.comp_stats[:n_refs_with_recip]
-          assert_equal 0.5, @comp.comp_stats[:p_refs_with_recip]
+          assert_equal 10, @comp.comp_stats[:n_refs_with_CRBB]
+          assert_equal 0.5, @comp.comp_stats[:p_refs_with_CRBB]
         end
       end
     end
