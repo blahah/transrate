@@ -8,16 +8,71 @@ module Transrate
     include Enumerable
     extend Forwardable
     def_delegators :@seq, :size, :length
-    attr_accessor :seq, :name, :coverage
+    attr_accessor :seq, :name
+    # read-based metrics
+    attr_accessor :coverage, :uncovered_bases, :mean_coverage, :in_bridges
+    # reference-based metrics
+    attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
+    attr_accessor :hits
 
     def initialize(seq, name: nil)
       seq.seq.gsub!("\0", "") # there is probably a better fix than this
       @seq = seq
+      @seq.data = nil # no need to store raw fasta string
       @name = seq.respond_to?(:entry_id) ? seq.entry_id : name
+      @hits = []
+      @reference_coverage = 0
+      @collapse_factor = 0
+      @is_chimera = false
+      @has_crb = false
+      @in_bridges = 0
+      @mean_coverage = 0
     end
 
     def each &block
       @seq.seq.each_char &block
+    end
+
+    # Get all metrics available for this contig
+    def basic_metrics
+      basic = {
+        :length => length,
+        :prop_gc => prop_gc,
+        :gc_skew => gc_skew,
+        :at_skew => at_skew,
+        :cpg_count => cpg_count,
+        :cpg_ratio => cpg_ratio,
+        :orf_length => orf_length,
+        :linguistic_complexity_6 => linguistic_complexity(6)
+      }
+    end
+
+    def read_metrics
+      read = @coverage ? {
+        :uncovered_bases => uncovered_bases,
+        :mean_coverage => mean_coverage,
+        :in_bridges => in_bridges
+      } : {
+        :uncovered_bases => "NA",
+        :mean_coverage => "NA",
+        :in_bridges => in_bridges
+      }
+    end
+
+    def comparative_metrics
+      reference = @has_crb ? {
+        :has_crb => has_crb,
+        :collapse_factor => collapse_factor,
+        :reference_coverage => reference_coverage,
+        :is_chimera => is_chimera,
+        :hits => hits.map{ |h| h.target }.join(";")
+      } : {
+        :has_crb => false,
+        :collapse_factor => "NA",
+        :reference_coverage => "NA",
+        :is_chimera => "NA",
+        :hits => "NA"
+      }
     end
 
     # Base composition of the contig
@@ -122,27 +177,32 @@ module Transrate
 
     # GC skew
     def gc_skew
-      prop_gc / (prop_a + prop_t + prop_gc)
+      (bases_g - bases_c) / (bases_g + bases_c).to_f
     end
 
     # AT skew
     def at_skew
-      prop_a + prop_t / (prop_a + prop_t + prop_gc)
+      (bases_a - bases_t) / (bases_a + bases_t).to_f
     end
 
     # CpG count
     def cpg_count
-      dibase_composition[:cg]
+      dibase_composition[:cg] + dibase_composition[:gc]
     end
 
-    # CpG (C-phosphate-G) ratio
+    # observed-to-expected CpG (C-phosphate-G) ratio
     def cpg_ratio
-      dibase_composition[:cg] / (prop_c * prop_g)
+      r = dibase_composition[:cg] + dibase_composition[:gc]
+      r /= (bases_c * bases_g).to_f
+      r *= (length - bases_n)
+      return r
     end
 
     # Find the longest orf in the contig
     def orf_length
-      return longest_orf(@seq.seq) # call to C
+      return @orf_length if @orf_length
+      @orf_length = longest_orf(@seq.seq) # call to C
+      return @orf_length
     end
 
     def linguistic_complexity k

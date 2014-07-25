@@ -196,6 +196,8 @@ module Transrate
       CSV.open('supported_bridges.csv', 'w') do |f|
         @bridges.each_pair do |b, count|
           start, finish = b.to_s.split('<>')
+          @assembly[start].in_bridges += 1
+          @assembly[finish].in_bridges += 1
           if count > 1
             f << [start, finish, count]
             @supported_bridges += 1
@@ -215,15 +217,18 @@ module Transrate
       n, tot_length, tot_coverage = 0, 0, 0
       @assembly.each_with_coverage(bam) do |contig, coverage|
         next if contig.length < 200
-        zerocov, total = 0, 0
-        coverage.each { |e| total += e; zerocov += 1 if e < 1 }
+        contig.uncovered_bases, total = 0, 0
+        coverage.each do |e|
+          total += e
+          contig.uncovered_bases += 1 if e < 1
+        end
         tot_length += coverage.length
         tot_coverage += total
-        mean = total / coverage.length.to_f
-        @n_uncovered_bases += zerocov
-        @n_uncovered_base_contigs += 1 if zerocov > 0
-        @n_uncovered_contigs += 1 if mean < 1
-        @n_lowcovered_contigs += 1 if mean < 10
+        contig.mean_coverage = total / coverage.length.to_f
+        @n_uncovered_bases += contig.uncovered_bases
+        @n_uncovered_base_contigs += 1 if contig.uncovered_bases > 0
+        @n_uncovered_contigs += 1 if contig.mean_coverage < 1
+        @n_lowcovered_contigs += 1 if contig.mean_coverage < 10
       end
       @mean_coverage = (tot_coverage / tot_length.to_f).round(2)
       @p_uncovered_bases = @n_uncovered_bases / @assembly.n_bases.to_f
@@ -236,3 +241,4 @@ module Transrate
   end # ReadMetrics
 
 end # Transrate
+

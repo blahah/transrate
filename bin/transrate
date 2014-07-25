@@ -55,8 +55,8 @@ opts = Trollop::options do
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
-  opt :outfile, "filename to use for CSV output",
-      :default => 'transate_results.csv'
+  opt :outfile, "prefix filename to use for CSV output",
+      :default => 'transrate'
   opt :loglevel, "the amount of information to print. " +
                  "one of [error, info, warn, debug]",
       :default => 'info'
@@ -200,15 +200,38 @@ opts.assembly.split(',').each do |assembly|
     logger.info "No reference provided, skipping comparative diagnostics"
   end
 
-  all << contig_results.
-           merge(read_results).
-           merge(comparative_results).
-           merge({ :assembly => assembly })
+  # write contig metrics to file for each contig
+  outfile = "#{opts.outfile}_contigs.csv"
+  logger.info "Writing contig metrics for each contig to #{outfile}"
+  # have option to turn off, default on
+  first=true
+  CSV.open(outfile, 'wb') do |csv|
+    a.each do |name, contig|
+      basic_metrics = {:contig_name => name}.merge(contig.basic_metrics)
+      if opts.reference
+        comp_metrics = contig.comparative_metrics
+        basic_metrics.merge!(comp_metrics)
+      end
+      if opts.left and opts.right
+        read_metrics = contig.read_metrics
+        basic_metrics.merge!(read_metrics)
+      end
+      if first
+        csv << basic_metrics.keys
+        first = false
+      end
+      csv << basic_metrics.values
+    end
+  end
+
+  all << contig_results.merge(read_results)
+                       .merge(comparative_results)
+                       .merge({ :assembly => assembly })
 
 end
 
 # write out all resuls to .csv
-outfile = opts.out || 'transrate.csv'
+outfile = "#{opts.outfile}_assemblies.csv"
 logger.info "Writing analysis results to #{outfile}"
 CSV.open(outfile, 'wb') do |file|
   keys = all[0].keys
