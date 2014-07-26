@@ -157,6 +157,32 @@ class TestReadMetrics < Test::Unit::TestCase
       end
     end
 
+    should "run with ff strand specific input" do
+      left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      unpaired = File.join(File.dirname(__FILE__), 'data', '150uncovered.u.fq')
+      rf = "ff"
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left,right,unpaired,rf)
+          stats = @read_metrics.read_stats
+          assert @read_metrics.has_run
+          assert_equal 471, stats[:num_reads], 'number of reads'
+          assert_equal 223, stats[:num_pairs], 'number of read pairs'
+          assert_equal 209, stats[:mapped_pairs], 'number mapping'
+          assert_equal 46.5, stats[:percent_mapping].round(2),
+                       'percent mapping'
+          assert_equal 0, stats[:good_mappings], 'good mapping'
+          assert_equal 209, stats[:bad_mappings], 'bad mapping'
+          assert_equal 0.57, stats[:mean_coverage].round(2), 'mean coverage'
+          assert_equal 917, stats[:n_uncovered_bases], 'n uncovered bases'
+          assert_equal 0.59,
+                       stats[:p_uncovered_bases].round(3),
+                       'p uncovered bases'
+        end
+      end
+    end
+
     should "run with f strand specific input" do
       unpaired = File.join(File.dirname(__FILE__), 'data', '150uncovered.u.fq')
       f = "f"
