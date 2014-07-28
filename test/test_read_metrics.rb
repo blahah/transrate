@@ -8,8 +8,8 @@ class TestReadMetrics < Test::Unit::TestCase
     setup do
       query = File.join(File.dirname(__FILE__), 'data',
                         'sorghum_transcript.fa')
-      assembly = Transrate::Assembly.new(query)
-      @read_metrics = Transrate::ReadMetrics.new(assembly)
+      @assembly = Transrate::Assembly.new(query)
+      @read_metrics = Transrate::ReadMetrics.new(@assembly)
     end
 
     teardown do
@@ -45,6 +45,26 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 0.007,
                        stats[:p_uncovered_bases].round(3),
                        'p uncovered bases'
+          assert_equal 0.01009, stats[:edit_distance_per_base].round(5),
+                       'edit distance'
+        end
+      end
+    end
+
+    should "get edit distance per base for individual contigs" do
+      left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left, right)
+          contigs = []
+          @assembly.each do |name, contig|
+            contigs << contig
+          end
+          a = contigs[0].read_metrics[:edit_distance_per_base].round(5)
+          b = contigs[1].read_metrics[:edit_distance_per_base].round(5)
+          assert_equal 0.00788, a
+          assert_equal 0.01157, b
         end
       end
     end

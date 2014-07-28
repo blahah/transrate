@@ -21,6 +21,9 @@ module Transrate
 
     def run left, right, insertsize:200, insertsd:50, threads:8
       [left, right].each do |readfile|
+        if readfile.nil?
+          raise IOError.new "Read file is nil"
+        end
         unless File.exist? readfile
           raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
         end
@@ -57,7 +60,9 @@ module Transrate
         :n_uncovered_contigs => @n_uncovered_contigs,
         :p_uncovered_contigs => @p_uncovered_contigs,
         :n_lowcovered_contigs => @n_lowcovered_contigs,
-        :p_lowcovered_contigs => @p_lowcovered_contigs
+        :p_lowcovered_contigs => @p_lowcovered_contigs,
+        :edit_distance_per_base => @edit_distance / @total_bases.to_f,
+        :n_low_uniqueness_bases => @n_low_uniqueness_bases
       }
     end
 
@@ -74,6 +79,10 @@ module Transrate
         end
         while line
           ls.parse_line(line)
+          @assembly[ls.chrom].edit_distance += ls.edit_distance
+          @assembly[ls.chrom].bases_mapped += ls.length
+          @edit_distance += ls.edit_distance
+          @total_bases += ls.length
           if ls.mate_unmapped?
             self.check_read_single(ls)
             line = sam.readline rescue nil
@@ -81,6 +90,10 @@ module Transrate
             line2 = sam.readline rescue nil
             if line2
               rs.parse_line(line2)
+              @assembly[rs.chrom].edit_distance += rs.edit_distance
+              @assembly[rs.chrom].bases_mapped += rs.length
+              @edit_distance += rs.edit_distance
+              @total_bases += rs.length
               self.check_read_pair(ls, rs, realistic_dist)
             end
             line = sam.readline rescue nil
@@ -95,6 +108,7 @@ module Transrate
     def initial_values
       @num_pairs = 0
       @total = 0
+      @total_bases = 0
       @good = 0
       @bad = 0
       @both_mapped = 0
@@ -111,6 +125,8 @@ module Transrate
       @n_uncovered_base_contigs = 0 # any base cov < 1
       @n_uncovered_contigs = 0 # mean cov < 1
       @n_lowcovered_contigs = 0 # mean cov < 10
+      @edit_distance = 0
+      @n_low_uniqueness_bases = 0
     end
 
     def realistic_distance insertsize, insertsd
@@ -214,28 +230,27 @@ module Transrate
       bam = Bio::DB::Sam.new(:bam => sorted, :fasta => @assembly.file)
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
-      n, tot_length, tot_coverage = 0, 0, 0
-      @assembly.each_with_coverage(bam) do |contig, coverage|
+      n, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
+      @assembly.each_with_coverage(bam) do |contig, coverage, mapq|
         next if contig.length < 200
-        contig.uncovered_bases, total = 0, 0
-        coverage.each do |e|
-          total += e
-          contig.uncovered_bases += 1 if e < 1
-        end
-        tot_length += coverage.length
-        tot_coverage += total
-        contig.mean_coverage = total / coverage.length.to_f
+        tot_length += contig.length
+        tot_coverage += contig.load_coverage(coverage)
+        tot_mapq += contig.load_mapq(mapq)
         @n_uncovered_bases += contig.uncovered_bases
         @n_uncovered_base_contigs += 1 if contig.uncovered_bases > 0
         @n_uncovered_contigs += 1 if contig.mean_coverage < 1
         @n_lowcovered_contigs += 1 if contig.mean_coverage < 10
+        @n_low_uniqueness_bases += contig.low_uniqueness_bases
       end
       @mean_coverage = (tot_coverage / tot_length.to_f).round(2)
+      @mean_mapq = (tot_mapq / tot_length.to_f).round(2)
       @p_uncovered_bases = @n_uncovered_bases / @assembly.n_bases.to_f
       @p_uncovered_base_contigs = @n_uncovered_base_contigs /
                                   @assembly.size.to_f
       @p_uncovered_contigs = @n_uncovered_contigs / @assembly.size.to_f
       @p_lowcovered_contigs = @n_lowcovered_contigs / @assembly.size.to_f
+      @p_low_uniqueness_bases = @n_low_uniqueness_bases /
+                                @assembly.n_bases.to_f
     end
 
   end # ReadMetrics

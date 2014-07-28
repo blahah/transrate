@@ -10,7 +10,9 @@ module Transrate
     def_delegators :@seq, :size, :length
     attr_accessor :seq, :name
     # read-based metrics
-    attr_accessor :coverage, :uncovered_bases, :mean_coverage, :in_bridges
+    attr_accessor :coverage, :uncovered_bases, :mean_coverage, :mapq
+    attr_accessor :edit_distance, :bases_mapped, :mean_mapq
+    attr_accessor :low_uniqueness_bases, :in_bridges
     # reference-based metrics
     attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
     attr_accessor :hits
@@ -27,6 +29,8 @@ module Transrate
       @has_crb = false
       @in_bridges = 0
       @mean_coverage = 0
+      @edit_distance = 0
+      @bases_mapped = 0
     end
 
     def each &block
@@ -51,11 +55,13 @@ module Transrate
       read = @coverage ? {
         :uncovered_bases => uncovered_bases,
         :mean_coverage => mean_coverage,
-        :in_bridges => in_bridges
+        :in_bridges => in_bridges,
+        :edit_distance_per_base => edit_distance / bases_mapped.to_f
       } : {
         :uncovered_bases => "NA",
         :mean_coverage => "NA",
-        :in_bridges => in_bridges
+        :in_bridges => in_bridges,
+        :edit_distance => "NA"
       }
     end
 
@@ -73,6 +79,26 @@ module Transrate
         :is_chimera => "NA",
         :hits => "NA"
       }
+    end
+
+    def load_coverage(coverage)
+      @uncovered_bases, total = 0, 0
+      coverage.each do |e|
+        total += e
+        @uncovered_bases += 1 if e < 1
+      end
+      @mean_coverage = total / coverage.length.to_f
+      total
+    end
+
+    def load_mapq(mapq)
+      @low_uniqueness_bases, total = 0, 0
+      mapq.each do |e|
+        total += e
+        @low_uniqueness_bases += 1 if e < 5 # arbitrary cutoff TODO add more?
+      end
+      @mean_mapq = total / coverage.length.to_f
+      total
     end
 
     # Base composition of the contig
