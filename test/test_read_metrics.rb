@@ -51,7 +51,7 @@ class TestReadMetrics < Test::Unit::TestCase
       end
     end
 
-    should "get edit distance per base for individual contigs" do
+    should "get metrics for individual contigs" do
       left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
       Dir.mktmpdir do |tmpdir|
@@ -63,17 +63,21 @@ class TestReadMetrics < Test::Unit::TestCase
           end
           a = contigs[0].read_metrics[:edit_distance_per_base].round(5)
           b = contigs[1].read_metrics[:edit_distance_per_base].round(5)
-          assert_equal 0.00788, a
-          assert_equal 0.01157, b
+          assert_equal 0.00788, a, "edit distance"
+          assert_equal 0.01157, b, "edit distance"
+          a = contigs[0].read_metrics[:low_uniqueness_bases]
+          b = contigs[1].read_metrics[:low_uniqueness_bases]
+          assert_equal 0, a, "low uniqueness bases"
+          assert_equal 0, b, "low uniqueness bases"
         end
       end
     end
 
     should "find read pairs that support scaffolding" do
-      left = File.join(File.dirname(__FILE__), 'data', 'bridging_reads.l.fastq')
+      left = File.join(File.dirname(__FILE__),
+                       'data', 'bridging_reads.l.fastq')
       right = File.join(File.dirname(__FILE__),
-                        'data',
-                        'bridging_reads.r.fastq')
+                        'data', 'bridging_reads.r.fastq')
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           @read_metrics.run(left, right)

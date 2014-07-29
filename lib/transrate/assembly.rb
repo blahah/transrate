@@ -200,7 +200,7 @@ module Transrate
       # coverage. this is necessary because samtools mpileup
       # doesn't print a result line for bases with 0 coverage
       contig.coverage = Array.new(contig.length, 0)
-      contig.mapq = Array.new(contig.length, 0)
+      contig.mapq = Array.new(contig.length, nil)
       # the columns we need
       name_i, pos_i, info_i = 0, 1, 7
       # parse the coverage file
@@ -217,7 +217,7 @@ module Transrate
         if cov > 0 and cols[info_i] =~ /;MQ=([0-9]+);/
           mq = $1.to_i
         else
-          mq = 0
+          mq = nil
         end
         unless contig_name == name
           while contig_name != name

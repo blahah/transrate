@@ -56,12 +56,16 @@ module Transrate
         :uncovered_bases => uncovered_bases,
         :mean_coverage => mean_coverage,
         :in_bridges => in_bridges,
-        :edit_distance_per_base => edit_distance / bases_mapped.to_f
+        :edit_distance_per_base => edit_distance / bases_mapped.to_f,
+        :low_uniqueness_bases => low_uniqueness_bases,
+        :p_low_uniqueness_bases => low_uniqueness_bases / length
       } : {
         :uncovered_bases => "NA",
         :mean_coverage => "NA",
         :in_bridges => in_bridges,
-        :edit_distance => "NA"
+        :edit_distance => "NA",
+        :low_uniqueness_bases => "NA",
+        :p_low_uniqueness_bases => "NA"
       }
     end
 
@@ -94,10 +98,12 @@ module Transrate
     def load_mapq(mapq)
       @low_uniqueness_bases, total = 0, 0
       mapq.each do |e|
-        total += e
-        @low_uniqueness_bases += 1 if e < 5 # arbitrary cutoff TODO add more?
+        if e
+          total += e
+          @low_uniqueness_bases += 1 if e < 5 # arbitrary cutoff TODO add more?
+        end
       end
-      @mean_mapq = total / coverage.length.to_f
+      @mean_mapq = total / mapq.length.to_f
       total
     end
 
