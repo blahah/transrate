@@ -211,7 +211,7 @@ module Transrate
         cols = line.chomp.split("\t")
         name = Bio::FastaDefline.new(cols[name_i]).entry_id
         pos =  cols[pos_i].to_i
-        if cols[info_i] =~ /DP=([0-9]+);/ # .*;MQ=([0-9]+);
+        if cols[info_i] =~ /DP=([0-9]+);/
           cov = $1.to_i
         end
         if cov > 0 and cols[info_i] =~ /;MQ=([0-9]+);/
@@ -236,7 +236,6 @@ module Transrate
           end
         end
         contig.coverage[pos - 1] = cov
-        puts "#{name}\t#{pos-1}\t#{cov}"
         contig.mapq[pos - 1] = mq
       end
       # yield the final contig

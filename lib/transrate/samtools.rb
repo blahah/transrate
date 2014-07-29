@@ -76,6 +76,7 @@ module Transrate
       cmd = "samtools mpileup"
       cmd << " -f #{File.expand_path bam.fasta}" # reference
       cmd << " -B" # don't calculate BAQ quality scores
+      cmd << " -q0" # include all multimapping reads
       cmd << " -Q0" # include all reads ignoring quality
       cmd << " -I" # don't do genotype calculations
       cmd << " -u" # output uncompressed bcf format
