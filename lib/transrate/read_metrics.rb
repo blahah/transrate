@@ -63,7 +63,7 @@ module Transrate
         :n_lowcovered_contigs => @n_lowcovered_contigs,
         :p_lowcovered_contigs => @p_lowcovered_contigs,
         :edit_distance_per_base => @edit_distance / @total_bases.to_f,
-        :n_low_uniqueness_bases => @n_low_uniqueness_bases
+        :n_low_uniqueness_bases => @n_low_uniqueness_bases,
         :p_low_uniqueness_bases => @p_low_uniqueness_bases
       }
     end
