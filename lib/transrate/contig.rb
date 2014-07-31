@@ -10,7 +10,11 @@ module Transrate
     def_delegators :@seq, :size, :length
     attr_accessor :seq, :name
     # read-based metrics
-    attr_accessor :coverage, :uncovered_bases, :mean_coverage, :in_bridges
+    attr_accessor :coverage, :uncovered_bases, :mapq
+    attr_accessor :edit_distance, :bases_mapped, :mean_mapq
+    attr_accessor :low_uniqueness_bases, :in_bridges
+    attr_accessor :mean_coverage, :effective_mean
+    attr_accessor :variance, :effective_variance
     # reference-based metrics
     attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
     attr_accessor :hits
@@ -27,6 +31,8 @@ module Transrate
       @has_crb = false
       @in_bridges = 0
       @mean_coverage = 0
+      @edit_distance = 0
+      @bases_mapped = 0
     end
 
     def each &block
@@ -51,11 +57,17 @@ module Transrate
       read = @coverage ? {
         :uncovered_bases => uncovered_bases,
         :mean_coverage => mean_coverage,
-        :in_bridges => in_bridges
+        :in_bridges => in_bridges,
+        :edit_distance_per_base => edit_distance / bases_mapped.to_f,
+        :low_uniqueness_bases => low_uniqueness_bases,
+        :p_low_uniqueness_bases => low_uniqueness_bases / length
       } : {
         :uncovered_bases => "NA",
         :mean_coverage => "NA",
-        :in_bridges => in_bridges
+        :in_bridges => in_bridges,
+        :edit_distance => "NA",
+        :low_uniqueness_bases => "NA",
+        :p_low_uniqueness_bases => "NA"
       }
     end
 
@@ -73,6 +85,47 @@ module Transrate
         :is_chimera => "NA",
         :hits => "NA"
       }
+    end
+
+    def load_coverage(coverage)
+      read_length = 100
+      @uncovered_bases = 0
+      @mean_coverage, @effective_mean = 0, 0
+      total, effective_total = 0, 0
+      effective_length = coverage.length - (read_length * 2)
+      coverage.each_with_index do |e,i|
+        total += e
+        if i >= read_length and i < coverage.length - read_length
+          effective_total += e
+        end
+        @uncovered_bases += 1 if e < 1
+      end
+      @mean_coverage = total / coverage.length.to_f
+      @effective_mean = effective_total / effective_length.to_f
+      # variance
+      @variance, @effective_variance = 0, 0
+      coverage.each_with_index do |e,i|
+        @variance += (e - @mean_coverage) ** 2
+        if i >= read_length and i < (coverage.length - read_length)
+          @effective_variance += (e - @effective_mean)**2
+        end
+      end
+      @variance /= coverage.length.to_f
+      @effective_variance = @effective_variance / effective_length.to_f
+
+      total
+    end
+
+    def load_mapq(mapq)
+      @low_uniqueness_bases, total = 0, 0
+      mapq.each do |e|
+        if e
+          total += e
+          @low_uniqueness_bases += 1 if e < 5 # arbitrary cutoff TODO add more?
+        end
+      end
+      @mean_mapq = total / mapq.length.to_f
+      total
     end
 
     # Base composition of the contig
