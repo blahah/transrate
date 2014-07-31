@@ -61,14 +61,20 @@ class TestReadMetrics < Test::Unit::TestCase
           @assembly.each do |name, contig|
             contigs << contig
           end
-          a = contigs[0].read_metrics[:edit_distance_per_base].round(5)
-          b = contigs[1].read_metrics[:edit_distance_per_base].round(5)
-          assert_equal 0.00788, a, "edit distance"
-          assert_equal 0.01157, b, "edit distance"
-          a = contigs[0].read_metrics[:low_uniqueness_bases]
-          b = contigs[1].read_metrics[:low_uniqueness_bases]
-          assert_equal 0, a, "low uniqueness bases"
-          assert_equal 0, b, "low uniqueness bases"
+          a = contigs[0].read_metrics
+          b = contigs[1].read_metrics
+          edit_a = a[:edit_distance_per_base].round(5)
+          edit_b = b[:edit_distance_per_base].round(5)
+          assert_equal 0.00788, edit_a, "edit distance"
+          assert_equal 0.01157, edit_b, "edit distance"
+          uniq_a = a[:low_uniqueness_bases]
+          uniq_b = a[:low_uniqueness_bases]
+          assert_equal 0, uniq_a, "low uniqueness bases"
+          assert_equal 0, uniq_b, "low uniqueness bases"
+          var_a = contigs[0].variance
+          var_b = contigs[1].variance
+          assert_equal 1, var_a
+          assert_equal 1, var_b
         end
       end
     end

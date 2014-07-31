@@ -12,7 +12,7 @@ module Transrate
     # read-based metrics
     attr_accessor :coverage, :uncovered_bases, :mean_coverage, :mapq
     attr_accessor :edit_distance, :bases_mapped, :mean_mapq
-    attr_accessor :low_uniqueness_bases, :in_bridges
+    attr_accessor :low_uniqueness_bases, :in_bridges, :variance
     # reference-based metrics
     attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
     attr_accessor :hits
@@ -92,6 +92,12 @@ module Transrate
         @uncovered_bases += 1 if e < 1
       end
       @mean_coverage = total / coverage.length.to_f
+      @variance = 0
+      if coverage.length > 200
+        (100..(coverage.length-100)).each do |i|
+          @variance += (coverage[i] - @mean_coverage) ** 2
+        end
+      end
       total
     end
 

@@ -87,7 +87,6 @@ module Transrate
           @total_bases += ls.length
           if ls.mate_unmapped?
             self.check_read_single(ls)
-            line = sam.readline rescue nil
           else
             line2 = sam.readline rescue nil
             if line2
@@ -98,9 +97,10 @@ module Transrate
               @total_bases += rs.length
               self.check_read_pair(ls, rs, realistic_dist)
             end
-            line = sam.readline rescue nil
           end
+          line = sam.readline rescue nil
         end
+        puts "#{samfile}\tedit distance:#{@edit_distance}"
         check_bridges
       else
         raise "samfile #{samfile} not found"
