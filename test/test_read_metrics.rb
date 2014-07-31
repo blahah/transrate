@@ -31,22 +31,22 @@ class TestReadMetrics < Test::Unit::TestCase
           @read_metrics.run(left, right)
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run
-          assert_equal 223, stats[:num_pairs], 'number of read pairs'
-          assert_equal 202, stats[:total_mappings], 'number mapping'
-          assert_equal 90.58, stats[:percent_mapping].round(2),
+          assert_equal 223,     stats[:num_pairs], 'number of read pairs'
+          assert_equal 202,     stats[:total_mappings], 'number mapping'
+          assert_equal 90.58,   stats[:percent_mapping].round(2),
                        'percent mapping'
-          assert_equal 202, stats[:good_mappings], 'good mapping'
-          assert_equal 90.58,
-                       stats[:pc_good_mapping].round(2),
+          assert_equal 202,     stats[:good_mappings], 'good mapping'
+          assert_equal 90.58,   stats[:pc_good_mapping].round(2),
                        'percent good mapping'
-          assert_equal 0, stats[:bad_mappings], 'bad mapping'
-          assert_equal 22.86, stats[:mean_coverage].round(2), 'mean coverage'
-          assert_equal 12, stats[:n_uncovered_bases], 'n uncovered bases'
-          assert_equal 0.008,
-                       stats[:p_uncovered_bases].round(3),
+          assert_equal 0,       stats[:bad_mappings], 'bad mapping'
+          assert_equal 22.86,   stats[:mean_coverage].round(2), 'mean coverage'
+          assert_equal 12,      stats[:n_uncovered_bases], 'n uncovered bases'
+          assert_equal 0.008,   stats[:p_uncovered_bases].round(3),
                        'p uncovered bases'
           assert_equal 0.01009, stats[:edit_distance_per_base].round(5),
                        'edit distance'
+          assert_equal 57.94268,stats[:coverage_variance].round(5),
+                       'coverage variance'
         end
       end
     end
@@ -71,10 +71,10 @@ class TestReadMetrics < Test::Unit::TestCase
           uniq_b = a[:low_uniqueness_bases]
           assert_equal 0, uniq_a, "low uniqueness bases"
           assert_equal 0, uniq_b, "low uniqueness bases"
-          var_a = contigs[0].variance
-          var_b = contigs[1].variance
-          assert_equal 1, var_a
-          assert_equal 1, var_b
+          var_a = contigs[0].effective_variance
+          var_b = contigs[1].effective_variance
+          assert_equal 109.75611, var_a.round(5)
+          assert_equal 13.69750, var_b.round(5)
         end
       end
     end

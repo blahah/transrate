@@ -53,6 +53,7 @@ module Transrate
         :bad_mappings => @bad,
         :potential_bridges => @supported_bridges,
         :mean_coverage => @mean_coverage,
+        :coverage_variance => @coverage_variance,
         :mean_mapq => @mean_mapq,
         :n_uncovered_bases => @n_uncovered_bases,
         :p_uncovered_bases => @p_uncovered_bases,
@@ -100,7 +101,6 @@ module Transrate
           end
           line = sam.readline rescue nil
         end
-        puts "#{samfile}\tedit distance:#{@edit_distance}"
         check_bridges
       else
         raise "samfile #{samfile} not found"
@@ -232,12 +232,15 @@ module Transrate
       bam = Bio::DB::Sam.new(:bam => sorted, :fasta => @assembly.file)
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
-      n, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
+      n_over_200, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
+      tot_variance = 0
       @assembly.each_with_coverage(bam) do |contig, coverage, mapq|
         next if contig.length < 200
+        n_over_200 += 1
         tot_length += contig.length
         tot_coverage += contig.load_coverage(coverage)
         tot_mapq += contig.load_mapq(mapq)
+        tot_variance += contig.effective_variance * (contig.length - 200)
         @n_uncovered_bases += contig.uncovered_bases
         @n_uncovered_base_contigs += 1 if contig.uncovered_bases > 0
         @n_uncovered_contigs += 1 if contig.mean_coverage < 1
@@ -246,13 +249,12 @@ module Transrate
       end
       @mean_coverage = (tot_coverage / tot_length.to_f).round(2)
       @mean_mapq = (tot_mapq / tot_length.to_f).round(2)
-      @p_uncovered_bases = @n_uncovered_bases / @assembly.n_bases.to_f
-      @p_uncovered_base_contigs = @n_uncovered_base_contigs /
-                                  @assembly.size.to_f
-      @p_uncovered_contigs = @n_uncovered_contigs / @assembly.size.to_f
-      @p_lowcovered_contigs = @n_lowcovered_contigs / @assembly.size.to_f
-      @p_low_uniqueness_bases = @n_low_uniqueness_bases /
-                                @assembly.n_bases.to_f
+      @p_uncovered_bases = @n_uncovered_bases / tot_length.to_f
+      @p_uncovered_base_contigs = @n_uncovered_base_contigs / n_over_200.to_f
+      @p_uncovered_contigs = @n_uncovered_contigs / n_over_200.to_f
+      @p_lowcovered_contigs = @n_lowcovered_contigs / n_over_200.to_f
+      @p_low_uniqueness_bases = @n_low_uniqueness_bases / tot_length.to_f
+      @coverage_variance = tot_variance / (tot_length - 200.0 * n_over_200)
     end
 
   end # ReadMetrics
