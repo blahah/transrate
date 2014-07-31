@@ -53,6 +53,7 @@ module Transrate
         :bad_mappings => @bad,
         :potential_bridges => @supported_bridges,
         :mean_coverage => @mean_coverage,
+        :mean_mapq => @mean_mapq,
         :n_uncovered_bases => @n_uncovered_bases,
         :p_uncovered_bases => @p_uncovered_bases,
         :n_uncovered_base_contigs => @n_uncovered_base_contigs,
@@ -63,6 +64,7 @@ module Transrate
         :p_lowcovered_contigs => @p_lowcovered_contigs,
         :edit_distance_per_base => @edit_distance / @total_bases.to_f,
         :n_low_uniqueness_bases => @n_low_uniqueness_bases
+        :p_low_uniqueness_bases => @p_low_uniqueness_bases
       }
     end
 
