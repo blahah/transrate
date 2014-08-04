@@ -39,3 +39,9 @@ dryrun
 *.bam
 *.csv
 *.coverage
+
+# c extension build artefacts
+Makefile
+transrate.bundle
+transrate.o
+.RUBYARCHDIR.time
