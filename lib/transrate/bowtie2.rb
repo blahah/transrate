@@ -8,7 +8,7 @@ module Transrate
     require 'which'
     include Which
 
-    attr_reader :index_name, :sam
+    attr_reader :index_name, :sam, :read_count
 
     def initialize
       bowtie2_path = which('bowtie2')
@@ -39,7 +39,7 @@ module Transrate
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive"
         bowtiecmd += " -p #{threads} -X #{realistic_dist}"
-        bowtiecmd += " --quiet --no-unal"
+        bowtiecmd += "  --no-unal"
         bowtiecmd += " --seed 1337"
         bowtiecmd += " -x #{@index_name}"
         bowtiecmd += " -1 #{left}"
@@ -49,6 +49,10 @@ module Transrate
         # run bowtie
         runner = Cmd.new bowtiecmd
         runner.run
+        # parse bowtie output
+        if runner.stderr=~/([0-9]+)\ reads\;\ of\ these\:/
+          @read_count = $1.to_i
+        end
         if !runner.status.success?
           raise Bowtie2Error.new("Bowtie2 failed\n#{runner.stderr}")
         end

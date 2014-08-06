@@ -29,11 +29,11 @@ module Transrate
         end
       end
       @mapper.build_index @assembly.file
-      @num_pairs = `wc -l #{left}`.strip.split(/\s+/)[0].to_i/4
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
                                   threads: threads)
+      @num_pairs = @mapper.read_count
       # check_bridges
       analyse_read_mappings(samfile, insertsize, insertsd, true)
       analyse_coverage(samfile)
