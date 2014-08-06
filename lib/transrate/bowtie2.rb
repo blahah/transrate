@@ -30,8 +30,8 @@ module Transrate
                   insertsd: 50, outputname: nil,
                   threads: 8)
       raise Bowtie2Error.new("Index not built") if !@index_built
-      lbase = File.basename(left)
-      rbase = File.basename(right)
+      lbase = File.basename(left.split(",").first)
+      rbase = File.basename(right.split(",").first)
       index = File.basename(@index_name)
       @sam = File.expand_path("#{lbase}.#{rbase}.#{index}.sam")
       realistic_dist = insertsize + (3 * insertsd)

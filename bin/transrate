@@ -98,6 +98,21 @@ if opts.reference && !File.exist?(opts.reference)
   raise IOError.new "Reference fasta file does not exist: #{opts.reference}"
 end
 
+if opts.left and opts.right
+  if opts.left.split(",").length != opts.right.split(",").length
+    msg = "Please provide the same number of left reads as right reads"
+    raise ArgumentError.new(msg)
+  end
+  opts.left.split(",").zip(opts.right.split(",")).each do |left,right|
+    if !File.exist?(left)
+      raise IOError.new "Left read fastq file does not exist: #{left}"
+    end
+    if !File.exist?(right)
+      raise IOError.new "Right read fastq file does not exist: #{right}"
+    end
+  end
+end
+
 if opts.profile
   logger.info "Starting profiler"
   RubyProf.start

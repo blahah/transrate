@@ -81,6 +81,37 @@ class TestTransrateBin < Test::Unit::TestCase
       assert_equal 10, hash[:n_refs_with_crbb], "number of crb hits"
     end
 
+    should "run on test data with comma separated list of fastq files" do
+      assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
+      left = []
+      right = []
+      left << File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      left << File.join(File.dirname(__FILE__), 'data', 'bridging_reads.l.fastq')
+      right << File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      right << File.join(File.dirname(__FILE__), 'data', 'bridging_reads.r.fastq')
+      cmd = "bundle exec bin/transrate --assembly #{assembly}"
+      cmd << " --left #{left.join(",")}"
+      cmd << " --right #{right.join(",")}"
+      c = Transrate::Cmd.new("#{cmd}")
+      c.run
+      assert_equal true, c.status.success?, "exit status"
+      assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
+      assert File.exist?("transrate_assembly.2.fa_contigs.csv"),
+             "csv file doesn't exist"
+      hash = {}
+      CSV.foreach("transrate_assemblies.csv", :headers => true,
+                                   :header_converters => :symbol,
+                                   :converters => :all) do |row|
+        row.headers
+        row.fields
+        row.headers.zip(row.fields).each do |header, field|
+          hash[header]=field
+        end
+      end
+      assert_equal 10331, hash[:n_bases], "number of bases"
+      assert_equal 1566, hash[:n50], "n50"
+    end
+
     should "fail when one of multiple assemblies is missing" do
       assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
       assembly2 = File.join(File.dirname(__FILE__), 'data', 'foo.fa')

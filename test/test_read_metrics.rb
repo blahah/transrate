@@ -93,6 +93,25 @@ class TestReadMetrics < Test::Unit::TestCase
       end
     end
 
+    should "run on a list of input fastq files" do
+      left = []
+      right = []
+      left << File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      right << File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      left << File.join(File.dirname(__FILE__),
+                       'data', 'bridging_reads.l.fastq')
+      right << File.join(File.dirname(__FILE__),
+                        'data', 'bridging_reads.r.fastq')
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left.join(","), right.join(","))
+          stats = @read_metrics.read_stats
+          assert_equal 228, stats[:num_pairs], 'number of read pairs'
+        end
+      end
+
+    end
+
   end
 
 end

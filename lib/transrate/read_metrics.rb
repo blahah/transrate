@@ -21,11 +21,11 @@ module Transrate
 
     def run left, right, insertsize:200, insertsd:50, threads:8
       [left, right].each do |readfile|
-        if readfile.nil?
-          raise IOError.new "Read file is nil"
-        end
-        unless File.exist? readfile
-          raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
+        raise IOError.new "Read file is nil" if readfile.nil?
+        readfile.split(",").each do |file|
+          unless File.exist? file
+            raise IOError.new "ReadMetrics read file does not exist: #{file}"
+          end
         end
       end
       @mapper.build_index @assembly.file
