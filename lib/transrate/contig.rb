@@ -33,6 +33,7 @@ module Transrate
       @mean_coverage = 0
       @edit_distance = 0
       @bases_mapped = 0
+      @low_uniqueness_bases = 0
     end
 
     def each &block
