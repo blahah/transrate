@@ -8,7 +8,7 @@ module Transrate
     require 'which'
     include Which
 
-    attr_reader :index_name, :sam
+    attr_reader :index_name, :sam, :read_count
 
     def initialize
       bowtie2_path = which('bowtie2')
@@ -30,8 +30,8 @@ module Transrate
                   insertsd: 50, outputname: nil,
                   threads: 8)
       raise Bowtie2Error.new("Index not built") if !@index_built
-      lbase = File.basename(left)
-      rbase = File.basename(right)
+      lbase = File.basename(left.split(",").first)
+      rbase = File.basename(right.split(",").first)
       index = File.basename(@index_name)
       @sam = File.expand_path("#{lbase}.#{rbase}.#{index}.sam")
       realistic_dist = insertsize + (3 * insertsd)
@@ -39,7 +39,7 @@ module Transrate
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive"
         bowtiecmd += " -p #{threads} -X #{realistic_dist}"
-        bowtiecmd += " --quiet --no-unal"
+        bowtiecmd += "  --no-unal"
         bowtiecmd += " --seed 1337"
         bowtiecmd += " -x #{@index_name}"
         bowtiecmd += " -1 #{left}"
@@ -49,6 +49,10 @@ module Transrate
         # run bowtie
         runner = Cmd.new bowtiecmd
         runner.run
+        # parse bowtie output
+        if runner.stderr=~/([0-9]+)\ reads\;\ of\ these\:/
+          @read_count = $1.to_i
+        end
         if !runner.status.success?
           raise Bowtie2Error.new("Bowtie2 failed\n#{runner.stderr}")
         end

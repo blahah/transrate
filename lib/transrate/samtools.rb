@@ -68,6 +68,29 @@ module Transrate
       outfile
     end
 
+    # samtools mpileup -u -q30 -f sorghum_transcript.fa
+    # output.1.fastq.output.2.fastq.sorghum_transcript.sorted.bam |
+    # bcftools view -cg - | less -S
+    def self.coverage_and_mapq bam
+      outfile = File.expand_path "#{File.basename(bam.fasta)}.bcf"
+      cmd = "samtools mpileup"
+      cmd << " -f #{File.expand_path bam.fasta}" # reference
+      cmd << " -B" # don't calculate BAQ quality scores
+      cmd << " -q0" # include all multimapping reads
+      cmd << " -Q0" # include all reads ignoring quality
+      cmd << " -I" # don't do genotype calculations
+      cmd << " -u" # output uncompressed bcf format
+      cmd << " #{File.expand_path bam.bam}" # the bam file
+      cmd << " | bcftools view -cg - "
+      cmd << " > #{outfile}"
+      mpileup = Cmd.new cmd
+      mpileup.run
+      if !mpileup.status.success?
+        raise RuntimeError.new("samtools and bcftools failed")
+      end
+      outfile
+    end
+
   end
 
 end

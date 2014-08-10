@@ -43,3 +43,13 @@ bowtie2:
     64bit:
       linux: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-linux-x86_64.zip
       macosx: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-macos-x86_64.zip
+samtools:
+  binaries:
+    - samtools
+    - bcftools
+  version:
+    number: '0.1.19-44428cd'
+    command: 'samtools'
+  url:
+    64bit:
+      linux: http://heanet.dl.sourceforge.net/project/samtools/samtools/0.1.19/samtools-0.1.19.tar.bz2
