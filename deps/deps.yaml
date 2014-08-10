@@ -52,4 +52,4 @@ samtools:
     command: 'samtools'
   url:
     64bit:
-      linux: http://heanet.dl.sourceforge.net/project/samtools/samtools/0.1.19/samtools-0.1.19.tar.bz2
+      linux: https://github.com/cboursnell/samtools/raw/master/linux64.tar.gz

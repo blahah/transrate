@@ -33,6 +33,7 @@ module Transrate
       @mean_coverage = 0
       @edit_distance = 0
       @bases_mapped = 0
+      @low_uniqueness_bases = 0
     end
 
     def each &block
@@ -60,7 +61,7 @@ module Transrate
         :in_bridges => in_bridges,
         :edit_distance_per_base => edit_distance / bases_mapped.to_f,
         :low_uniqueness_bases => low_uniqueness_bases,
-        :p_low_uniqueness_bases => low_uniqueness_bases / length
+        :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f
       } : {
         :uncovered_bases => "NA",
         :mean_coverage => "NA",
