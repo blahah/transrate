@@ -13,7 +13,8 @@ module Transrate
       if samtools_path.empty?
         raise SamtoolsError.new("could not find samtools in the path")
       end
-      return samtools_path.first
+      return samtools_path.kind_of?(String) ?
+        samtools_path : samtools_path.first
     end
 
     # Run a samtools command
