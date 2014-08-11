@@ -52,5 +52,5 @@ samtools:
     command: 'samtools'
   url:
     64bit:
-      linux: https://github.com/Blahah/samtools/raw/master/build/linux64.tar.gz
-      macosx: https://github.com/Blahah/samtools/raw/master/build/osx64.tar.gz
+      linux: https://github.com/cboursnell/samtools/raw/master/build/linux64.tar.gz
+      macosx: https://github.com/cboursnell/samtools/raw/master/build/osx64.tar.gz

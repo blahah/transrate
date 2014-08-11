@@ -82,8 +82,11 @@ module Transrate
       @reference.each_value do |ref_contig|
         key = ref_contig.name
         list = ref_contig.hits
-        total_length += crbblast.target_is_prot ? ref_contig.length*3 : ref_contig.length
-
+        if crbblast.target_is_prot
+          total_length += ref_contig.length * 3
+        else
+          total_length += ref_contig.length
+        end
         next if list.empty?
         blocks = []
         target_length = 0
