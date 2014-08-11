@@ -10,8 +10,8 @@ module Transrate
     attr_reader :reciprocal_hits
     attr_reader :has_run
     attr_reader :reference_coverage
-    attr_reader :comp_stats
     attr_reader :n_chimeras, :p_chimeras
+    attr_reader :comp_stats
 
     def initialize assembly, reference, threads
       @assembly = assembly
@@ -182,10 +182,11 @@ module Transrate
 
         total_coverage += length_of_coverage
       end
+
       cov.each_with_index do |p, i|
         @comp_stats["cov#{(100*p).to_i}".to_sym] = @cov[i]
         @comp_stats["p_cov#{(100*p).to_i}".to_sym] =
-                                                  @cov[i]/@reference.size.to_f
+          @cov[i]/@reference.size.to_f
       end
       total_coverage / total_length.to_f
     end
