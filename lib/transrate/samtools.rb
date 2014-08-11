@@ -28,8 +28,10 @@ module Transrate
     def self.sam_to_bam samfile
       bamfile = File.basename(samfile, '.sam') + '.bam'
       bamfile = File.expand_path bamfile
-      Samtools.run "view -bS #{File.expand_path samfile} > #{bamfile}"
-      File.expand_path bamfile
+      if !File.exist?(bamfile)
+        Samtools.run "view -bS #{File.expand_path samfile} > #{bamfile}"
+      end
+      bamfile
     end
 
     # Sort a bam file, returning the path to the sorted bamfile
@@ -38,7 +40,9 @@ module Transrate
       # it takes an output prefix rather than a filename
       # and automatically adds the .bam extension
       sorted = File.basename(bamfile, '.bam') + '.sorted'
-      Samtools.run "sort #{File.expand_path bamfile} #{sorted}"
+      if !File.exist?("#{sorted}.bam")
+        Samtools.run "sort #{File.expand_path bamfile} #{sorted}"
+      end
       File.expand_path(sorted + '.bam')
     end
 
@@ -63,14 +67,16 @@ module Transrate
     # return the path to the coverage file
     def self.coverage bam
       outfile = File.expand_path "#{File.basename(bam.fasta)}.coverage"
-      cmd = "mpileup"
-      cmd += " -f #{File.expand_path bam.fasta}" # reference
-      cmd += " -B" # don't calculate BAQ quality scores
-      cmd += " -Q0" # include all reads ignoring quality
-      cmd += " -I" # don't do genotype calculations
-      cmd += " #{File.expand_path bam.bam}" # the bam file
-      cmd += " > #{outfile}"
-      Samtools.run cmd
+      if !File.exist?(outfile)
+        cmd = "mpileup"
+        cmd += " -f #{File.expand_path bam.fasta}" # reference
+        cmd += " -B" # don't calculate BAQ quality scores
+        cmd += " -Q0" # include all reads ignoring quality
+        cmd += " -I" # don't do genotype calculations
+        cmd += " #{File.expand_path bam.bam}" # the bam file
+        cmd += " > #{outfile}"
+        Samtools.run cmd
+      end
       outfile
     end
 
@@ -78,20 +84,22 @@ module Transrate
     # bam file. Return the path to the coverage file.
     def self.coverage_and_mapq(bam, fasta)
       outfile = File.expand_path "#{File.basename(fasta)}.bcf"
-      cmd = "samtools mpileup"
-      cmd << " -f #{File.expand_path fasta}" # reference
-      cmd << " -B" # don't calculate BAQ quality scores
-      cmd << " -q0" # include all multimapping reads
-      cmd << " -Q0" # include all reads ignoring quality
-      cmd << " -I" # don't do genotype calculations
-      cmd << " -u" # output uncompressed bcf format
-      cmd << " #{File.expand_path bam}" # the bam file
-      cmd << " | bcftools view -cg - "
-      cmd << " > #{outfile}"
-      mpileup = Cmd.new cmd
-      mpileup.run
-      if !mpileup.status.success?
-        raise RuntimeError.new("samtools and bcftools failed")
+      if !File.exist?(outfile)
+        cmd = "samtools mpileup"
+        cmd << " -f #{File.expand_path fasta}" # reference
+        cmd << " -B" # don't calculate BAQ quality scores
+        cmd << " -q0" # include all multimapping reads
+        cmd << " -Q0" # include all reads ignoring quality
+        cmd << " -I" # don't do genotype calculations
+        cmd << " -u" # output uncompressed bcf format
+        cmd << " #{File.expand_path bam}" # the bam file
+        cmd << " | bcftools view -cg - "
+        cmd << " > #{outfile}"
+        mpileup = Cmd.new cmd
+        mpileup.run
+        if !mpileup.status.success?
+          raise RuntimeError.new("samtools and bcftools failed")
+        end
       end
       outfile
     end
