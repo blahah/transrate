@@ -34,13 +34,13 @@ class TestReadMetrics < Test::Unit::TestCase
           # checking sam file is consistent
           total=0
           bases=0
-          File.open("150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.sam").each_line do |line|
+          samfile = "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.sam"
+          File.open(samfile).each_line do |line|
             if line=~/NM:i:([0-9]+)/
               total += $1.to_i
               seq = line.split("\t")[9]
               bases += seq.length
             end
-
           end
           assert_equal 37921, bases, "total number of bases from sam"
           assert_equal 387, total, "sum of NM from sam"
