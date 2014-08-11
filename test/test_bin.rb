@@ -38,6 +38,7 @@ class TestTransrateBin < Test::Unit::TestCase
       "Os.protein.2.pin",
       "Os.protein.2.psq",
       "supported_bridges.csv",
+      "singletons.fa",
       "transrate.csv"]
       files.each do |file|
         File.delete(file) if File.exist?(file)

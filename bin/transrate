@@ -252,8 +252,13 @@ opts.assembly.split(',').each do |assembly|
       logger.info "-" * report_width
       pretty_print_hash(alignment_results, report_width)
     end
+    # write all singletons to fasta file
+    singletonfile = opts.singleton || 'singletons.fa'
+    logger.info "Writing singletons transcripts to #{singletonfile}"
+    transrater.reference_alignment.write_singletons singletonfile
     logger.info "Assembly alignment metrics done in #{Time.now - t0} seconds"
     logger.info "-" * report_width
+    
   else
     logger.info "No reference genome provided, skipping assembly alignment"
   end
