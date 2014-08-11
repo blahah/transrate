@@ -189,10 +189,10 @@ module Transrate
     #
     # @param bam [Bio::Db::Sam] a bam alignment of reads against this assembly
     # @param block [Block] the block to call
-    def each_with_coverage(bam, &block)
+    def each_with_coverage(bam, fasta, &block)
       logger.debug 'enumerating assembly with coverage'
       # generate coverage with samtools
-      covfile = Samtools.coverage_and_mapq bam
+      covfile = Samtools.coverage_and_mapq(bam, fasta)
       # get an assembly enumerator
       assembly_enum = @assembly.to_enum
       contig_name, contig = assembly_enum.next

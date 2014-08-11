@@ -3,7 +3,6 @@ module Transrate
   class ReadMetrics
 
     require 'bettersam'
-    require 'bio-samtools'
 
     attr_reader :total
     attr_reader :bad
@@ -230,12 +229,13 @@ module Transrate
     # analysis.
     def analyse_coverage samfile
       bamfile, sorted, index = Samtools.sam_to_sorted_indexed_bam samfile
-      bam = Bio::DB::Sam.new(:bam => sorted, :fasta => @assembly.file)
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       n_over_200, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
       tot_variance = 0
-      @assembly.each_with_coverage(bam) do |contig, coverage, mapq|
+      @assembly.each_with_coverage(sorted, @assembly.file) do |contig,
+                                                               coverage,
+                                                               mapq|
         next if contig.length < 200
         n_over_200 += 1
         tot_length += contig.length
@@ -261,4 +261,3 @@ module Transrate
   end # ReadMetrics
 
 end # Transrate
-

@@ -22,7 +22,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'bindeps', '~> 0.1', '>= 0.1.0'
   gem.add_dependency 'which', '~> 0.0', '>= 0.0.2'
   gem.add_dependency 'bio', '~> 1.4', '>= 1.4.3'
-  gem.add_dependency 'bio-samtools', '~> 2.0', '>= 2.0.5'
   gem.add_dependency 'crb-blast', '~> 0.4', '>= 0.4.1'
   gem.add_dependency 'bettersam', '~> 0.1', '>= 0.1.1'
   gem.add_dependency 'ruby-prof', '~> 0.15', '>= 0.15.1'
