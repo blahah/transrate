@@ -39,6 +39,8 @@ class TestTransrateBin < Test::Unit::TestCase
       "Os.protein.2.psq",
       "supported_bridges.csv",
       "singletons.fa",
+      "newfile.sam",
+      "unaligned_transcripts.fa",
       "transrate.csv"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
@@ -48,7 +50,7 @@ class TestTransrateBin < Test::Unit::TestCase
     should "run help" do
       c=Transrate::Cmd.new("bundle exec bin/transrate --help")
       c.run
-      assert_equal 2244, c.stdout.length, "stdout"
+      assert_equal 2315, c.stdout.length, "stdout"
       assert_equal true, c.status.success?, "exit status"
     end
 
@@ -82,6 +84,7 @@ class TestTransrateBin < Test::Unit::TestCase
       cmd << " --reference #{reference}"
       cmd << " --left #{left}"
       cmd << " --right #{right}"
+      cmd << " --singletons newfile.sam"
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"
@@ -99,6 +102,7 @@ class TestTransrateBin < Test::Unit::TestCase
       assert_equal 10331, hash[:n_bases]
       assert_equal 1566, hash[:n50]
       assert_equal 10, hash[:n_refs_with_recip]
+      assert_equal 11, `wc -l newfile.sam`.split[0].to_i - 4
     end
 
     should "fail when one of multiple assemblies is missing" do

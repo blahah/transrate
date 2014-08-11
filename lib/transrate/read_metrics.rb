@@ -16,10 +16,11 @@ module Transrate
     def initialize assembly
       @assembly = assembly
       @mapper = Bowtie2.new
+      @singletons = []
       self.initial_values
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8
+    def run left, right, insertsize:200, insertsd:50, threads:8, singletons:false
       [left, right].each do |readfile|
         unless File.exist? readfile
           raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
@@ -32,7 +33,7 @@ module Transrate
                                   insertsd: insertsd,
                                   threads: threads)
       # check_bridges
-      analyse_read_mappings(samfile, insertsize, insertsd, true)
+      analyse_read_mappings(samfile, insertsize, insertsd, true, singletons)
       analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
@@ -61,19 +62,24 @@ module Transrate
       }
     end
 
-    def analyse_read_mappings samfile, insertsize, insertsd, bridge=true
+    def analyse_read_mappings samfile, insertsize, insertsd, bridge=true, singletons
       @bridges = {} if bridge
       realistic_dist = self.realistic_distance(insertsize, insertsd)
       if File.exists?(samfile) && File.size(samfile) > 0
         ls = BetterSam.new
         rs = BetterSam.new
         sam = File.open(samfile)
+        out = File.open(singletons,'a') if singletons
         line = sam.readline
         while line and line=~/^@/
           line = sam.readline rescue nil
+          out.puts(line) if singletons
         end
         while line
           ls.parse_line(line)
+          if !ls.read_paired?
+            out.puts(line) if singletons
+          end
           if ls.mate_unmapped?
             self.check_read_single(ls)
             line = sam.readline rescue nil
@@ -82,11 +88,14 @@ module Transrate
             if line2
               rs.parse_line(line2)
               self.check_read_pair(ls, rs, realistic_dist)
+              out.puts(line) if ls.read_unmapped? if singletons
+              out.puts(line2) if rs.read_unmapped? if singletons
             end
             line = sam.readline rescue nil
           end
         end
         check_bridges
+        out.close if singletons
       else
         raise "samfile #{samfile} not found"
       end
@@ -231,6 +240,10 @@ module Transrate
                                   @assembly.size.to_f
       @p_uncovered_contigs = @n_uncovered_contigs / @assembly.size.to_f
       @p_lowcovered_contigs = @n_lowcovered_contigs / @assembly.size.to_f
+    end
+
+    def write_singletons outfile
+      `mv singletons.sam #{outfile}`
     end
 
   end # ReadMetrics

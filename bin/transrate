@@ -66,6 +66,8 @@ opts = Trollop::options do
   opt :maxIntron, "maximum intron size for genome alignment",
       :default => 750000,
       :type => Integer
+  opt :singletons, "filename to output unaligned SAM records",
+      :type => String
   opt :outfile, "filename to use for CSV output",
       :default => 'transate_results.csv'
   opt :loglevel, "the amount of information to print. " +
@@ -160,6 +162,7 @@ logger.info "Loading reference dataset"
 
 r = opts.reference ? Assembly.new(opts.reference) : nil
 g = opts.genome ? Assembly.new(opts.genome) : nil
+s = opts.singletons ? opts.singletons : nil
 report_width = 35
 
 # loop through the assemblies, storing their outputs in an array of hashes
@@ -177,7 +180,8 @@ opts.assembly.split(',').each do |assembly|
                               threads: opts.threads,
                               evalue: opts.evalue,
                               percent_threshold: opts.min_percent_id,
-                              maxIntron: opts.maxIntron)
+                              maxIntron: opts.maxIntron,
+                              singletons: s)
 
 
   logger.info "Analysing assembly: #{assembly}"
@@ -252,15 +256,22 @@ opts.assembly.split(',').each do |assembly|
       logger.info "-" * report_width
       pretty_print_hash(alignment_results, report_width)
     end
-    # write all singletons to fasta file
-    singletonfile = opts.singleton || 'singletons.fa'
-    logger.info "Writing singletons transcripts to #{singletonfile}"
-    transrater.reference_alignment.write_singletons singletonfile
+    # write all unaligned transcripts to fasta file
+    unaligned = 'unaligned_transcripts.fa'
+    logger.info "Writing unaligned transcripts to #{unaligned}"
+    transrater.reference_alignment.write_unaligned unaligned
+    `rm #{unaligned}` unless `wc -l #{unaligned}`.split[0].to_i > 1
     logger.info "Assembly alignment metrics done in #{Time.now - t0} seconds"
     logger.info "-" * report_width
     
   else
     logger.info "No reference genome provided, skipping assembly alignment"
+  end
+
+  if opts.singletons
+    singletons = opts.singletons
+    unmapped = `wc -l #{singletons}`.split[0].to_i - 4
+    logger.info "Wrote #{unmapped} unmapped reads (singletons) to #{singletons}"
   end
 
   all << contig_results.
