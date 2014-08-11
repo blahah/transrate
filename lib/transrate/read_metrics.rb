@@ -12,6 +12,7 @@ module Transrate
     attr_reader :percent_mapping
     attr_reader :prop_expressed
     attr_reader :has_run
+    attr_reader :total_bases
 
     def initialize assembly
       @assembly = assembly
