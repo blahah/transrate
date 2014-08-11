@@ -155,10 +155,12 @@ class TestCompMetrics < Test::Unit::TestCase
       @reference["LOC_Os01g11360.1"].seq = "A"*200
       @reference["LOC_Os01g44140.1"].seq = "A"*200
 
+      assert_equal true, crb.target_is_prot, "target is prot"
+      assert_equal false, crb.query_is_prot, "query is prot"
       # total_length of references should be 4400
 
       cov = @comp.coverage crb
-      assert_equal 3600/4400.0, cov, "reference coverage"
+      assert_equal 3600/13200.0, cov, "reference coverage"
     end
 
     should "calculate potential chimera count" do
@@ -166,6 +168,7 @@ class TestCompMetrics < Test::Unit::TestCase
       # # T1   |---------|
       # # T2                 |---------|
       # # Q1 |----------------------------| # chimera = true
+
 
       crb.remove_hit("scaf_Os10g39590.1")
       crb.add_hit("scaf_Os10g39590.1", "LOC_Os03g60760.1",
