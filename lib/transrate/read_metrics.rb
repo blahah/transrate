@@ -241,8 +241,8 @@ module Transrate
         next if contig.length < 200
         n_over_200 += 1
         tot_length += contig.length
-        tot_eff_length += contig.effective_length
         tot_coverage += contig.load_coverage(coverage)
+        tot_eff_length += contig.effective_length
         tot_mapq += contig.load_mapq(mapq)
         tot_variance += contig.effective_variance * contig.effective_length
         @n_uncovered_bases += contig.uncovered_bases
@@ -258,7 +258,7 @@ module Transrate
       @p_uncovered_contigs = @n_uncovered_contigs / n_over_200.to_f
       @p_lowcovered_contigs = @n_lowcovered_contigs / n_over_200.to_f
       @p_low_uniqueness_bases = @n_low_uniqueness_bases / tot_length.to_f
-      @coverage_variance = tot_variance / (tot_eff_length * n_over_200)
+      @coverage_variance = tot_variance / tot_eff_length
     end
 
   end # ReadMetrics
