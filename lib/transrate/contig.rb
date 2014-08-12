@@ -14,7 +14,7 @@ module Transrate
     attr_accessor :edit_distance, :bases_mapped, :mean_mapq
     attr_accessor :low_uniqueness_bases, :in_bridges
     attr_accessor :mean_coverage, :effective_mean
-    attr_accessor :variance, :effective_variance
+    attr_accessor :variance, :effective_variance, :effective_length
     # reference-based metrics
     attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
     attr_accessor :hits
@@ -93,7 +93,8 @@ module Transrate
       @uncovered_bases = 0
       @mean_coverage, @effective_mean = 0, 0
       total, effective_total = 0, 0
-      effective_length = coverage.length - (read_length * 2)
+      @effective_length = coverage.length - (read_length * 2)
+      @effective_length = 1 if @effective_length < 1
       coverage.each_with_index do |e,i|
         total += e
         if i >= read_length and i < coverage.length - read_length
@@ -102,7 +103,7 @@ module Transrate
         @uncovered_bases += 1 if e < 1
       end
       @mean_coverage = total / coverage.length.to_f
-      @effective_mean = effective_total / effective_length.to_f
+      @effective_mean = effective_total / @effective_length.to_f
       # variance
       @variance, @effective_variance = 0, 0
       coverage.each_with_index do |e,i|
@@ -112,7 +113,7 @@ module Transrate
         end
       end
       @variance /= coverage.length.to_f
-      @effective_variance = @effective_variance / effective_length.to_f
+      @effective_variance = @effective_variance / @effective_length.to_f
 
       total
     end

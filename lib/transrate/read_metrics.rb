@@ -234,16 +234,17 @@ module Transrate
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       n_over_200, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
-      tot_variance = 0
+      tot_variance, tot_eff_length = 0, 0
       @assembly.each_with_coverage(sorted, @assembly.file) do |contig,
                                                                coverage,
                                                                mapq|
         next if contig.length < 200
         n_over_200 += 1
         tot_length += contig.length
+        tot_eff_length += contig.effective_length
         tot_coverage += contig.load_coverage(coverage)
         tot_mapq += contig.load_mapq(mapq)
-        tot_variance += contig.effective_variance * (contig.length - 200)
+        tot_variance += contig.effective_variance * contig.effective_length
         @n_uncovered_bases += contig.uncovered_bases
         @n_uncovered_base_contigs += 1 if contig.uncovered_bases > 0
         @n_uncovered_contigs += 1 if contig.mean_coverage < 1
@@ -257,7 +258,7 @@ module Transrate
       @p_uncovered_contigs = @n_uncovered_contigs / n_over_200.to_f
       @p_lowcovered_contigs = @n_lowcovered_contigs / n_over_200.to_f
       @p_low_uniqueness_bases = @n_low_uniqueness_bases / tot_length.to_f
-      @coverage_variance = tot_variance / (tot_length - 200.0 * n_over_200)
+      @coverage_variance = tot_variance / (tot_eff_length * n_over_200)
     end
 
   end # ReadMetrics
