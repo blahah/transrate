@@ -65,5 +65,16 @@ module Transrate
       (sum/count).round(2)
     end
 
+    def write_unaligned outfile
+      fastas={}; aligned = []
+      Bio::FastaFormat.open(@assembly.file).each_entry {|f| fastas[f.entry_id] = f.seq}
+      @blat.each {|x| aligned << x.query_id if (x.evalue <= @evalue && x.percent_identity >= @perc_id_threshold)}
+      File.open(outfile,'w') do |file|
+        fastas.each do |id,seq|
+          file.puts(">#{id}\n#{seq}") unless aligned.include?(id)
+        end
+      end
+    end
+
   end #ReferenceAlignment
 end # Transrate

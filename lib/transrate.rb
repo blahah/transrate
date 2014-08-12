@@ -16,6 +16,7 @@ require 'transrate/metric'
 require 'transrate/dimension_reduce'
 require 'transrate/samtools'
 require 'transrate/cmd'
+require 'transrate/transrate.so'
 
 # Transrate is a comprehensive transcriptome assembly
 # quality assessment tool.
