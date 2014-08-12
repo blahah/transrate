@@ -56,6 +56,16 @@ module Transrate
         if !runner.status.success?
           raise Bowtie2Error.new("Bowtie2 failed\n#{runner.stderr}")
         end
+      else
+        cmd = "wc -l #{left}"
+        count = Cmd.new(cmd)
+        count.run
+        if count.status.success?
+          @read_count = count.stdout.strip.split(/\s+/).first.to_i/4
+        else
+          logger.warn "couldn't get number of reads from fastq file"
+          @read_count = 0
+        end
       end
       @sam
     end
