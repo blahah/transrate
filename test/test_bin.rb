@@ -40,7 +40,6 @@ class TestTransrateBin < Test::Unit::TestCase
       "supported_bridges.csv",
       "singletons.fa",
       "newfile.sam",
-      "unaligned_transcripts.fa",
       "transrate.csv"]
       files.each do |file|
         File.delete(file) if File.exist?(file)

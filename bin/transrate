@@ -256,11 +256,6 @@ opts.assembly.split(',').each do |assembly|
       logger.info "-" * report_width
       pretty_print_hash(alignment_results, report_width)
     end
-    # write all unaligned transcripts to fasta file
-    unaligned = 'unaligned_transcripts.fa'
-    logger.info "Writing unaligned transcripts to #{unaligned}"
-    transrater.reference_alignment.write_unaligned unaligned
-    `rm #{unaligned}` unless `wc -l #{unaligned}`.split[0].to_i > 1
     logger.info "Assembly alignment metrics done in #{Time.now - t0} seconds"
     logger.info "-" * report_width
     
