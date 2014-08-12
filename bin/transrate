@@ -79,7 +79,7 @@ end
 
 def require_blat blatdep
   blat = YAML.load_file(blatdep)['blat']
-  d = Bindeps::Dependency.new('blat', blat['binaries'],blat['version'],blat['url'])
+  d = Bindeps::Dependency.new('blat', blat['binaries'],blat['version'],blat['url'], false)
   unless d.all_installed?
     puts "binary dependency blat not installed"
     puts "it will now be downloaded and installed"
