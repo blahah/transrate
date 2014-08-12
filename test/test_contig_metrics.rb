@@ -33,7 +33,7 @@ class TestContigMetrics < Test::Unit::TestCase
 
     should "get CpG density" do
       @contig_metrics.run
-      assert_equal 0.52828, @contig_metrics.cpg_ratio.round(5)
+      assert_equal 1.51939, @contig_metrics.cpg_ratio.round(5)
     end
 
     should "get linguistic complexity" do

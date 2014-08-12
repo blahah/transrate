@@ -24,7 +24,7 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def initialize(assembly, reference, genome,
+    def initialize(assembly, reference,
                    left: nil, right: nil,
                    insertsize: nil, insertsd: nil,
                    threads: 1, evalue: 1e-5, percent_threshold: 90.0, maxIntron: 750000, singletons: nil)
@@ -49,14 +49,6 @@ module Transrate
                                                       @reference,
                                                       threads)
       end
-      if genome
-        if genome.is_a?(Assembly)
-          @genome = genome
-        else
-          @genome = Assembly.new(genome)
-        end
-        @reference_alignment = ReferenceAlignment.new(@assembly, @genome, threads, evalue, percent_threshold, maxIntron)
-      end
       @threads = threads
       @singletons = singletons
     end
@@ -73,7 +65,6 @@ module Transrate
         read_metrics left, right
       end
       comparative_metrics if @comparative_metrics
-      reference_alignment if @reference_alignment
     end
 
     # Reduce all metrics for the assembly to a single quality score.
@@ -112,17 +103,11 @@ module Transrate
       @comparative_metrics
     end
 
-    def reference_alignment
-      @reference_alignment.run unless @reference_alignment.has_run
-      @reference_alignment
-    end
-
     def all_metrics left=nil, right=nil, insertsize=nil, insertsd=nil
       self.run(left, right, insertsize, insertsd)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
       all.merge!(@comparative_metrics.comp_stats) if @comparative_metrics
-      all.merge!(@reference_alignment.genome_stats) if @reference_alignment
       all[:score] = @score
       all
     end

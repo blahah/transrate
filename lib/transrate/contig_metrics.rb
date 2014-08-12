@@ -1,5 +1,4 @@
 require 'set'
-require 'inline'
 
 module Transrate
 
@@ -41,7 +40,7 @@ module Transrate
       cpg_count = 0
       lc = 0
       k = 6
-      @assembly.assembly.each do |contig|
+      @assembly.assembly.each_value do |contig|
         total += contig.length
         a += contig.bases_a
         c += contig.bases_c

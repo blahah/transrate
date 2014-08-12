@@ -10,10 +10,7 @@ class TestTransrater < Test::Unit::TestCase
     setup do
       @assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
       @reference = File.join(File.dirname(__FILE__), 'data', 'Os.protein.2.fa')
-      @test_assembly = File.join(File.dirname(__FILE__), 'data', 'test_ref_align_assembly.fa')
-      @test_genome = File.join(File.dirname(__FILE__), 'data', 'test_ref_align_genome.fa')
-      @rater = Transrate::Transrater.new(@assembly, @reference, nil)
-      @rater_aligner = Transrate::Transrater.new(@test_assembly, nil, @test_genome)
+      @rater = Transrate::Transrater.new(@assembly, @reference)
       @left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       @right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
     end
@@ -24,23 +21,18 @@ class TestTransrater < Test::Unit::TestCase
 
     should "raise error when assembly input is nil" do
       assert_raise RuntimeError do
-        rater = Transrate::Transrater.new(nil, @reference, nil)
+        rater = Transrate::Transrater.new(nil, @reference)
       end
     end
 
     should "handle assembly as an assemby object" do
       assembly_object = Transrate::Assembly.new(@assembly)
-      rater = Transrate::Transrater.new(assembly_object, @reference, nil)
+      rater = Transrate::Transrater.new(assembly_object, @reference)
     end
 
     should "handle reference as an assemby object" do
       reference_object = Transrate::Assembly.new(@reference)
-      rater = Transrate::Transrater.new(@assembly, reference_object, nil)
-    end
-
-    should "handle genome as an assembly object" do
-      genome_object = Transrate::Assembly.new(@test_genome)
-      rater = Transrate::Transrater.new(@test_assembly, nil, genome_object)
+      rater = Transrate::Transrater.new(@assembly, reference_object)
     end
 
     should "run assembly metrics without input fastq files" do
@@ -67,7 +59,7 @@ class TestTransrater < Test::Unit::TestCase
         Dir.chdir tmpdir do
           all = @rater.all_metrics(@left, @right)
           score = @rater.assembly_score
-          assert_equal 0.23282, score.round(5)
+          assert_equal 0.18605, score.round(5) # regression test
         end
       end
     end

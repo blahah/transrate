@@ -14,7 +14,7 @@ class TestInline < Test::Unit::TestCase
 
     should 'find longest orf in file' do
       orfs = []
-      @a.assembly.each do |contig|
+      @a.assembly.each_value do |contig|
         orfs << contig.orf_length
       end
       assert_equal 4, orfs.length
@@ -22,7 +22,7 @@ class TestInline < Test::Unit::TestCase
     end
 
     should 'find longest orf in sequence' do
-      seq = Bio::Sequence.new 'ATGCCCCTAGGGTAG'
+      seq = Bio::FastaFormat.new ">test\nATGCCCCTAGGGTAG"
       contig = Transrate::Contig.new seq
       assert_equal 4, contig.orf_length
     end

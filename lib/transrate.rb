@@ -10,12 +10,12 @@ require 'transrate/assembly'
 require 'transrate/bowtie2'
 require 'transrate/read_metrics'
 require 'transrate/comparative_metrics'
-require 'transrate/reference_alignment'
 require 'transrate/contig_metrics'
 require 'transrate/metric'
 require 'transrate/dimension_reduce'
 require 'transrate/samtools'
 require 'transrate/cmd'
+require 'transrate/transrate.so'
 
 # Transrate is a comprehensive transcriptome assembly
 # quality assessment tool.
