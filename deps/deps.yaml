@@ -43,13 +43,14 @@ bowtie2:
     64bit:
       linux: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-linux-x86_64.zip
       macosx: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-macos-x86_64.zip
-express:
+samtools:
   binaries:
-    - express
+    - samtools
+    - bcftools
   version:
-    number: '1.5.1'
-    command: 'express --version'
+    number: '0.1.19'
+    command: 'samtools'
   url:
     64bit:
-      linux: http://bio.math.berkeley.edu/eXpress/downloads/express-1.5.1/express-1.5.1-linux_x86_64.tgz
-      macosx: http://bio.math.berkeley.edu/eXpress/downloads/express-1.5.1/express-1.5.1-macosx_x86_64.tgz
+      linux: https://github.com/cboursnell/samtools/raw/master/build/linux64.tar.gz
+      macosx: https://github.com/cboursnell/samtools/raw/master/build/osx64.tar.gz

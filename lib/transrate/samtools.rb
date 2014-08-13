@@ -1,14 +1,20 @@
-require 'bio-samtools'
-
 module Transrate
 
   class Samtools
 
+    class Bowtie2Error < StandardError; end
+
+    require 'which'
+
     # Get the path to the samtools binary built when bio-samtools
     # was installed
     def self.path
-      gem_path = Gem.loaded_specs['bio-samtools'].full_gem_path
-      return File.join(gem_path, 'lib/bio/db/sam/external/samtools')
+      samtools_path = Which.which('samtools')
+      if samtools_path.empty?
+        raise SamtoolsError.new("could not find samtools in the path")
+      end
+      return samtools_path.kind_of?(String) ?
+        samtools_path : samtools_path.first
     end
 
     # Run a samtools command
@@ -65,6 +71,28 @@ module Transrate
       cmd += " #{File.expand_path bam.bam}" # the bam file
       cmd += " > #{outfile}"
       Samtools.run cmd
+      outfile
+    end
+
+    # Calculate per-base coverage and mapQ score from a sorted, indexed
+    # bam file. Return the path to the coverage file.
+    def self.coverage_and_mapq(bam, fasta)
+      outfile = File.expand_path "#{File.basename(fasta)}.bcf"
+      cmd = "samtools mpileup"
+      cmd << " -f #{File.expand_path fasta}" # reference
+      cmd << " -B" # don't calculate BAQ quality scores
+      cmd << " -q0" # include all multimapping reads
+      cmd << " -Q0" # include all reads ignoring quality
+      cmd << " -I" # don't do genotype calculations
+      cmd << " -u" # output uncompressed bcf format
+      cmd << " #{File.expand_path bam}" # the bam file
+      cmd << " | bcftools view -cg - "
+      cmd << " > #{outfile}"
+      mpileup = Cmd.new cmd
+      mpileup.run
+      if !mpileup.status.success?
+        raise RuntimeError.new("samtools and bcftools failed")
+      end
       outfile
     end
 

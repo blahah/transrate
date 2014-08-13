@@ -3,7 +3,6 @@ module Transrate
   class ReadMetrics
 
     require 'bettersam'
-    require 'bio-samtools'
 
     attr_reader :mapped_pairs
     attr_reader :bad
@@ -12,7 +11,7 @@ module Transrate
     attr_reader :percent_mapping
     attr_reader :prop_expressed
     attr_reader :has_run
-
+    attr_reader :total_bases
 
     def initialize assembly
       @assembly = assembly
@@ -21,20 +20,14 @@ module Transrate
     end
 
     def run left=nil, right=nil, unpaired=nil, insertsize:200, insertsd:50, threads:8
-      #[left, right, unpaired].each do |readfile|
-      #  unless File.exist? readfile
-      #    raise IOError.new "ReadMetrics read file does not exist: #{readfile}"
-      #  end
-      #end
+      left.split(",").each {|file| raise IOError.new "Left read file is nil" unless File.exist? file} if left
+      right.split(",").each {|file| raise IOError.new "Right read file is nil" unless File.exist? file} if right
+      unpaired.split(",").each {|file| raise IOError.new "Unpaired read file is nil" unless File.exist? file} if unpaired
       @mapper.build_index @assembly.file
-      if unpaired || (right && left)
-        samfile = @mapper.map_reads(@assembly.file, left, right, unpaired,
+      samfile = @mapper.map_reads(@assembly.file, left, right, unpaired,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
                                   threads: threads)
-      else
-        raise IOError.new "ReadMetrics read files not supplied:\nleft:#{left}\nright:#{right}\nunpaired:#{unpaired}"
-      end
       # check_bridges
       analyse_read_mappings(samfile, insertsize, insertsd, true)
       analyse_coverage(samfile)
@@ -45,8 +38,6 @@ module Transrate
     end
 
     def read_stats
-      # Sanity check
-      (raise "num_pairs is #{@num_pairs}: a read is missing" if @num_pairs%@num_pairs.to_i != 0.0 || @num_pairs != @pairs.size) unless @num_pairs == 0
       {
         :unmapped_reads_singletons => @num_reads - @mapped,
         :num_reads => @num_reads,
@@ -70,6 +61,8 @@ module Transrate
         :bad_mappings => @bad,
         :potential_bridges => @supported_bridges,
         :mean_coverage => @mean_coverage,
+        :coverage_variance => @coverage_variance,
+        :mean_mapq => @mean_mapq,
         :n_uncovered_bases => @n_uncovered_bases,
         :p_uncovered_bases => @p_uncovered_bases,
         :n_uncovered_base_contigs => @n_uncovered_base_contigs,
@@ -77,7 +70,10 @@ module Transrate
         :n_uncovered_contigs => @n_uncovered_contigs,
         :p_uncovered_contigs => @p_uncovered_contigs,
         :n_lowcovered_contigs => @n_lowcovered_contigs,
-        :p_lowcovered_contigs => @p_lowcovered_contigs
+        :p_lowcovered_contigs => @p_lowcovered_contigs,
+        :edit_distance_per_base => @edit_distance / @total_bases.to_f,
+        :n_low_uniqueness_bases => @n_low_uniqueness_bases,
+        :p_low_uniqueness_bases => @p_low_uniqueness_bases
       }
     end
 
@@ -95,26 +91,31 @@ module Transrate
         while line
           @num_reads += 1
           ls.parse_line(line)
+          lchrom = @assembly[ls.chrom]
+          lchrom.edit_distance += ls.edit_distance unless lchrom.nil?
+          lchrom.bases_mapped += ls.length unless lchrom.nil?
+          @edit_distance += ls.edit_distance if ls.edit_distance
+          @total_bases += ls.length
           #single read statistics if read is unpaired
           if !ls.read_paired?
             self.check_read_single(ls)
-            line = sam.readline rescue nil
           else
             line2 = sam.readline rescue nil
             if line2
               @num_reads += 1
               rs.parse_line(line2)
+              rchrom = (rs.chrom == ls.chrom) ? lchrom : @assembly[rs.chrom]
+              rchrom.edit_distance += rs.edit_distance if rs.edit_distance
+              rchrom.bases_mapped += rs.length unless rchrom.nil?
+              @edit_distance += rs.edit_distance if rs.edit_distance
+              @total_bases += rs.length
               raise "Pairing error: consecutive paired reads unpaired in SAM file:\nNote: Paired reads have the same name by convention, sometimes with '1' or '2' appended.\nFirst read:#{ls.name}\nSecond read:#{rs.name}\n" unless ls.name == rs.name || ls.name[0...ls.name.size-1] == rs.name[0...rs.name.size-1]
               @pairs << [ls.name,rs.name] unless @pairs.include?([ls.name,rs.name])
               self.check_read_pair(ls, rs, realistic_dist)
             end
-            line = sam.readline rescue nil
           end
+          line = sam.readline rescue nil
         end
-        @num_unpaired = @num_reads - 2*@num_pairs
-        @unmapped_single =  @num_single - @mapped_single
-        @imperfect_pairs = @num_pairs - @mapped_pairs
-        @split_pairs = (@num_single - @num_unpaired)/2
         check_bridges
       else
         raise "samfile #{samfile} not found"
@@ -122,8 +123,8 @@ module Transrate
     end
 
     def initial_values
-      @num_reads = 0
       @num_pairs = 0
+      @num_reads = 0
       @num_unpaired = 0
       @num_single = 0
       @mapped_pairs = 0
@@ -131,6 +132,7 @@ module Transrate
       @mapped_unpaired = 0
       @mapped = 0
       @split_pairs = 0
+      @total_bases = 0
       @good = 0
       @bad = 0
       @both_mapped = 0
@@ -152,6 +154,8 @@ module Transrate
       @pairs = []
       @multiple_aligned_reads = [] # with current parameters, bowtie will only report the highest scoring of the multiple alignment, although the bowtie flag will be marked
       @multiple_aligned_pairs = []
+      @edit_distance = 0
+      @n_low_uniqueness_bases = 0
     end
 
     def realistic_distance insertsize, insertsd
@@ -263,6 +267,8 @@ module Transrate
       CSV.open('supported_bridges.csv', 'w') do |f|
         @bridges.each_pair do |b, count|
           start, finish = b.to_s.split('<>')
+          @assembly[start].in_bridges += 1
+          @assembly[finish].in_bridges += 1
           if count > 1
             f << [start, finish, count]
             @supported_bridges += 1
@@ -276,28 +282,33 @@ module Transrate
     # analysis.
     def analyse_coverage samfile
       bamfile, sorted, index = Samtools.sam_to_sorted_indexed_bam samfile
-      bam = Bio::DB::Sam.new(:bam => sorted, :fasta => @assembly.file)
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
-      n, tot_length, tot_coverage = 0, 0, 0
-      @assembly.each_with_coverage(bam) do |contig, coverage|
+      n_over_200, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
+      tot_variance = 0
+      @assembly.each_with_coverage(sorted, @assembly.file) do |contig,
+                                                               coverage,
+                                                               mapq|
         next if contig.length < 200
-        zerocov, total = 0, 0
-        coverage.each { |e| total += e; zerocov += 1 if e < 1 }
-        tot_length += coverage.length
-        tot_coverage += total
-        mean = total / coverage.length.to_f
-        @n_uncovered_bases += zerocov
-        @n_uncovered_base_contigs += 1 if zerocov > 0
-        @n_uncovered_contigs += 1 if mean < 1
-        @n_lowcovered_contigs += 1 if mean < 10
+        n_over_200 += 1
+        tot_length += contig.length
+        tot_coverage += contig.load_coverage(coverage)
+        tot_mapq += contig.load_mapq(mapq)
+        tot_variance += contig.effective_variance * (contig.length - 200)
+        @n_uncovered_bases += contig.uncovered_bases
+        @n_uncovered_base_contigs += 1 if contig.uncovered_bases > 0
+        @n_uncovered_contigs += 1 if contig.mean_coverage < 1
+        @n_lowcovered_contigs += 1 if contig.mean_coverage < 10
+        @n_low_uniqueness_bases += contig.low_uniqueness_bases
       end
       @mean_coverage = (tot_coverage / tot_length.to_f).round(2)
-      @p_uncovered_bases = @n_uncovered_bases / @assembly.n_bases.to_f
-      @p_uncovered_base_contigs = @n_uncovered_base_contigs /
-                                  @assembly.size.to_f
-      @p_uncovered_contigs = @n_uncovered_contigs / @assembly.size.to_f
-      @p_lowcovered_contigs = @n_lowcovered_contigs / @assembly.size.to_f
+      @mean_mapq = (tot_mapq / tot_length.to_f).round(2)
+      @p_uncovered_bases = @n_uncovered_bases / tot_length.to_f
+      @p_uncovered_base_contigs = @n_uncovered_base_contigs / n_over_200.to_f
+      @p_uncovered_contigs = @n_uncovered_contigs / n_over_200.to_f
+      @p_lowcovered_contigs = @n_lowcovered_contigs / n_over_200.to_f
+      @p_low_uniqueness_bases = @n_low_uniqueness_bases / tot_length.to_f
+      @coverage_variance = tot_variance / (tot_length - 200.0 * n_over_200)
     end
 
   end # ReadMetrics

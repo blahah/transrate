@@ -1,13 +1,10 @@
 ## Summary
 
-The Ruby code for Transrate is released under the MIT license.
-
-SNAP and CD-HIT-2D are bundled as binaries under their respective licenses
-as described below.
+Transrate is released under the MIT license.
 
 ## The MIT License (MIT)
 
-Copyright (c) 2013 Richard Smith
+Copyright (c) 2014 Richard Smith-Unna & Chris Boursnell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -25,13 +22,3 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-## SNAP
-
-SNAP is distributed as a binary in accordance with its Apache license.
-The source code for SNAP is available at https://github.com/amplab/snap
-
-## CD-HIT-2D
-
-CD-HIT-2D is distributed as a binary in accordance with ith GPLv2 license.
-The source code for CD-HIT-2D is available at https://code.google.com/p/cdhit/
