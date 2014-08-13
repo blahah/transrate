@@ -73,7 +73,7 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 0.008,
                        stats[:p_uncovered_bases].round(3),
                        'p uncovered bases'
-          assert_equal 0.00531, stats[:edit_distance_per_base].round(5),
+          assert_equal 0.00947, stats[:edit_distance_per_base].round(5),
                        'edit distance'
           assert_equal 63.66636,stats[:coverage_variance].round(5),
                        'coverage variance'
@@ -122,7 +122,7 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 0.008,
                        stats[:p_uncovered_bases].round(3),
                        'p uncovered bases'
-          assert_equal 0.00531, stats[:edit_distance_per_base].round(5),
+          assert_equal 0.0097, stats[:edit_distance_per_base].round(5),
                        'edit distance'
           assert_equal 57.94268,stats[:coverage_variance].round(5),
                        'coverage variance'
@@ -292,8 +292,8 @@ class TestReadMetrics < Test::Unit::TestCase
           b = contigs[1].read_metrics
           edit_a = a[:edit_distance_per_base].round(5)
           edit_b = b[:edit_distance_per_base].round(5)
-          assert_equal 0.00739, edit_a, "edit distance"
-          assert_equal 0.01287, edit_b, "edit distance"
+          assert_equal 0.00801, edit_a, "edit distance"
+          assert_equal 0.01081, edit_b, "edit distance"
           uniq_a = a[:low_uniqueness_bases]
           uniq_b = a[:low_uniqueness_bases]
           assert_equal 0, uniq_a, "low uniqueness bases"
@@ -336,9 +336,7 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 228, stats[:num_pairs], 'number of read pairs'
         end
       end
-
     end
 
   end
-
 end

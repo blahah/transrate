@@ -19,7 +19,7 @@ module Transrate
       self.initial_values
     end
 
-    def run left, right, unpaired, library, insertsize:200, insertsd:50, threads:8
+    def run left=nil, right=nil, unpaired=nil, library=nil, insertsize:200, insertsd:50, threads:8
       left.split(",").each {|file| raise IOError.new "Left read file is nil" unless File.exist? file} if left
       right.split(",").each {|file| raise IOError.new "Right read file is nil" unless File.exist? file} if right
       unpaired.split(",").each {|file| raise IOError.new "Unpaired read file is nil" unless File.exist? file} if unpaired
@@ -39,7 +39,7 @@ module Transrate
 
     def read_stats
       # Sanity check
-      (raise "num_pairs is #{@num_pairs} and pair in list is #{@pairs.size}: a read is missing" if @num_pairs%@num_pairs.to_i != 0.0 || @num_pairs != @pairs.size) unless @num_pairs == 0
+      (raise "num_pairs is #{@num_pairs}: a read is missing" if @num_pairs%@num_pairs.to_i != 0.0 || @num_pairs != @pairs.size) unless @num_pairs == 0
       {
         :unmapped_reads_singletons => @num_reads - @mapped,
         :num_reads => @num_reads,
@@ -107,8 +107,12 @@ module Transrate
             if line2
               @num_reads += 1
               rs.parse_line(line2)
-              @total_bases += rs.length
               raise "Pairing error: consecutive paired reads unpaired in SAM file:\nNote: Paired reads have the same name by convention, sometimes with '1' or '2' appended.\nFirst read:#{ls.name}\nSecond read:#{rs.name}\n" unless ls.name == rs.name || ls.name[0...ls.name.size-1] == rs.name[0...rs.name.size-1]
+              rchrom = (rs.chrom == ls.chrom) ? lchrom : @assembly[rs.chrom]
+              rchrom.edit_distance += rs.edit_distance if rs.edit_distance
+              rchrom.bases_mapped += rs.length unless rchrom.nil?
+              @edit_distance += rs.edit_distance if rs.edit_distance
+              @total_bases += rs.length
               @pairs << [ls.name,rs.name] unless @pairs.include?([ls.name,rs.name]) || @pairs.include?([rs.name,ls.name])
               self.check_read_pair(ls, rs, realistic_dist)
             end
@@ -144,6 +148,7 @@ module Transrate
       @proper_orientation = 0
       @improper_orientation = 0
       @same_contig = 0
+      @different_contig = 0
       @realistic_overlap = 0
       @unrealistic_overlap = 0
       @realistic_fragment = 0
@@ -168,7 +173,7 @@ module Transrate
       # The incrementation assumes that reads produced
       # with the current bowtie parameters will produce
       @num_single += 1
-      #(@num_pairs += 0.5; @split_pairs += 0.5) if ls.read_paired?
+      @split_pairs += 0.5 if ls.read_paired?
       @reads << ls.name unless @reads.include?(ls.name)
       unless ls.read_unmapped?
         if ls.primary_aln?
@@ -189,7 +194,6 @@ module Transrate
       return unless ls.primary_aln?
       if ls.both_mapped?
         # reads are paired
-        #@num_pairs += 1
         @mapped_pairs += 1
         @multiple_aligned_pairs << [ls.name,rs.name] if self.multiple_alignments? ls, rs
         @both_mapped += 1 if ls.primary_aln?
@@ -288,7 +292,7 @@ module Transrate
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       n_over_200, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
-	  tot_variance = 0
+      tot_variance = 0
       @assembly.each_with_coverage(sorted, @assembly.file) do |contig,
                                                                coverage,
                                                                mapq|
