@@ -81,7 +81,7 @@ class TestTransrater < Test::Unit::TestCase
         Dir.chdir tmpdir do
           all = @rater.all_metrics(@left, @right)
           score = @rater.assembly_score
-          assert_equal 0.23282, score.round(5)
+          assert_equal 0.18605, score.round(5) # regression test
         end
       end
     end

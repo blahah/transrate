@@ -59,8 +59,8 @@ opts = Trollop::options do
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
-  opt :outfile, "filename to use for CSV output",
-      :default => 'transate_results.csv'
+  opt :outfile, "prefix filename to use for CSV output",
+      :default => 'transrate'
   opt :loglevel, "the amount of information to print. " +
                  "one of [error, info, warn, debug]",
       :default => 'info'
@@ -68,13 +68,23 @@ opts = Trollop::options do
   opt :profile, "debug option: profile the code as it runs"
 end
 
+gem_dir = Gem.loaded_specs['transrate'].full_gem_path
+gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
 if opts.install_deps
   puts "Checking dependencies"
-  gem_dir = Gem.loaded_specs['transrate'].full_gem_path
-  gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
   Bindeps.require gem_deps
   puts "All dependencies installed"
   exit
+else
+  missing = Bindeps.missing gem_deps
+  if missing.length > 0
+    puts "Dependencies are missing:"
+    missing.each do |dep|
+      puts "  - #{dep}"
+    end
+    puts "To install all missing dependencies, run `transrate --install-deps`"
+    exit(1)
+  end
 end
 
 if opts.assembly
@@ -109,6 +119,21 @@ end
 
 if opts.reference && !File.exist?(opts.reference)
   raise IOError.new "Reference fasta file does not exist: #{opts.reference}"
+end
+
+if opts.left and opts.right
+  if opts.left.split(",").length != opts.right.split(",").length
+    msg = "Please provide the same number of left reads as right reads"
+    raise ArgumentError.new(msg)
+  end
+  opts.left.split(",").zip(opts.right.split(",")).each do |left,right|
+    if !File.exist?(left)
+      raise IOError.new "Left read fastq file does not exist: #{left}"
+    end
+    if !File.exist?(right)
+      raise IOError.new "Right read fastq file does not exist: #{right}"
+    end
+  end
 end
 
 if opts.profile
@@ -245,15 +270,38 @@ opts.assembly.split(',').each do |assembly|
     logger.info "No reference provided, skipping comparative diagnostics"
   end
 
-  all << contig_results.
-           merge(read_results).
-           merge(comparative_results).
-           merge({ :assembly => assembly })
+  # write contig metrics to file for each contig
+  outfile = "#{opts.outfile}_#{File.basename(assembly)}_contigs.csv"
+  logger.info "Writing contig metrics for each contig to #{outfile}"
+  # have option to turn off, default on
+  first=true
+  CSV.open(outfile, 'wb') do |csv|
+    a.each do |name, contig|
+      basic_metrics = {:contig_name => name}.merge(contig.basic_metrics)
+      if opts.reference
+        comp_metrics = contig.comparative_metrics
+        basic_metrics.merge!(comp_metrics)
+      end
+      if opts.left and opts.right
+        read_metrics = contig.read_metrics
+        basic_metrics.merge!(read_metrics)
+      end
+      if first
+        csv << basic_metrics.keys
+        first = false
+      end
+      csv << basic_metrics.values
+    end
+  end
+
+  all << contig_results.merge(read_results)
+                       .merge(comparative_results)
+                       .merge({ :assembly => assembly })
 
 end
 
 # write out all resuls to .csv
-outfile = opts.out || 'transrate.csv'
+outfile = "#{opts.outfile}_assemblies.csv"
 logger.info "Writing analysis results to #{outfile}"
 CSV.open(outfile, 'wb') do |file|
   keys = all[0].keys
