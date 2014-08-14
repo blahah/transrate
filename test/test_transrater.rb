@@ -13,6 +13,7 @@ class TestTransrater < Test::Unit::TestCase
       @rater = Transrate::Transrater.new(@assembly, @reference)
       @left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       @right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      @unpaired = File.join(File.dirname(__FILE__), 'data', '150uncovered.u.fq')
     end
 
     should "create transrater object" do
@@ -45,15 +46,36 @@ class TestTransrater < Test::Unit::TestCase
       end
     end
 
-    should "run read metrics with input fastq files" do
+    should "run read metrics with unpaired and paired input" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          stats = @rater.read_metrics(@left, @right)
+          stats = @rater.read_metrics(@left, @right, @unpaired)
+
           assert_equal 223, stats.read_stats[:num_pairs]
+          assert_equal 471, stats.read_stats[:num_reads]
         end
       end
     end
 
+    should "run read metrics with paired input" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          stats = @rater.read_metrics(@left,@right)
+          assert_equal 223, stats.read_stats[:num_pairs]
+          assert_equal 446, stats.read_stats[:num_reads]
+        end
+      end
+    end
+
+    should "run read metrics with unpaired input" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          stats = @rater.read_metrics(nil,nil,@unpaired)
+          assert_equal 0, stats.read_stats[:num_pairs]
+          assert_equal 25, stats.read_stats[:num_reads]
+        end
+      end
+    end
     should "get assembly score" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do

@@ -4,7 +4,7 @@ module Transrate
 
     require 'bettersam'
 
-    attr_reader :total
+    attr_reader :mapped_pairs
     attr_reader :bad
     attr_reader :supported_bridges
     attr_reader :pr_good_mapping
@@ -19,35 +19,43 @@ module Transrate
       self.initial_values
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8
-      [left, right].each do |readfile|
-        raise IOError.new "Read file is nil" if readfile.nil?
-        readfile.split(",").each do |file|
-          unless File.exist? file
-            raise IOError.new "ReadMetrics read file does not exist: #{file}"
-          end
-        end
-      end
+    def run left=nil, right=nil, unpaired=nil, insertsize:200, insertsd:50, threads:8
+      left.split(",").each {|file| raise IOError.new "Left read file is nil" unless File.exist? file} if left
+      right.split(",").each {|file| raise IOError.new "Right read file is nil" unless File.exist? file} if right
+      unpaired.split(",").each {|file| raise IOError.new "Unpaired read file is nil" unless File.exist? file} if unpaired
       @mapper.build_index @assembly.file
-      samfile = @mapper.map_reads(@assembly.file, left, right,
+      samfile = @mapper.map_reads(@assembly.file, left, right, unpaired,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
                                   threads: threads)
-      @num_pairs = @mapper.read_count
       # check_bridges
       analyse_read_mappings(samfile, insertsize, insertsd, true)
       analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
-      @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
+      @percent_mapping = @mapped / @num_reads.to_f * 100.0
       @pc_good_mapping = @pr_good_mapping * 100.0
       @has_run = true
     end
 
     def read_stats
       {
-        :num_pairs => @num_pairs,
-        :total_mappings => @total,
-        :percent_mapping => @percent_mapping,
+        :unmapped_reads_singletons => @num_reads - @mapped,
+        :num_reads => @num_reads,
+        :total_mapped_reads =>@mapped,
+        :num_pairs => @num_pairs.to_i,
+        :mapped_pairs => @mapped_pairs,
+        :concordant_pairs => @properly_paired,
+        :discordant_pairs => (@num_pairs - @properly_paired - @split_pairs).to_i,
+        :pairs_multiple_alignments => @multiple_aligned_pairs.size,
+        :split_pairs => @split_pairs.to_i,
+        :split_reads => 2*@split_pairs.to_i,
+        :num_unpaired => @num_unpaired.to_i,
+        :total_single_reads => @num_single,
+        :mapped_single_reads => @mapped_single,
+        :unmapped_single_reads => @unmapped_single,
+        :single_multiple_alignments => @multiple_aligned_reads.size,
+        :improper_pairs => @improperly_paired,
+        :percent_mapping => @percent_mapping.round(2),
         :good_mappings => @good,
         :pc_good_mapping => @pc_good_mapping,
         :bad_mappings => @bad,
@@ -81,23 +89,28 @@ module Transrate
           line = sam.readline rescue nil
         end
         while line
+          @num_reads += 1
           ls.parse_line(line)
           lchrom = @assembly[ls.chrom]
-          lchrom.edit_distance += ls.edit_distance
-          lchrom.bases_mapped += ls.length
-          @edit_distance += ls.edit_distance
+          lchrom.edit_distance += ls.edit_distance unless lchrom.nil?
+          lchrom.bases_mapped += ls.length unless lchrom.nil?
+          @edit_distance += ls.edit_distance if ls.edit_distance
           @total_bases += ls.length
-          if ls.mate_unmapped?
+          #single read statistics if read is unpaired
+          if !ls.read_paired?
             self.check_read_single(ls)
           else
             line2 = sam.readline rescue nil
             if line2
+              @num_reads += 1
               rs.parse_line(line2)
               rchrom = (rs.chrom == ls.chrom) ? lchrom : @assembly[rs.chrom]
-              rchrom.edit_distance += rs.edit_distance
-              rchrom.bases_mapped += rs.length
-              @edit_distance += rs.edit_distance
+              rchrom.edit_distance += rs.edit_distance if rs.edit_distance
+              rchrom.bases_mapped += rs.length unless rchrom.nil?
+              @edit_distance += rs.edit_distance if rs.edit_distance
               @total_bases += rs.length
+              raise "Pairing error: consecutive paired reads unpaired in SAM file:\nNote: Paired reads have the same name by convention, sometimes with '1' or '2' appended.\nFirst read:#{ls.name}\nSecond read:#{rs.name}\n" unless ls.name == rs.name || ls.name[0...ls.name.size-1] == rs.name[0...rs.name.size-1]
+              @pairs << [ls.name,rs.name] unless @pairs.include?([ls.name,rs.name])
               self.check_read_pair(ls, rs, realistic_dist)
             end
           end
@@ -111,7 +124,14 @@ module Transrate
 
     def initial_values
       @num_pairs = 0
-      @total = 0
+      @num_reads = 0
+      @num_unpaired = 0
+      @num_single = 0
+      @mapped_pairs = 0
+      @mapped_single = 0
+      @mapped_unpaired = 0
+      @mapped = 0
+      @split_pairs = 0
       @total_bases = 0
       @good = 0
       @bad = 0
@@ -121,6 +141,7 @@ module Transrate
       @proper_orientation = 0
       @improper_orientation = 0
       @same_contig = 0
+      @different_contig = 0
       @realistic_overlap = 0
       @unrealistic_overlap = 0
       @realistic_fragment = 0
@@ -129,6 +150,10 @@ module Transrate
       @n_uncovered_base_contigs = 0 # any base cov < 1
       @n_uncovered_contigs = 0 # mean cov < 1
       @n_lowcovered_contigs = 0 # mean cov < 10
+      @reads = []
+      @pairs = []
+      @multiple_aligned_reads = [] # with current parameters, bowtie will only report the highest scoring of the multiple alignment, although the bowtie flag will be marked
+      @multiple_aligned_pairs = []
       @edit_distance = 0
       @n_low_uniqueness_bases = 0
     end
@@ -138,22 +163,45 @@ module Transrate
     end
 
     def check_read_single ls
+      # The incrementation assumes that reads produced
+      # with the current bowtie parameters will produce
+      @num_single += 1
+      (@num_pairs += 0.5; @split_pairs += 0.5) if ls.read_paired?
+      @reads << ls.name unless @reads.include?(ls.name)
+      return if ls.read_unmapped?
+      if ls.primary_aln?
+        @mapped_single += 1
+        @mapped += 1
+        @mapped_unpaired += 1 unless ls.read_paired?
+      else
+        (@mapped_single += 1; @mapped += 1; @multiple_aligned_reads) << ls.name unless @multiple_aligned_reads.include?(ls.name)
+      end
+    end
 
+    def multiple_alignments? ls, rs
+      !(ls.primary_aln? && rs.primary_aln?) && !@multiple_aligned_pairs.include?([ls.name,rs.name])
     end
 
     def check_read_pair ls, rs, realistic_dist
       return unless ls.primary_aln?
-      @total += 1
       if ls.both_mapped?
         # reads are paired
+        @num_pairs += 1
+        @mapped_pairs += 1
+        @multiple_aligned_pairs << [ls.name,rs.name] if self.multiple_alignments? ls, rs
         @both_mapped += 1 if ls.primary_aln?
+        @reads << ls.name unless @reads.include?(ls.name)
+        @reads << rs.name unless @reads.include?(rs.name)
         if ls.read_properly_paired?
           # mapped in proper pair
+          @mapped += 2
           @properly_paired += 1
           self.check_orientation(ls, rs)
         else
           # not mapped in proper pair
           @improperly_paired += 1
+          @mapped += 1 unless ls.read_unmapped?
+          @mapped += 1 unless rs.read_unmapped?
           if ls.chrom == rs.chrom
             # both on same contig
             @same_contig += 1
@@ -162,6 +210,9 @@ module Transrate
             self.check_fragment_plausibility(ls, rs, realistic_dist)
           end
         end
+      else
+        self.check_read_single(ls)
+        self.check_read_single(rs)
       end
     end
 
