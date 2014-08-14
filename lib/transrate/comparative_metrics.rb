@@ -79,6 +79,7 @@ module Transrate
       total_coverage = 0
       total_length = 0
       cov = [0.25, 0.5, 0.75, 0.85, 0.95]
+      @cov ||= [0, 0, 0, 0, 0]
       @reference.each_value do |ref_contig|
         key = ref_contig.name
         list = ref_contig.hits
@@ -166,7 +167,6 @@ module Transrate
         end # each_with_index a
         # sum blocks to find total coverage
         length_of_coverage = calculate_coverage blocks
-        @cov ||= [0, 0, 0, 0, 0]
         if target_length > 0
           ref_p = length_of_coverage / target_length.to_f
         else
@@ -249,7 +249,11 @@ module Transrate
           @assembly[key].is_chimera = true
         end
       end
-      @p_chimeras = @n_chimeras / crbblast.reciprocals.length.to_f
+      if crbblast.reciprocals.length > 0
+        @p_chimeras = @n_chimeras / crbblast.reciprocals.length.to_f
+      else
+        @p_chimeras = 0
+      end
     end
 
     def overlap(astart, astop, bstart, bstop)
@@ -314,7 +318,11 @@ module Transrate
         @assembly[query].collapse_factor = cf
         cf_sum += cf
       end
-      cf_sum / reciprocals.size
+      if reciprocals.size > 0
+        return cf_sum / reciprocals.size
+      else
+        return 0
+      end
     end
 
   end # ComparativeMetrics
