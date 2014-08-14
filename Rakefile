@@ -22,6 +22,12 @@ Rake::TestTask.new do |t|
 end
 
 Rake::TestTask.new do |t|
+  t.name = :refaln
+  t.libs << 'test'
+  t.test_files = ['test/test_reference_alignment.rb']
+end
+
+Rake::TestTask.new do |t|
   t.name = :contig_metrics
   t.libs << 'test'
   t.test_files = ['test/test_contig_metrics.rb']
