@@ -46,6 +46,10 @@ opts = Trollop::options do
       :type => String
   opt :right, "right reads file in FASTQ format",
       :type => String
+  opt :unpaired, "unpaired reads in FASTQ format",
+      :type => String
+  opt :strand_specific, "paired and/or f-oriented unpaired reads: [fr,rf,ff,f]",
+	  :type => String
   opt :insertsize, "mean insert size",
       :default => 200,
       :type => Integer
@@ -92,6 +96,25 @@ if opts.assembly
 else
   raise ArgumentError.new "Option --assembly must be specified. " +
                           "Try --help for help."
+end
+
+def sserror library
+  "Options --left and --right must be specified for #{library} strand specificity"
+end
+
+if opts.strand_specific
+  case opts.strand_specific
+  when "fr"
+    raise ArgumentError.new sserror("fr") unless opts.left && opts.right
+  when "rf"
+    raise ArgumentError.new sserror("rf") unless opts.left && opts.right
+  when "ff"
+    raise ArgumentError.new sserror("ff") unless opts.left && opts.right
+  when "f"
+    raise ArgumentError.new "Option --unpaired must be specified for --strand-specific f. Use [FR, RF, FF] for combined input." unless opts.unpaired && !opts.left && !opts.right
+  else
+    raise ArgumentError.new "Note: All unpaired reads must be forward oriented.\nOption --strand-specific must be one of the following: [FR, RF, FF, F] for {F}orward and {R}everse oriented reads. Use [FR, RF, FF] for combined input."
+  end
 end
 
 if opts.reference && !File.exist?(opts.reference)
@@ -159,6 +182,8 @@ opts.assembly.split(',').each do |assembly|
   transrater = Transrater.new(a, r,
                               left: opts.left,
                               right: opts.right,
+                              library: opts.strand_specific,
+							  library: opts.unpaired,
                               insertsize: opts.insertsize,
                               insertsd: opts.insertsd,
                               threads: opts.threads)
@@ -181,9 +206,19 @@ opts.assembly.split(',').each do |assembly|
   logger.info "Contig metrics done in #{Time.now - t0} seconds"
 
   read_results = {}
+  if (opts.unpaired && opts.left && opts.right)
+    logger.info "Calculating read diagnostics for paired and unpaired input..."
+    t0 = Time.now
+    read_results= transrater.read_metrics(opts.left,opts.right,opts.unpaired).read_stats
+    if read_results
+      logger.info "Read mapping metrics:"
+      logger.info "-" * report_width
+      pretty_print_hash(read_results, report_width)
+    end
+    logger.info "Read metrics done in #{Time.now - t0} seconds"
 
-  if (opts.left && opts.right)
-    logger.info "Calculating read diagnostics..."
+  elsif (opts.left && opts.right)
+    logger.info "Calculating read diagnostics for paired input..."
     t0 = Time.now
     read_results = transrater.read_metrics(opts.left,
                                            opts.right).read_stats
@@ -194,6 +229,16 @@ opts.assembly.split(',').each do |assembly|
       pretty_print_hash(read_results, report_width)
     end
 
+    logger.info "Read metrics done in #{Time.now - t0} seconds"
+  elsif (opts.unpaired && !opts.left && !opts.right)
+    logger.info "Calculating read diagnostics for unpaired input..."
+    t0 = Time.now
+    read_results = transrater.read_metrics(nil, nil, opts.unpaired).read_stats
+    if read_results
+      logger.info "Read mapping metrics"
+      logger.info "-" * report_width
+      pretty_print_hash(read_results, report_width)
+    end
     logger.info "Read metrics done in #{Time.now - t0} seconds"
   else
     logger.info "No reads provided, skipping read diagnostics"
