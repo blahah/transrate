@@ -55,6 +55,8 @@ opts = Trollop::options do
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
+  opt :singletons, "filename to output unaligned SAM records",
+      :type => String
   opt :outfile, "prefix filename to use for CSV output",
       :default => 'transrate'
   opt :loglevel, "the amount of information to print. " +
@@ -147,6 +149,7 @@ logger.level = Yell::Level.new opts.loglevel.to_sym
 logger.info "Loading reference dataset"
 
 r = opts.reference ? Assembly.new(opts.reference) : nil
+s = opts.singletons ? opts.singletons : nil
 report_width = 35
 
 # loop through the assemblies, storing their outputs in an array of hashes
@@ -161,7 +164,8 @@ opts.assembly.split(',').each do |assembly|
                               right: opts.right,
                               insertsize: opts.insertsize,
                               insertsd: opts.insertsd,
-                              threads: opts.threads)
+                              threads: opts.threads,
+							  singletons: s)
 
 
   logger.info "Analysing assembly: #{assembly}"
@@ -249,9 +253,16 @@ opts.assembly.split(',').each do |assembly|
     end
   end
 
-  all << contig_results.merge(read_results)
-                       .merge(comparative_results)
-                       .merge({ :assembly => assembly })
+  if opts.singletons
+    singletons = opts.singletons
+    unmapped = `wc -l #{singletons}`.split[0].to_i - 4
+    logger.info "Wrote #{unmapped} unmapped reads (singletons) to #{singletons}"
+  end
+
+  all << contig_results.
+           merge(read_results).
+           merge(comparative_results).
+           merge({ :assembly => assembly })
 
 end
 

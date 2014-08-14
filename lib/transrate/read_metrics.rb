@@ -19,7 +19,7 @@ module Transrate
       self.initial_values
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8
+    def run left, right, insertsize:200, insertsd:50, threads:8, singletons: nil
       [left, right].each do |readfile|
         raise IOError.new "Read file is nil" if readfile.nil?
         readfile.split(",").each do |file|
@@ -35,7 +35,7 @@ module Transrate
                                   threads: threads)
       @num_pairs = @mapper.read_count
       # check_bridges
-      analyse_read_mappings(samfile, insertsize, insertsd, true)
+      analyse_read_mappings(samfile, insertsize, insertsd, true, singletons)
       analyse_coverage(samfile)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
@@ -69,19 +69,24 @@ module Transrate
       }
     end
 
-    def analyse_read_mappings samfile, insertsize, insertsd, bridge=true
+    def analyse_read_mappings samfile, insertsize, insertsd, bridge=true, singletons
       @bridges = {} if bridge
       realistic_dist = self.realistic_distance(insertsize, insertsd)
       if File.exists?(samfile) && File.size(samfile) > 0
         ls = BetterSam.new
         rs = BetterSam.new
         sam = File.open(samfile)
+        out = File.open(singletons,'a') if singletons
         line = sam.readline
         while line and line=~/^@/
           line = sam.readline rescue nil
+          out.puts(line) if singletons
         end
         while line
           ls.parse_line(line)
+          if !ls.read_paired?
+            out.puts(line) if singletons
+          end
           lchrom = @assembly[ls.chrom]
           lchrom.edit_distance += ls.edit_distance
           lchrom.bases_mapped += ls.length
@@ -99,11 +104,14 @@ module Transrate
               @edit_distance += rs.edit_distance
               @total_bases += rs.length
               self.check_read_pair(ls, rs, realistic_dist)
+              out.puts(line) if ls.read_unmapped? if singletons
+              out.puts(line2) if rs.read_unmapped? if singletons
             end
           end
           line = sam.readline rescue nil
         end
         check_bridges
+        out.close if singletons
       else
         raise "samfile #{samfile} not found"
       end

@@ -18,6 +18,8 @@ module Transrate
     # @param assembly [Assembly, String] the Assembly or path to the FASTA
     # @param reference [Assembly, String] the reference Assembly or
     #   path to the FASTA
+    # @param genome [Genome, String] the reference Genome or
+    #   path to the FASTA
     # @param left [String] path to the left reads
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
@@ -25,7 +27,7 @@ module Transrate
     def initialize(assembly, reference,
                    left: nil, right: nil,
                    insertsize: nil, insertsd: nil,
-                   threads: 1)
+                   threads: 1, evalue: 1e-5, percent_threshold: 90.0, maxIntron: 750000, singletons: nil)
       if assembly
         if assembly.is_a?(Assembly)
           @assembly = assembly
@@ -48,6 +50,7 @@ module Transrate
                                                       threads)
       end
       @threads = threads
+      @singletons = singletons
     end
 
     # Run all analyses
@@ -61,7 +64,7 @@ module Transrate
       if left && right
         read_metrics left, right
       end
-      comparative_metrics
+      comparative_metrics if @comparative_metrics
     end
 
     # Reduce all metrics for the assembly to a single quality score.
@@ -90,7 +93,7 @@ module Transrate
 
     def read_metrics left=nil, right=nil
       unless @read_metrics.has_run
-        @read_metrics.run(left, right, threads: @threads)
+        @read_metrics.run(left, right, threads: @threads, singletons: @singletons)
       end
       @read_metrics
     end
@@ -100,11 +103,11 @@ module Transrate
       @comparative_metrics
     end
 
-    def all_metrics left, right, insertsize=nil, insertsd=nil
+    def all_metrics left=nil, right=nil, insertsize=nil, insertsd=nil
       self.run(left, right, insertsize, insertsd)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
-      all.merge!(@comparative_metrics.comp_stats)
+      all.merge!(@comparative_metrics.comp_stats) if @comparative_metrics
       all[:score] = @score
       all
     end

@@ -24,7 +24,8 @@ class TestTransrateBin < Test::Unit::TestCase
       "supported_bridges.csv",
       "transrate_assemblies.csv",
       "transrate_contigs.csv","assembly.2.fa.bcf",
-      "transrate_assembly.2.fa_contigs.csv"]
+      "transrate_assembly.2.fa_contigs.csv",
+      "test.sam"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
       end
@@ -33,7 +34,7 @@ class TestTransrateBin < Test::Unit::TestCase
     should "run help" do
       c=Transrate::Cmd.new("bundle exec bin/transrate --help")
       c.run
-      assert_equal 1751, c.stdout.length, "stdout"
+      assert_equal 1818, c.stdout.length, "stdout"
       assert_equal true, c.status.success?, "exit status"
     end
 
@@ -60,6 +61,7 @@ class TestTransrateBin < Test::Unit::TestCase
       cmd << " --reference #{reference}"
       cmd << " --left #{left}"
       cmd << " --right #{right}"
+      cmd << " --singletons test.sam"
       c = Transrate::Cmd.new("#{cmd}")
       c.run
       assert_equal true, c.status.success?, "exit status"
@@ -79,6 +81,7 @@ class TestTransrateBin < Test::Unit::TestCase
       assert_equal 10331, hash[:n_bases], "number of bases"
       assert_equal 1566, hash[:n50], "n50"
       assert_equal 10, hash[:n_refs_with_crbb], "number of crb hits"
+      assert_equal 11, `wc -l test.sam`.split[0].to_i - 4
     end
 
     should "run on test data with comma separated list of fastq files" do
