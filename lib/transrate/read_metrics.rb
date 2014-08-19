@@ -2,7 +2,8 @@ module Transrate
 
   class ReadMetrics
 
-    require 'bettersam'
+    require 'which'
+    include Which
 
     attr_reader :total
     attr_reader :bad
@@ -17,6 +18,11 @@ module Transrate
       @assembly = assembly
       @mapper = Bowtie2.new
       self.initial_values
+      @bam_reader = which('transrate-bam-read')
+      if @bam_reader.empty?
+        raise RuntimeError.new("could not find transrate-bam-read in path")
+      end
+      @bam_reader = @bam_reader.first
     end
 
     def run left, right, insertsize:200, insertsd:50, threads:8
@@ -35,8 +41,8 @@ module Transrate
                                   threads: threads)
       @num_pairs = @mapper.read_count
       # check_bridges
-      analyse_read_mappings(samfile, insertsize, insertsd, true)
       analyse_coverage(samfile)
+      analyse_read_mappings(@sorted, insertsize, insertsd, true)
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
       @pc_good_mapping = @pr_good_mapping * 100.0
@@ -69,44 +75,44 @@ module Transrate
       }
     end
 
-    def analyse_read_mappings samfile, insertsize, insertsd, bridge=true
-      @bridges = {} if bridge
-      realistic_dist = self.realistic_distance(insertsize, insertsd)
-      if File.exists?(samfile) && File.size(samfile) > 0
-        ls = BetterSam.new
-        rs = BetterSam.new
-        sam = File.open(samfile)
-        line = sam.readline
-        while line and line=~/^@/
-          line = sam.readline rescue nil
+    def analyse_read_mappings bamfile, insertsize, insertsd, bridge=true
+      if File.exist?(bamfile) && File.size(bamfile) > 0
+        csv_output = "#{File.basename(@assembly.file)}_bam_info.csv"
+        csv_output = File.expand_path(csv_output)
+        cmd = "#{@bam_reader} #{bamfile} #{csv_output}"
+        puts cmd
+        reader = Cmd.new cmd
+        reader.run
+
+        if !reader.status.success?
+          logger.warn "couldn't get information from bam file"
         end
-        while line
-          ls.parse_line(line)
-          lchrom = @assembly[ls.chrom]
-          lchrom.edit_distance += ls.edit_distance
-          lchrom.bases_mapped += ls.length
-          @edit_distance += ls.edit_distance
-          @total_bases += ls.length
-          if ls.mate_unmapped?
-            self.check_read_single(ls)
-          else
-            line2 = sam.readline rescue nil
-            if line2
-              rs.parse_line(line2)
-              rchrom = (rs.chrom == ls.chrom) ? lchrom : @assembly[rs.chrom]
-              rchrom.edit_distance += rs.edit_distance
-              rchrom.bases_mapped += rs.length
-              @edit_distance += rs.edit_distance
-              @total_bases += rs.length
-              self.check_read_pair(ls, rs, realistic_dist)
-            end
+        # open output csv file
+        @supported_bridges = 0
+
+        CSV.foreach(csv_output, :headers => true,
+                                :header_converters => :symbol,
+                                :converters => :all) do |row|
+          contig = @assembly[row[:name]]
+          @edit_distance += row[:edit_distance]
+          contig.edit_distance = row[:edit_distance]
+          contig.bases_mapped = row[:bases]
+          @total_bases += row[:bases]
+          contig.in_bridges = row[:bridges]
+          if row[:bridges] > 1
+            @supported_bridges += 1
           end
-          line = sam.readline rescue nil
+          @total += row[:both_mapped]
+          @both_mapped += row[:both_mapped]
+          @properly_paired += row[:properpair]
+          @good += row[:good]
+
         end
-        check_bridges
+
       else
-        raise "samfile #{samfile} not found"
+        logger.warn "couldn't find bamfile"
       end
+
     end
 
     def initial_values
@@ -211,31 +217,16 @@ module Transrate
       end
     end
 
-    def check_bridges
-      @supported_bridges = 0
-      CSV.open('supported_bridges.csv', 'w') do |f|
-        @bridges.each_pair do |b, count|
-          start, finish = b.to_s.split('<>')
-          @assembly[start].in_bridges += 1
-          @assembly[finish].in_bridges += 1
-          if count > 1
-            f << [start, finish, count]
-            @supported_bridges += 1
-          end
-        end
-      end
-    end
-
     # Generate per-base and contig read coverage statistics.
     # Note that contigs less than 200 bases long are ignored in this
     # analysis.
     def analyse_coverage samfile
-      bamfile, sorted, index = Samtools.sam_to_sorted_indexed_bam samfile
+      bamfile, @sorted, index = Samtools.sam_to_sorted_indexed_bam samfile
       # get per-base coverage and calculate mean,
       # identify zero-coverage bases
       n_over_200, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
       tot_variance, tot_eff_length = 0, 0
-      @assembly.each_with_coverage(sorted, @assembly.file) do |contig,
+      @assembly.each_with_coverage(@sorted, @assembly.file) do |contig,
                                                                coverage,
                                                                mapq|
         next if contig.length < 200
