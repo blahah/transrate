@@ -102,8 +102,6 @@ class TestTransrateBin < Test::Unit::TestCase
       CSV.foreach("transrate_assemblies.csv", :headers => true,
                                    :header_converters => :symbol,
                                    :converters => :all) do |row|
-        row.headers
-        row.fields
         row.headers.zip(row.fields).each do |header, field|
           hash[header]=field
         end

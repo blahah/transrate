@@ -39,7 +39,7 @@ module Transrate
         # construct bowtie command
         bowtiecmd = "#{@bowtie2} --very-sensitive"
         bowtiecmd += " -p #{threads} -X #{realistic_dist}"
-        bowtiecmd += "  --no-unal"
+        bowtiecmd += " --no-unal"
         bowtiecmd += " --seed 1337"
         bowtiecmd += " -x #{@index_name}"
         bowtiecmd += " -1 #{left}"
@@ -57,14 +57,16 @@ module Transrate
           raise Bowtie2Error.new("Bowtie2 failed\n#{runner.stderr}")
         end
       else
-        cmd = "wc -l #{left}"
-        count = Cmd.new(cmd)
-        count.run
-        if count.status.success?
-          @read_count = count.stdout.strip.split(/\s+/).first.to_i/4
-        else
-          logger.warn "couldn't get number of reads from fastq file"
-          @read_count = 0
+        @read_count = 0
+        left.split(",").each do |l|
+          cmd = "wc -l #{l}"
+          count = Cmd.new(cmd)
+          count.run
+          if count.status.success?
+            @read_count += count.stdout.strip.split(/\s+/).first.to_i/4
+          else
+            logger.warn "couldn't get number of reads from #{l}"
+          end
         end
       end
       @sam
