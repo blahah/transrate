@@ -64,22 +64,21 @@ module Transrate
       comparative_metrics
     end
 
-    # Reduce all metrics for the assembly to a single quality score.
-    #
+    # Calculate the geometric mean of an array of numbers
+    def geomean(x)
+      sum = 0.0
+      x.each{ |v| sum += Math.log(v) }
+      sum /= x.size
+      Math.exp(sum)
+    end
+
+    # Reduce all metrics for the assembly to a single quality score
+    # by taking the geometric mean of the scores for all contigs
     #
     #
     # @return [Integer] the assembly score
     def assembly_score
-      @score, pg, rc = nil
-      if @read_metrics.has_run
-        pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
-      end
-      if @comparative_metrics.has_run
-        rc = Metric.new('rc', @comparative_metrics.reference_coverage, 0.0)
-      end
-      if (pg && rc)
-        @score = DimensionReduce.dimension_reduce([pg, rc])
-      end
+      @score = geomean assembly.map{ |contig| contig.score }
       return @score
     end
 
