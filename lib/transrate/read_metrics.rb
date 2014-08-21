@@ -80,7 +80,6 @@ module Transrate
         csv_output = "#{File.basename(@assembly.file)}_bam_info.csv"
         csv_output = File.expand_path(csv_output)
         cmd = "#{@bam_reader} #{bamfile} #{csv_output}"
-        puts cmd
         reader = Cmd.new cmd
         reader.run
 
@@ -97,6 +96,7 @@ module Transrate
           @edit_distance += row[:edit_distance]
           contig.edit_distance = row[:edit_distance]
           contig.bases_mapped = row[:bases]
+          contig.p_good = row[:good]/row[:reads_mapped].to_f
           @total_bases += row[:bases]
           contig.in_bridges = row[:bridges]
           if row[:bridges] > 1

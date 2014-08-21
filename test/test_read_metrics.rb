@@ -91,6 +91,9 @@ class TestReadMetrics < Test::Unit::TestCase
           var_b = contigs[1].effective_variance
           assert_equal 109.75611, var_a.round(5)
           assert_equal 13.69750, var_b.round(5)
+
+          assert_equal 0.92045, a[:p_good].round(5), "proportion of good mappings"
+          assert_equal 0.90299, b[:p_good].round(5), "proportion of good mappings"
         end
       end
     end

@@ -15,6 +15,7 @@ module Transrate
     attr_accessor :low_uniqueness_bases, :in_bridges
     attr_accessor :mean_coverage, :effective_mean
     attr_accessor :variance, :effective_variance, :effective_length
+    attr_accessor :p_good
     # reference-based metrics
     attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
     attr_accessor :hits
@@ -34,6 +35,7 @@ module Transrate
       @edit_distance = 0
       @bases_mapped = 0
       @low_uniqueness_bases = 0
+      @p_good = 0
     end
 
     def each &block
@@ -61,14 +63,16 @@ module Transrate
         :in_bridges => in_bridges,
         :edit_distance_per_base => edit_distance / bases_mapped.to_f,
         :low_uniqueness_bases => low_uniqueness_bases,
-        :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f
+        :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f,
+        :p_good => @p_good
       } : {
         :uncovered_bases => "NA",
         :mean_coverage => "NA",
         :in_bridges => in_bridges,
         :edit_distance => "NA",
         :low_uniqueness_bases => "NA",
-        :p_low_uniqueness_bases => "NA"
+        :p_low_uniqueness_bases => "NA",
+        :p_good => "NA"
       }
     end
 
