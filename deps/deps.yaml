@@ -54,3 +54,13 @@ samtools:
     64bit:
       linux: https://github.com/cboursnell/samtools/raw/master/build/linux64.tar.gz
       macosx: https://github.com/cboursnell/samtools/raw/master/build/osx64.tar.gz
+bam-read:
+  binaries:
+   - bam-read
+  version:
+    number: ''
+    command: 'bam-read'
+  url:
+    64bit:
+      linux: https://github.com/cboursnell/transrate-bam-read/raw/master/bin/linux/bam-read
+  unpack: false

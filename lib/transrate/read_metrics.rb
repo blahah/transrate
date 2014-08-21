@@ -18,9 +18,9 @@ module Transrate
       @assembly = assembly
       @mapper = Bowtie2.new
       self.initial_values
-      @bam_reader = which('transrate-bam-read')
+      @bam_reader = which('bam-read')
       if @bam_reader.empty?
-        raise RuntimeError.new("could not find transrate-bam-read in path")
+        raise RuntimeError.new("could not find bam-read in path")
       end
       @bam_reader = @bam_reader.first
     end
