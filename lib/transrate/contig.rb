@@ -38,6 +38,8 @@ module Transrate
       @p_good = 0
       @uncovered_bases = length
       @p_uncovered_bases = 1
+      @effective_mean = "NA"
+      @effective_variance = "NA"
     end
 
     def each &block
@@ -61,28 +63,24 @@ module Transrate
 
     def read_metrics
       read = @coverage ? {
-        :uncovered_bases => uncovered_bases,
-        :p_uncovered_bases => p_uncovered_bases,
-        :p_bases_covered => (1.0 - p_uncovered_bases),
         :effective_mean_coverage => effective_mean,
         :effective_variance => effective_variance,
         :in_bridges => in_bridges,
-        :edit_distance_per_base => edit_distance / bases_mapped.to_f,
-        :low_uniqueness_bases => low_uniqueness_bases,
-        :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f,
         :p_good => @p_good,
+        :p_bases_covered => p_bases_covered,
+        :prop_unambiguous => prop_unambiguous,
+        :inverse_edit_dist => inverse_edit_dist,
+        :p_unique_bases => p_unique_bases,
         :score => score
       } : {
-        :uncovered_bases => "NA",
-        :p_uncovered_bases => "NA",
-        :p_bases_covered => "NA",
         :effective_mean_coverage => "NA",
         :effective_variance => "NA",
-        :in_bridges => in_bridges,
-        :edit_distance_per_base => "NA",
-        :low_uniqueness_bases => "NA",
-        :p_low_uniqueness_bases => "NA",
+        :in_bridges => "NA",
         :p_good => "NA",
+        :p_bases_covered => "NA",
+        :prop_unambiguous => "NA",
+        :inverse_edit_dist => "NA",
+        :p_unique_bases => "NA",
         :score => "NA"
       }
     end
@@ -283,13 +281,29 @@ module Transrate
       edit_distance / bases_mapped.to_f
     end
 
+    def inverse_edit_dist
+      1 - edit_distance_per_base
+    end
+
+    def prop_unambiguous
+      1 - prop_n
+    end
+
+    def p_bases_covered
+      1 - p_uncovered_bases
+    end
+
+    def p_unique_bases
+      (length - low_uniqueness_bases) / length.to_f
+    end
+
     # Contig score (geometric mean of all score components)
     def score
-      prod = (1 - p_uncovered_bases) * # proportion of bases covered
-             (1 - prop_n) * # proportion of bases that aren't ambiguous
-             (p_good) * # proportion of reads that mapped good
-             (1 - edit_distance_per_base) * # 1 - mean per-base edit distance
-             ((length - low_uniqueness_bases) / length.to_f) # prop mapQ >= 5
+      prod = p_bases_covered * # proportion of bases covered
+             prop_unambiguous * # proportion of bases that aren't ambiguous
+             p_good * # proportion of reads that mapped good
+             inverse_edit_dist * # 1 - mean per-base edit distance
+             p_unique_bases # prop mapQ >= 5
       prod ** (1.0 / 5)
     end
   end
