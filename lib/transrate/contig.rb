@@ -57,9 +57,12 @@ module Transrate
     def read_metrics
       read = @coverage ? {
         :uncovered_bases => uncovered_bases,
+        :p_uncovered_bases => p_uncovered_bases,
+        :p_bases_covered => 1 - p_uncovered_bases,
         :mean_coverage => mean_coverage,
         :in_bridges => in_bridges,
         :edit_distance_per_base => edit_distance / bases_mapped.to_f,
+        :
         :low_uniqueness_bases => low_uniqueness_bases,
         :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f
       } : {
@@ -262,6 +265,20 @@ module Transrate
 
     def linguistic_complexity k
       return kmer_count(k, @seq.seq)/(4**k).to_f # call to C
+    end
+
+    def edit_distance_per_base
+      edit_distance / bases_mapped.to_f
+    end
+
+    # Contig score (geometric mean of all score components)
+    def score
+      prod = (1 - p_uncovered_bases) * # proportion of bases covered
+             (1 - prop_n) * # proportion of bases that aren't ambiguous
+             (p_good) * # proportion of reads that mapped good
+             (1 - edit_distance_per_base) * # 1 - mean per-base edit distance
+             ((length - low_uniqueness_bases) / length.to_f) # prop mapQ >= 5
+      prod ** (1.0 / 5)
     end
   end
 
