@@ -55,12 +55,6 @@ class TestReadMetrics < Test::Unit::TestCase
                        'percent good mapping'
           assert_equal 0,       stats[:bad_mappings], 'bad mapping'
           assert_equal 22.86,   stats[:mean_coverage].round(2), 'mean coverage'
-          assert_equal 12,      stats[:n_uncovered_bases], 'n uncovered bases'
-          assert_equal 0.008,   stats[:p_uncovered_bases].round(3),
-                       'p uncovered bases'
-
-          assert_equal 0.01021, stats[:edit_distance_per_base].round(5),
-                       'edit distance'
           assert_equal 57.94268,stats[:coverage_variance].round(5),
                        'coverage variance'
         end
@@ -79,14 +73,14 @@ class TestReadMetrics < Test::Unit::TestCase
           end
           a = contigs[0].read_metrics
           b = contigs[1].read_metrics
-          edit_a = a[:edit_distance_per_base].round(5)
-          edit_b = b[:edit_distance_per_base].round(5)
-          assert_equal 0.00832, edit_a, "edit distance"
-          assert_equal 0.01138, edit_b, "edit distance"
-          uniq_a = a[:low_uniqueness_bases]
-          uniq_b = a[:low_uniqueness_bases]
-          assert_equal 0, uniq_a, "low uniqueness bases"
-          assert_equal 0, uniq_b, "low uniqueness bases"
+          edit_a = a[:inverse_edit_dist].round(5)
+          edit_b = b[:inverse_edit_dist].round(5)
+          assert_equal (1 - 0.00832), edit_a, "edit distance"
+          assert_equal (1 - 0.01138), edit_b, "edit distance"
+          uniq_a = a[:p_unique_bases]
+          uniq_b = a[:p_unique_bases]
+          assert_equal 1, uniq_a, "unique bases"
+          assert_equal 1, uniq_b, "unique bases"
           var_a = contigs[0].effective_variance
           var_b = contigs[1].effective_variance
           assert_equal 109.75611, var_a.round(5)
