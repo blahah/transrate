@@ -10,7 +10,7 @@ module Transrate
     def_delegators :@seq, :size, :length
     attr_accessor :seq, :name
     # read-based metrics
-    attr_accessor :coverage, :uncovered_bases, :mapq
+    attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases, :mapq
     attr_accessor :edit_distance, :bases_mapped, :mean_mapq
     attr_accessor :low_uniqueness_bases, :in_bridges
     attr_accessor :mean_coverage, :effective_mean
@@ -55,16 +55,18 @@ module Transrate
     end
 
     def read_metrics
+      puts "p uncovered bases = #{p_uncovered_bases}"
       read = @coverage ? {
         :uncovered_bases => uncovered_bases,
         :p_uncovered_bases => p_uncovered_bases,
-        :p_bases_covered => 1 - p_uncovered_bases,
-        :mean_coverage => mean_coverage,
+        :p_bases_covered => (1.0 - p_uncovered_bases),
+        :effective_mean_coverage => effective_mean,
+        :effective_variance => effective_variance,
         :in_bridges => in_bridges,
         :edit_distance_per_base => edit_distance / bases_mapped.to_f,
-        :
         :low_uniqueness_bases => low_uniqueness_bases,
-        :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f
+        :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f,
+        :score => score
       } : {
         :uncovered_bases => "NA",
         :mean_coverage => "NA",
