@@ -10,7 +10,7 @@ module Transrate
     def_delegators :@seq, :size, :length
     attr_accessor :seq, :name
     # read-based metrics
-    attr_accessor :coverage, :uncovered_bases, :mapq
+    attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases, :mapq
     attr_accessor :edit_distance, :bases_mapped, :mean_mapq
     attr_accessor :low_uniqueness_bases, :in_bridges
     attr_accessor :mean_coverage, :effective_mean
@@ -36,6 +36,8 @@ module Transrate
       @bases_mapped = 0
       @low_uniqueness_bases = 0
       @p_good = 0
+      @uncovered_bases = length
+      @p_uncovered_bases = 1
     end
 
     def each &block
@@ -52,27 +54,36 @@ module Transrate
         :cpg_count => cpg_count,
         :cpg_ratio => cpg_ratio,
         :orf_length => orf_length,
-        :linguistic_complexity_6 => linguistic_complexity(6)
+        :linguistic_complexity_6 => linguistic_complexity(6),
+        :p_unambiguous => 1 - prop_n
       }
     end
 
     def read_metrics
       read = @coverage ? {
         :uncovered_bases => uncovered_bases,
-        :mean_coverage => mean_coverage,
+        :p_uncovered_bases => p_uncovered_bases,
+        :p_bases_covered => (1.0 - p_uncovered_bases),
+        :effective_mean_coverage => effective_mean,
+        :effective_variance => effective_variance,
         :in_bridges => in_bridges,
         :edit_distance_per_base => edit_distance / bases_mapped.to_f,
         :low_uniqueness_bases => low_uniqueness_bases,
         :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f,
-        :p_good => @p_good
+        :p_good => @p_good,
+        :score => score
       } : {
         :uncovered_bases => "NA",
-        :mean_coverage => "NA",
+        :p_uncovered_bases => "NA",
+        :p_bases_covered => "NA",
+        :effective_mean_coverage => "NA",
+        :effective_variance => "NA",
         :in_bridges => in_bridges,
-        :edit_distance => "NA",
+        :edit_distance_per_base => "NA",
         :low_uniqueness_bases => "NA",
         :p_low_uniqueness_bases => "NA",
-        :p_good => "NA"
+        :p_good => "NA",
+        :score => "NA"
       }
     end
 
@@ -266,6 +277,20 @@ module Transrate
 
     def linguistic_complexity k
       return kmer_count(k, @seq.seq)/(4**k).to_f # call to C
+    end
+
+    def edit_distance_per_base
+      edit_distance / bases_mapped.to_f
+    end
+
+    # Contig score (geometric mean of all score components)
+    def score
+      prod = (1 - p_uncovered_bases) * # proportion of bases covered
+             (1 - prop_n) * # proportion of bases that aren't ambiguous
+             (p_good) * # proportion of reads that mapped good
+             (1 - edit_distance_per_base) * # 1 - mean per-base edit distance
+             ((length - low_uniqueness_bases) / length.to_f) # prop mapQ >= 5
+      prod ** (1.0 / 5)
     end
   end
 
