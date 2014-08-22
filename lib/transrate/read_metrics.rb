@@ -239,7 +239,7 @@ module Transrate
         tot_mapq += contig.load_mapq(mapq)
         tot_variance += contig.effective_variance * contig.effective_length
         @n_uncovered_bases += contig.uncovered_bases
-        contig.p_uncovered_bases = contig.uncovered_bases / contig.length
+        contig.p_uncovered_bases = contig.uncovered_bases / contig.length.to_f
         @n_uncovered_base_contigs += 1 if contig.uncovered_bases > 0
         @n_uncovered_contigs += 1 if contig.mean_coverage < 1
         @n_lowcovered_contigs += 1 if contig.mean_coverage < 10

@@ -73,14 +73,17 @@ class TestReadMetrics < Test::Unit::TestCase
           end
           a = contigs[0].read_metrics
           b = contigs[1].read_metrics
+
           edit_a = a[:inverse_edit_dist].round(5)
           edit_b = b[:inverse_edit_dist].round(5)
           assert_equal (1 - 0.00832), edit_a, "edit distance"
           assert_equal (1 - 0.01138), edit_b, "edit distance"
+
           uniq_a = a[:p_unique_bases]
           uniq_b = a[:p_unique_bases]
           assert_equal 1, uniq_a, "unique bases"
           assert_equal 1, uniq_b, "unique bases"
+
           var_a = contigs[0].effective_variance
           var_b = contigs[1].effective_variance
           assert_equal 109.75611, var_a.round(5)
@@ -88,6 +91,18 @@ class TestReadMetrics < Test::Unit::TestCase
 
           assert_equal 0.92045, a[:p_good].round(5), "proportion of good mappings"
           assert_equal 0.90299, b[:p_good].round(5), "proportion of good mappings"
+
+          # uncovered bases
+          unc_a = contigs[0].uncovered_bases
+          unc_b = contigs[1].uncovered_bases
+          assert_equal 11, unc_a, "uncovered bases"
+          assert_equal 1, unc_b, "uncovered bases"
+
+          prop_unc_a = a[:p_bases_covered]
+          prop_unc_b = b[:p_bases_covered]
+          assert_equal 0.98497, prop_unc_a.round(5), "proportion covered bases"
+          assert_equal 0.99878, prop_unc_b.round(5), "proportion covered bases"
+
         end
       end
     end
