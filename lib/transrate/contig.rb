@@ -278,7 +278,11 @@ module Transrate
     end
 
     def edit_distance_per_base
-      edit_distance / bases_mapped.to_f
+      if bases_mapped and bases_mapped > 0
+        return edit_distance / bases_mapped.to_f
+      else
+        return 0
+      end
     end
 
     def inverse_edit_dist
@@ -299,12 +303,14 @@ module Transrate
 
     # Contig score (geometric mean of all score components)
     def score
-      prod = p_bases_covered * # proportion of bases covered
-             prop_unambiguous * # proportion of bases that aren't ambiguous
-             p_good * # proportion of reads that mapped good
-             inverse_edit_dist * # 1 - mean per-base edit distance
-             p_unique_bases # prop mapQ >= 5
-      prod ** (1.0 / 5)
+      prod = [p_bases_covered,0.01].max * # proportion of bases covered
+             [prop_unambiguous,0.01].max * # proportion of bases that aren't ambiguous
+             [p_good,0.01].max * # proportion of reads that mapped good
+             [inverse_edit_dist,0.01].max * # 1 - mean per-base edit distance
+             [p_unique_bases,0.01].max # prop mapQ >= 5
+      s = prod ** (1.0 / 5)
+      s = 0.01 if !s
+      return [s, 0.01].max
     end
   end
 

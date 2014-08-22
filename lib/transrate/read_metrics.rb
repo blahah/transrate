@@ -96,7 +96,9 @@ module Transrate
           @edit_distance += row[:edit_distance]
           contig.edit_distance = row[:edit_distance]
           contig.bases_mapped = row[:bases]
-          contig.p_good = row[:good]/row[:reads_mapped].to_f
+          if row[:reads_mapped] and row[:reads_mapped]>0
+            contig.p_good = row[:good]/row[:reads_mapped].to_f
+          end
           @total_bases += row[:bases]
           contig.in_bridges = row[:bridges]
           if row[:bridges] > 1

@@ -78,7 +78,7 @@ module Transrate
     #
     # @return [Integer] the assembly score
     def assembly_score
-      @score = geomean assembly.map{ |contig| contig.score }
+      @score = geomean assembly.assembly.values.map{ |contig| contig.score }
       return @score
     end
 
