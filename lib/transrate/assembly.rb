@@ -192,7 +192,7 @@ module Transrate
     def each_with_coverage(bam, fasta, &block)
       logger.debug 'enumerating assembly with coverage'
       # generate coverage with samtools
-      covfile = Samtools.coverage_and_mapq(bam, fasta)
+      covfile = Samtools.bam_to_bcf(bam, fasta)
       # get an assembly enumerator
       assembly_enum = @assembly.to_enum
       contig_name, contig = assembly_enum.next
@@ -204,6 +204,7 @@ module Transrate
       # the columns we need
       name_i, pos_i, info_i = 0, 1, 7
       # parse the coverage file
+
       File.open(covfile).each_line do |line|
         if line =~ /^#/
           next

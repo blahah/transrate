@@ -82,7 +82,7 @@ module Transrate
 
     # Calculate per-base coverage and mapQ score from a sorted, indexed
     # bam file. Return the path to the coverage file.
-    def self.coverage_and_mapq(bam, fasta)
+    def self.bam_to_bcf(bam, fasta)
       outfile = File.expand_path "#{File.basename(fasta)}.bcf"
       if !File.exist?(outfile)
         cmd = "samtools mpileup"
