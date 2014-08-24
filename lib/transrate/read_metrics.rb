@@ -40,13 +40,75 @@ module Transrate
                                   insertsd: insertsd,
                                   threads: threads)
       @num_pairs = @mapper.read_count
-      # check_bridges
       analyse_coverage(samfile)
-      analyse_read_mappings(@sorted, insertsize, insertsd, true)
+      analyse_read_mappings(@sortedbam, insertsize, insertsd, true)
+
       @pr_good_mapping = @good.to_f / @num_pairs.to_f
       @percent_mapping = @total.to_f / @num_pairs.to_f * 100.0
       @pc_good_mapping = @pr_good_mapping * 100.0
+
       @has_run = true
+    end
+
+    # Generate per-base and contig read coverage statistics.
+    # Note that contigs less than 200 bases long are ignored in this
+    # analysis.
+    def analyse_coverage(samfile)
+      bam, @sortedbam, index = Samtools.sam_to_sorted_indexed_bam samfile
+      bcf_file = Samtools.bam_to_bcf(@sortedbam, @assembly.file)
+      #check bcf file is not empty
+      line_count = 38 + @assembly.assembly.length
+      if File.size(bcf_file) < 50*1024*1024
+        line_checker = Cmd.new "wc -l #{bcf_file}"
+        line_checker.run
+        line_count = line_checker.stdout.split.first.to_i
+      end
+      # 37 is number of header lines in bcf file
+      if line_count > 37 + @assembly.assembly.length
+        load_bcf(bcf_file, @assembly.assembly.size) # call out to C
+        # load contig data while len of contig > 0
+        # if contig info returns contig length == -1 then stop because
+        #  there are fewer contigs in the bcf file compared to the assembly
+        #  because some contigs had no reads aligned to them (trinity)
+        total_coverage = 0
+        total_length = 0
+        total_eff_length = 0
+        total_eff_variance = 0
+        total_mapq = 0
+        i = 0
+        len = 1
+        while (len > 0 and i < @assembly.assembly.size)
+          len = get_len(i)
+          if len > 0
+            contig_name = Bio::FastaDefline.new(get_contig_name(i)).entry_id
+            contig = @assembly[contig_name]
+            contig.uncovered_bases = get_uncovered_bases(i)
+            contig.low_uniqueness_bases = get_low_mapq_bases(i)
+            contig.mean_coverage = get_mean_coverage(i)
+            t = get_total_mapq(i)
+            total_mapq += t
+            contig.mean_mapq = t / len.to_f
+            contig.variance = get_coverage_variance(i)
+
+            # totals
+            if len >= 200
+              contig.effective_mean = get_mean_effective_coverage(i)
+              contig.effective_variance = get_effective_coverage_variance(i)
+
+              total_coverage += get_total_coverage(i)
+              total_length += len
+              total_eff_length += (len-200)
+              total_eff_variance += get_effective_coverage_variance(i) *(len-200)
+            end
+          end
+          i += 1
+        end
+        @mean_coverage = total_coverage / total_length.to_f
+        @coverage_variance = total_eff_variance / total_eff_length.to_f
+        @mean_mapq = total_mapq / total_length.to_f
+      else
+        logger.warn "error creating bcf file. only has #{line_count} lines."
+      end
     end
 
     def read_stats
@@ -217,42 +279,6 @@ module Transrate
         @unrealistic_fragment += 1
         @bad += 1
       end
-    end
-
-    # Generate per-base and contig read coverage statistics.
-    # Note that contigs less than 200 bases long are ignored in this
-    # analysis.
-    def analyse_coverage samfile
-      bamfile, @sorted, index = Samtools.sam_to_sorted_indexed_bam samfile
-      # get per-base coverage and calculate mean,
-      # identify zero-coverage bases
-      n_over_200, tot_length, tot_coverage, tot_mapq = 0, 0, 0, 0
-      tot_variance, tot_eff_length = 0, 0
-      @assembly.each_with_coverage(@sorted, @assembly.file) do |contig,
-                                                               coverage,
-                                                               mapq|
-        next if contig.length < 200
-        n_over_200 += 1
-        tot_length += contig.length
-        tot_coverage += contig.load_coverage(coverage)
-        tot_eff_length += contig.effective_length
-        tot_mapq += contig.load_mapq(mapq)
-        tot_variance += contig.effective_variance * contig.effective_length
-        @n_uncovered_bases += contig.uncovered_bases
-        contig.p_uncovered_bases = contig.uncovered_bases / contig.length.to_f
-        @n_uncovered_base_contigs += 1 if contig.uncovered_bases > 0
-        @n_uncovered_contigs += 1 if contig.mean_coverage < 1
-        @n_lowcovered_contigs += 1 if contig.mean_coverage < 10
-        @n_low_uniqueness_bases += contig.low_uniqueness_bases
-      end
-      @mean_coverage = (tot_coverage / tot_length.to_f).round(2)
-      @mean_mapq = (tot_mapq / tot_length.to_f).round(2)
-      @p_uncovered_bases = @n_uncovered_bases / tot_length.to_f
-      @p_uncovered_base_contigs = @n_uncovered_base_contigs / n_over_200.to_f
-      @p_uncovered_contigs = @n_uncovered_contigs / n_over_200.to_f
-      @p_lowcovered_contigs = @n_lowcovered_contigs / n_over_200.to_f
-      @p_low_uniqueness_bases = @n_low_uniqueness_bases / tot_length.to_f
-      @coverage_variance = tot_variance / tot_eff_length
     end
 
   end # ReadMetrics
