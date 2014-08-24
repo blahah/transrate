@@ -24,7 +24,7 @@ class TestTransrateBin < Test::Unit::TestCase
       "supported_bridges.csv",
       "transrate_assemblies.csv",
       "transrate_contigs.csv","assembly.2.fa.bcf",
-      "transrate_assembly.2.fa_contigs.csv"]
+      "transrate_assembly.2.fa_contigs.csv", "assembly.2.fa_bam_info.csv"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
       end
