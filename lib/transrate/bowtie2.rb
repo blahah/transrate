@@ -52,20 +52,28 @@ module Transrate
         # parse bowtie output
         if runner.stderr=~/([0-9]+)\ reads\;\ of\ these\:/
           @read_count = $1.to_i
+          # save read_count to file
+          File.open("#{@sam}-read_count.txt", "wb") do |out|
+            out.write("#{@read_count}\n")
+          end
         end
         if !runner.status.success?
           raise Bowtie2Error.new("Bowtie2 failed\n#{runner.stderr}")
         end
       else
         @read_count = 0
-        left.split(",").each do |l|
-          cmd = "wc -l #{l}"
-          count = Cmd.new(cmd)
-          count.run
-          if count.status.success?
-            @read_count += count.stdout.strip.split(/\s+/).first.to_i/4
-          else
-            logger.warn "couldn't get number of reads from #{l}"
+        if File.exist?("#{@sam}-read_count.txt")
+          @read_count = File.open("#{@sam}-read_count.txt").readlines.join.to_i
+        else
+          left.split(",").each do |l|
+            cmd = "wc -l #{l}"
+            count = Cmd.new(cmd)
+            count.run
+            if count.status.success?
+              @read_count += count.stdout.strip.split(/\s+/).first.to_i/4
+            else
+              logger.warn "couldn't get number of reads from #{l}"
+            end
           end
         end
       end
