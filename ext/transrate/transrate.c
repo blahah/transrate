@@ -92,7 +92,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   char * filename;
   size_t len;
   char * line = NULL;
-  char * contig_name;
+  char * contig_name = NULL;
   char * previous_name;
   int * coverage_array;
   int * mapq_array;
@@ -118,7 +118,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   pos = 0;
   read_length = 100;
   previous_name = "na";
-  contig_name = "first";
+  // contig_name = "first";
   fh = fopen(filename, "r"); // open filename for reading
   cov=-1;
   mapq=-1;
@@ -179,6 +179,9 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
         if (line[c] == '\t') {
           end = c;
           if (col==0) { // name
+            if (num>0) {
+              free(contig_name);
+            }
             contig_name = malloc((end-start+1) * sizeof(char));
             i=0;
             for(d = start; d < end; d++) {
@@ -241,7 +244,6 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
           calculate_metrics(num, read_length, coverage_array, mapq_array);
           free(coverage_array);
           free(mapq_array);
-          free(contig_name);
         }
         // scan through contigs array to find struct with cname==contig_name
         while (strcmp(contig_name, contigs[num].cname)!=0) {

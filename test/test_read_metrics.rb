@@ -59,8 +59,9 @@ class TestReadMetrics < Test::Unit::TestCase
                        'coverage variance'
           assert_equal 39.52,   stats[:mean_mapq].round(2), 'mean mapq'
           assert_equal 1, stats[:potential_bridges], 'bridges'
-          assert_equal 0, stats[:n_uncovered_base_contigs], 'uncovered base contig'
+          assert_equal 2, stats[:n_uncovered_base_contigs], 'uncovered base contig'
           assert_equal 0, stats[:n_uncovered_contigs], 'uncovered contig'
+          assert_equal 0, stats[:n_lowcovered_contigs], 'lowcovered contig'
         end
       end
     end
