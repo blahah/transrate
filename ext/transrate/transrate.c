@@ -155,10 +155,10 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
             contigs[num].n_uncovered_bases = contigs[num].len;
           } // endif line[c]=='>'
           c++;
-        }
+        } // end of while loop
       }
       if (line[1]=='C') { // last line of header. set counter back to start
-        num=-1;
+        num=0;
       }
     } else { // line doesn't start with a #
 
