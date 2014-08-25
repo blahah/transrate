@@ -23,7 +23,6 @@ VALUE method_load_bcf(VALUE, VALUE, VALUE);
 
 VALUE method_get_len(VALUE, VALUE);
 VALUE method_get_contig_name(VALUE, VALUE);
-VALUE method_get_mean_coverage(VALUE, VALUE);
 VALUE method_get_mean_effective_coverage(VALUE, VALUE);
 VALUE method_get_coverage_variance(VALUE, VALUE);
 VALUE method_get_effective_coverage_variance(VALUE, VALUE);
@@ -38,12 +37,11 @@ int * base_counts;
 int * dibase_counts;
 
 typedef struct {
-    int len;
-    int total_coverage;
-    double mean_coverage;
     double mean_effective_coverage;
     double coverage_variance;
     double effective_coverage_variance;
+    int len;
+    int total_coverage;
     int n_uncovered_bases;
     int n_low_mapq_bases;
     int total_mapq;
@@ -69,8 +67,6 @@ void Init_transrate() {
                    method_get_len, 1);
   rb_define_method(ReadMetrics, "get_contig_name",
                    method_get_contig_name, 1);
-  rb_define_method(ReadMetrics, "get_mean_coverage",
-                   method_get_mean_coverage, 1);
   rb_define_method(ReadMetrics, "get_mean_effective_coverage",
                    method_get_mean_effective_coverage, 1);
   rb_define_method(ReadMetrics, "get_coverage_variance",
@@ -105,6 +101,14 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   for (i=0;i<size;i++) {
     CONTIGINFO s;
     s.len = -1;
+    s.mean_effective_coverage = 0;
+    s.coverage_variance = 0;
+    s.effective_coverage_variance = 0;
+    s.total_coverage = 0;
+    s.n_uncovered_bases = -1;
+    s.n_low_mapq_bases = 0;
+    s.total_mapq = 0;
+    s.cname = "na";
     contigs[i] = s;
   }
   num = -1;
@@ -148,6 +152,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
             }
             n[i]='\0';
             contigs[num].len = atoi(n);
+            contigs[num].n_uncovered_bases = contigs[num].len;
           } // endif line[c]=='>'
           c++;
         }
@@ -158,7 +163,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
     } else { // line doesn't start with a #
 
       // column info
-      // when found new contig (position is less than last position)
+      // when found new contig
       //   then do calculations over array
       //   make new empty array of len l (get length from struct)
       //   iterate over lines and fill array with coverge and mapq data
@@ -168,7 +173,6 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
       start = 0;
       char * c_string;
       while (line[c] != '\0') { // loop through line_
-      //   // if character is a tab
         if (line[c] == '\t') {
           end = c;
           if (col==0) { // name
@@ -228,16 +232,20 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
       if (strcmp(previous_name, contig_name)!=0) {
         if (strcmp(previous_name, "na")==0) {
           // first line of file
-          num = 0;
         } else {
           calculate_metrics(num, read_length, coverage_array, mapq_array);
+          free(coverage_array);
+          free(mapq_array);
+        }
+        // scan through contigs array to find struct with cname==contig_name
+        while (strcmp(contig_name, contigs[num].cname)!=0) {
           num++;
         }
         previous_name = contig_name;
         // get length of contig from struct array
-        // create empty array for coverage and mapq
 
         p = contigs[num].len;
+        // create new empty array for coverage and mapq
         coverage_array = malloc(p * sizeof(int));
         mapq_array = malloc(p * sizeof(int));
         for(i=0;i<p;i++) {
@@ -245,6 +253,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
           mapq_array[i]=-1;
         }
       }
+      // add cov and mapq from this line to the array
       if (cov >= 0) {
         coverage_array[pos] = cov;
       }
@@ -310,7 +319,6 @@ void calculate_metrics(int num, int read_length, int * coverage_array,
   // set values in contiginfo array
   contigs[num].n_uncovered_bases = n_uncovered_bases;
   contigs[num].n_low_mapq_bases = n_low_mapq_bases;
-  contigs[num].mean_coverage = mean;
   contigs[num].total_coverage = c;
   contigs[num].mean_effective_coverage = eff_mean;
   contigs[num].coverage_variance = var;
@@ -328,12 +336,6 @@ VALUE method_get_contig_name(VALUE self, VALUE _i) {
   int i;
   i = NUM2INT(_i);
   return rb_str_new2(contigs[i].cname);
-}
-
-VALUE method_get_mean_coverage(VALUE self, VALUE _i) {
-  int i;
-  i = NUM2INT(_i);
-  return rb_float_new(contigs[i].mean_coverage);
 }
 
 VALUE method_get_mean_effective_coverage(VALUE self, VALUE _i) {

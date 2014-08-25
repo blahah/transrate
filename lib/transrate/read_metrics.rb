@@ -84,7 +84,7 @@ module Transrate
             contig = @assembly[contig_name]
             contig.uncovered_bases = get_uncovered_bases(i)
             contig.low_uniqueness_bases = get_low_mapq_bases(i)
-            contig.mean_coverage = get_mean_coverage(i)
+            contig.mean_coverage = get_total_coverage(i)/len.to_f
             t = get_total_mapq(i)
             total_mapq += t
             contig.mean_mapq = t / len.to_f
