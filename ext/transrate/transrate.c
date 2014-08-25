@@ -30,6 +30,7 @@ VALUE method_get_uncovered_bases(VALUE, VALUE);
 VALUE method_get_low_mapq_bases(VALUE, VALUE);
 VALUE method_get_total_mapq(VALUE, VALUE);
 VALUE method_get_total_coverage(VALUE self, VALUE _i);
+VALUE method_free_contigs(VALUE self);
 
 void calculate_metrics(int, int, int *, int *);
 
@@ -81,6 +82,8 @@ void Init_transrate() {
                    method_get_total_mapq, 1);
   rb_define_method(ReadMetrics, "get_total_coverage",
                    method_get_total_coverage, 1);
+  rb_define_method(ReadMetrics, "free_contigs",
+                   method_free_contigs, 0);
 }
 
 VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
@@ -194,6 +197,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
             }
             c_string[i]='\0';
             pos = atoi(c_string) - 1;
+            free(c_string);
           }
           start = c+1;
           col++;
@@ -211,6 +215,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
               }
               c_string[i]='\0';
               cov = atoi(c_string);
+              free(c_string);
             }
             if (line[start]=='M' && line[start+1]=='Q' && line[start+2]=='=') {
               c_string = malloc((end-start-2) * sizeof(char));
@@ -221,6 +226,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
               }
               c_string[i]='\0';
               mapq = atoi(c_string);
+              free(c_string);
             }
             start = c + 1;
           } // endif line[c]==';'
@@ -228,7 +234,6 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
 
         c++;
       } // end of while loop through line
-      free(c_string);
       if (strcmp(previous_name, contig_name)!=0) {
         if (strcmp(previous_name, "na")==0) {
           // first line of file
@@ -236,6 +241,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
           calculate_metrics(num, read_length, coverage_array, mapq_array);
           free(coverage_array);
           free(mapq_array);
+          free(contig_name);
         }
         // scan through contigs array to find struct with cname==contig_name
         while (strcmp(contig_name, contigs[num].cname)!=0) {
@@ -266,7 +272,9 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   free(line);
   fclose(fh);
   calculate_metrics(num, read_length, coverage_array, mapq_array);
-
+  free(coverage_array);
+  free(mapq_array);
+  free(contig_name);
   return INT2NUM(0);
 }
 
@@ -379,6 +387,11 @@ VALUE method_get_total_mapq(VALUE self, VALUE _i) {
   int i;
   i = NUM2INT(_i);
   return rb_float_new(contigs[i].total_mapq);
+}
+
+VALUE method_free_contigs(VALUE self) {
+  free(contigs);
+  return INT2NUM(0);
 }
 
 VALUE method_composition(VALUE self, VALUE _seq) {
