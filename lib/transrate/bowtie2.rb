@@ -71,6 +71,9 @@ module Transrate
             count.run
             if count.status.success?
               @read_count += count.stdout.strip.split(/\s+/).first.to_i/4
+              File.open("#{@sam}-read_count.txt", "wb") do |out|
+                out.write("#{@read_count}\n")
+              end
             else
               logger.warn "couldn't get number of reads from #{l}"
             end

@@ -228,7 +228,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
 
         c++;
       } // end of while loop through line
-
+      free(c_string);
       if (strcmp(previous_name, contig_name)!=0) {
         if (strcmp(previous_name, "na")==0) {
           // first line of file
@@ -262,7 +262,8 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
       }
 
     } // endif
-  }
+  } // end of while loop through file
+  free(line);
   fclose(fh);
   calculate_metrics(num, read_length, coverage_array, mapq_array);
 
