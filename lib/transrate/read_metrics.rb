@@ -80,7 +80,7 @@ module Transrate
         len = 1
         while (i < @assembly.assembly.size)
           len = get_len(i)
-          if len > 0
+          if len > 200
             contig_name = Bio::FastaDefline.new(get_contig_name(i)).entry_id
             contig = @assembly[contig_name]
             u = get_uncovered_bases(i)
@@ -89,7 +89,9 @@ module Transrate
             if u > 0
               @n_uncovered_base_contigs+=1
             end
-            contig.low_uniqueness_bases = get_low_mapq_bases(i)
+            m = get_low_mapq_bases(i)
+            contig.low_uniqueness_bases = m
+            @n_low_uniqueness_bases += m
             contig.mean_coverage = get_total_coverage(i)/len.to_f
             if contig.mean_coverage < 1
               @n_uncovered_contigs+=1
@@ -103,15 +105,13 @@ module Transrate
             contig.variance = get_coverage_variance(i)
 
             # totals
-            if len >= 200
-              contig.effective_mean = get_mean_effective_coverage(i)
-              contig.effective_variance = get_effective_coverage_variance(i)
+            contig.effective_mean = get_mean_effective_coverage(i)
+            contig.effective_variance = get_effective_coverage_variance(i)
 
-              total_coverage += get_total_coverage(i)
-              total_length += len
-              total_eff_length += (len-200)
-              total_eff_variance += get_effective_coverage_variance(i)*(len-200)
-            end
+            total_coverage += get_total_coverage(i)
+            total_length += len
+            total_eff_length += (len-200)
+            total_eff_variance += get_effective_coverage_variance(i)*(len-200)
           end
           i += 1
         end
@@ -121,11 +121,12 @@ module Transrate
         @p_uncovered_bases = @n_uncovered_bases / total_length.to_f
 
         @p_uncovered_base_contigs = @n_uncovered_base_contigs /
-                                    @assembly.assembly.size # any base cov < 1
+                                    @assembly.assembly.size.to_f # any base cov < 1
         @p_uncovered_contigs = @n_uncovered_contigs /
-                               @assembly.assembly.size # mean cov < 1
+                               @assembly.assembly.size.to_f # mean cov < 1
         @p_lowcovered_contigs = @n_lowcovered_contigs /
-                                @assembly.assembly.size # mean cov < 10
+                                @assembly.assembly.size.to_f # mean cov < 10
+        @p_low_uniqueness_bases = @n_low_uniqueness_bases / total_length.to_f
         free_contigs() #call to C to free the memory now we're finished with it
       else
         logger.warn "error creating bcf file. only has #{line_count} lines."
