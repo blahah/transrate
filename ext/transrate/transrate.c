@@ -41,6 +41,7 @@ typedef struct {
     double mean_effective_coverage;
     double coverage_variance;
     double effective_coverage_variance;
+    double mapq_geo_mean;
     int len;
     int total_coverage;
     int n_uncovered_bases;
@@ -93,11 +94,12 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   size_t len;
   char * line = NULL;
   char * contig_name = NULL;
-  char * previous_name;
+  char * previous_name = NULL;
   int * coverage_array;
   int * mapq_array;
   int i,c,d,start,end,col,p,cov,mapq,read_length;
   int num;
+  int mem, prev;
   filename = StringValueCStr(_filename);
   size = NUM2INT(_size);
   contigs = malloc(size * sizeof(CONTIGINFO));
@@ -107,6 +109,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
     s.mean_effective_coverage = 0;
     s.coverage_variance = 0;
     s.effective_coverage_variance = 0;
+    s.mapq_geo_mean = 0;
     s.total_coverage = 0;
     s.n_uncovered_bases = -1;
     s.n_low_mapq_bases = 0;
@@ -116,9 +119,10 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   }
   num = -1;
   pos = 0;
+  mem = 0;
+  prev = 0;
   read_length = 100;
   previous_name = "na";
-  // contig_name = "first";
   fh = fopen(filename, "r"); // open filename for reading
   cov=-1;
   mapq=-1;
@@ -179,9 +183,6 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
         if (line[c] == '\t') {
           end = c;
           if (col==0) { // name
-            if (num>0) {
-              free(contig_name);
-            }
             contig_name = malloc((end-start+1) * sizeof(char));
             i=0;
             for(d = start; d < end; d++) {
@@ -189,10 +190,10 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
               i++;
             }
             contig_name[i]='\0';
+            mem=i+1;
           }
           if (col==1) { // position
             c_string = malloc((end-start+1) * sizeof(char));
-
             i=0;
             for(d = start; d < end; d++) {
               c_string[i]=line[d];
@@ -249,9 +250,14 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
         while (strcmp(contig_name, contigs[num].cname)!=0) {
           num++;
         }
-        previous_name = contig_name;
-        // get length of contig from struct array
+        if (prev>0) {
+          free(previous_name);
+        }
+        previous_name = malloc(mem * sizeof(char));
+        strcpy(previous_name,contig_name);
+        prev = 1;
 
+        // get length of contig from struct array
         p = contigs[num].len;
         // create new empty array for coverage and mapq
         coverage_array = malloc(p * sizeof(int));
@@ -268,6 +274,10 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
       if (mapq >= 0) {
         mapq_array[pos] = mapq;
       }
+      if (mem > 0) {
+        free(contig_name);
+        mem = 0;
+      }
 
     } // endif
   } // end of while loop through file
@@ -276,7 +286,6 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   calculate_metrics(num, read_length, coverage_array, mapq_array);
   free(coverage_array);
   free(mapq_array);
-  free(contig_name);
   return INT2NUM(0);
 }
 
@@ -286,24 +295,16 @@ void calculate_metrics(int num, int read_length, int * coverage_array,
   int c, e, i, l, m, n_uncovered_bases,n_low_mapq_bases;
   c = 0; e = 0; m = 0; n_uncovered_bases = 0;
   l = contigs[num].len;
-  double mean, eff_mean, var, eff_var;
+  double mean, eff_mean, var, eff_var, mapq_geo_mean;
   var = 0; eff_var = 0;
   //coverage
   for(i=0;i<l;i++) {
     c += coverage_array[i];
-    if (coverage_array[i]==0) {
-      n_uncovered_bases++;
-    }
     if (i >= read_length && i < contigs[num].len-read_length) {
       e += coverage_array[i];
-    }
-  }
-  //mapq
-  n_low_mapq_bases = 0;
-  for(i=0;i<l;i++) {
-    m += mapq_array[i];
-    if (mapq_array[i]>=0 && mapq_array[i]<5) {
-      n_low_mapq_bases++;
+      if (coverage_array[i]==0) {
+        n_uncovered_bases++;
+      }
     }
   }
   mean = c / (double)l;
@@ -326,6 +327,21 @@ void calculate_metrics(int num, int read_length, int * coverage_array,
   } else {
     eff_var = 0;
   }
+  //mapq
+  n_low_mapq_bases = 0;
+  mapq_geo_mean=0;
+  for(i=0;i<l;i++) {
+    m += mapq_array[i];
+    if (i >= read_length && i < contigs[num].len-read_length) {
+      mapq_geo_mean += log(mapq_array[i]);
+      if (mapq_array[i]>=0 && mapq_array[i]<5) {
+        n_low_mapq_bases++;
+      }
+    }
+  }
+  //geometric mean
+  mapq_geo_mean /= l;
+  mapq_geo_mean = exp(mapq_geo_mean);
 
   // set values in contiginfo array
   contigs[num].n_uncovered_bases = n_uncovered_bases;
@@ -335,6 +351,8 @@ void calculate_metrics(int num, int read_length, int * coverage_array,
   contigs[num].coverage_variance = var;
   contigs[num].effective_coverage_variance = eff_var;
   contigs[num].total_mapq = m;
+  contigs[num].mapq_geo_mean = mapq_geo_mean;
+
 }
 
 VALUE method_get_len(VALUE self, VALUE _i) {
