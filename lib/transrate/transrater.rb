@@ -25,7 +25,7 @@ module Transrate
     def initialize(assembly, reference,
                    left: nil, right: nil,
                    insertsize: nil, insertsd: nil,
-                   threads: 1)
+                   threads: 1, sensitivity: "very-sensitive")
       if assembly
         if assembly.is_a?(Assembly)
           @assembly = assembly
@@ -48,6 +48,7 @@ module Transrate
                                                       threads)
       end
       @threads = threads
+      @sensitivity = sensitivity
     end
 
     # Run all analyses
@@ -89,7 +90,7 @@ module Transrate
 
     def read_metrics left=nil, right=nil
       unless @read_metrics.has_run
-        @read_metrics.run(left, right, threads: @threads)
+        @read_metrics.run(left, right, threads: @threads, sensitivity: @sensitivity)
       end
       @read_metrics
     end

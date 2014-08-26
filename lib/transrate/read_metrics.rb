@@ -25,7 +25,7 @@ module Transrate
       @bam_reader = @bam_reader.first
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8
+    def run left, right, insertsize:200, insertsd:50, threads:8, sensitivity: "very-sensitive"
       [left, right].each do |readfile|
         raise IOError.new "Read file is nil" if readfile.nil?
         readfile.split(",").each do |file|
@@ -38,7 +38,8 @@ module Transrate
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
-                                  threads: threads)
+                                  threads: threads,
+                                  sensitivity: sensitivity)
       @num_pairs = @mapper.read_count
       analyse_coverage(samfile)
       analyse_read_mappings(@sortedbam, insertsize, insertsd, true)
