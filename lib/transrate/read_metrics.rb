@@ -194,7 +194,7 @@ module Transrate
           @good += row[:good]
 
         end
-
+        @bad = @num_pairs - @good
       else
         logger.warn "couldn't find bamfile"
       end
@@ -223,84 +223,6 @@ module Transrate
       @n_lowcovered_contigs = 0 # mean cov < 10
       @edit_distance = 0
       @n_low_uniqueness_bases = 0
-    end
-
-    def realistic_distance insertsize, insertsd
-      insertsize + (3 * insertsd)
-    end
-
-    def check_read_single ls
-
-    end
-
-    def check_read_pair ls, rs, realistic_dist
-      return unless ls.primary_aln?
-      @total += 1
-      if ls.both_mapped?
-        # reads are paired
-        @both_mapped += 1 if ls.primary_aln?
-        if ls.read_properly_paired?
-          # mapped in proper pair
-          @properly_paired += 1
-          self.check_orientation(ls, rs)
-        else
-          # not mapped in proper pair
-          @improperly_paired += 1
-          if ls.chrom == rs.chrom
-            # both on same contig
-            @same_contig += 1
-            self.check_overlap_plausibility(ls, rs)
-          else
-            self.check_fragment_plausibility(ls, rs, realistic_dist)
-          end
-        end
-      end
-    end
-
-    def check_orientation ls, rs
-      if ls.pair_opposite_strands?
-        # mates in proper orientation
-        @proper_orientation += 1
-        @good += 1
-      else
-        # mates in wrong orientation
-        @improper_orientation += 1
-        @bad += 1
-      end
-    end
-
-    def check_overlap_plausibility ls, rs
-      if Math.sqrt((ls.pos - rs.pos) ** 2) < ls.seq.length
-        # overlap is realistic
-        @realistic_overlap += 1
-        self.check_orientation(ls, rs)
-      else
-        # overlap not realistic
-        @unrealistic_overlap+= 1
-        @bad += 1
-      end
-    end
-
-    def check_fragment_plausibility ls, rs, realistic_dist
-      # mates on different contigs
-      # are the mapping positions within a realistic distance of
-      # the ends of contigs?
-      ldist = [ls.pos, ls.seq.length - ls.pos].min
-      rdist = [rs.pos, rs.seq.length - rs.pos].min
-      if ldist + rdist <= realistic_dist
-        # increase the evidence for this bridge
-        key = [ls.chrom, rs.chrom].sort.join("<>").to_sym
-        if @bridges.has_key? key
-          @bridges[key] += 1
-        else
-          @bridges[key] = 1
-        end
-        @realistic_fragment += 1
-        @good += 1
-      else
-        @unrealistic_fragment += 1
-        @bad += 1
-      end
     end
 
   end # ReadMetrics

@@ -119,8 +119,8 @@ end
 if opts.sensitivity
   a = ["very-fast", "fast", "sensitive", "very-sensitive"]
   unless a.include?(opts.sensitivity)
-    msg = "The valid options for --sensitivity are:\n"
-    msg << "very-fast, fast, sensitive, very-sensitive"
+    msg = "Valid options for --sensitivity are: "
+    msg << "[very-fast, fast, sensitive, very-sensitive]\n"
     raise ArgumentError.new(msg)
   end
 end
@@ -229,13 +229,16 @@ opts.assembly.split(',').each do |assembly|
     logger.info "Comparative metrics done in #{Time.now - t0} seconds"
 
     logger.info "-" * report_width
+  else
+    logger.info "No reference provided, skipping comparative diagnostics"
+  end
+
+  if (opts.left && opts.right)
     score = transrater.assembly_score
     unless score.nil?
       logger.info "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
       logger.info "-" * report_width
     end
-  else
-    logger.info "No reference provided, skipping comparative diagnostics"
   end
 
   # write contig metrics to file for each contig
