@@ -15,6 +15,7 @@ module Transrate
     attr_accessor :low_uniqueness_bases, :in_bridges
     attr_accessor :mean_coverage, :effective_mean
     attr_accessor :variance, :effective_variance, :effective_length
+    attr_accessor :p_good
     # reference-based metrics
     attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
     attr_accessor :hits
@@ -34,6 +35,11 @@ module Transrate
       @edit_distance = 0
       @bases_mapped = 0
       @low_uniqueness_bases = 0
+      @p_good = 0
+      @uncovered_bases = length
+      @p_uncovered_bases = 1
+      @effective_mean = "NA"
+      @effective_variance = "NA"
     end
 
     def each &block
@@ -50,30 +56,32 @@ module Transrate
         :cpg_count => cpg_count,
         :cpg_ratio => cpg_ratio,
         :orf_length => orf_length,
-        :linguistic_complexity_6 => linguistic_complexity(6)
+        :linguistic_complexity_6 => linguistic_complexity(6),
+        :p_unambiguous => 1 - prop_n
       }
     end
 
     def read_metrics
-      puts "p uncovered bases = #{p_uncovered_bases}"
-      read = @coverage ? {
-        :uncovered_bases => uncovered_bases,
-        :p_uncovered_bases => p_uncovered_bases,
-        :p_bases_covered => (1.0 - p_uncovered_bases),
+      read = @bases_mapped>0 ? {
         :effective_mean_coverage => effective_mean,
         :effective_variance => effective_variance,
         :in_bridges => in_bridges,
-        :edit_distance_per_base => edit_distance / bases_mapped.to_f,
-        :low_uniqueness_bases => low_uniqueness_bases,
-        :p_low_uniqueness_bases => low_uniqueness_bases / length.to_f,
+        :p_good => @p_good,
+        :p_bases_covered => p_bases_covered,
+        :prop_unambiguous => prop_unambiguous,
+        :inverse_edit_dist => inverse_edit_dist,
+        :p_unique_bases => p_unique_bases,
         :score => score
       } : {
-        :uncovered_bases => "NA",
-        :mean_coverage => "NA",
-        :in_bridges => in_bridges,
-        :edit_distance => "NA",
-        :low_uniqueness_bases => "NA",
-        :p_low_uniqueness_bases => "NA"
+        :effective_mean_coverage => "NA",
+        :effective_variance => "NA",
+        :in_bridges => "NA",
+        :p_good => "NA",
+        :p_bases_covered => "NA",
+        :prop_unambiguous => "NA",
+        :inverse_edit_dist => "NA",
+        :p_unique_bases => "NA",
+        :score => "NA"
       }
     end
 
@@ -91,48 +99,6 @@ module Transrate
         :is_chimera => "NA",
         :hits => "NA"
       }
-    end
-
-    def load_coverage(coverage)
-      read_length = 100
-      @uncovered_bases = 0
-      @mean_coverage, @effective_mean = 0, 0
-      total, effective_total = 0, 0
-      @effective_length = coverage.length - (read_length * 2)
-      @effective_length = 1 if @effective_length < 1
-      coverage.each_with_index do |e,i|
-        total += e
-        if i >= read_length and i < coverage.length - read_length
-          effective_total += e
-        end
-        @uncovered_bases += 1 if e < 1
-      end
-      @mean_coverage = total / coverage.length.to_f
-      @effective_mean = effective_total / @effective_length.to_f
-      # variance
-      @variance, @effective_variance = 0, 0
-      coverage.each_with_index do |e,i|
-        @variance += (e - @mean_coverage) ** 2
-        if i >= read_length and i < (coverage.length - read_length)
-          @effective_variance += (e - @effective_mean)**2
-        end
-      end
-      @variance /= coverage.length.to_f
-      @effective_variance = @effective_variance / @effective_length.to_f
-
-      total
-    end
-
-    def load_mapq(mapq)
-      @low_uniqueness_bases, total = 0, 0
-      mapq.each do |e|
-        if e
-          total += e
-          @low_uniqueness_bases += 1 if e < 5 # arbitrary cutoff TODO add more?
-        end
-      end
-      @mean_mapq = total / mapq.length.to_f
-      total
     end
 
     # Base composition of the contig
@@ -270,17 +236,44 @@ module Transrate
     end
 
     def edit_distance_per_base
-      edit_distance / bases_mapped.to_f
+      if bases_mapped and bases_mapped > 0
+        return edit_distance / bases_mapped.to_f
+      else
+        return 0
+      end
+    end
+
+    def inverse_edit_dist
+      1 - edit_distance_per_base
+    end
+
+    def prop_unambiguous
+      1 - prop_n
+    end
+
+    def p_bases_covered
+      1 - p_uncovered_bases
+    end
+
+    def uncovered_bases= n
+      @uncovered_bases = n
+      @p_uncovered_bases = n / length.to_f
+    end
+
+    def p_unique_bases
+      (length - low_uniqueness_bases) / length.to_f
     end
 
     # Contig score (geometric mean of all score components)
     def score
-      prod = (1 - p_uncovered_bases) * # proportion of bases covered
-             (1 - prop_n) * # proportion of bases that aren't ambiguous
-             (p_good) * # proportion of reads that mapped good
-             (1 - edit_distance_per_base) * # 1 - mean per-base edit distance
-             ((length - low_uniqueness_bases) / length.to_f) # prop mapQ >= 5
-      prod ** (1.0 / 5)
+      prod = [p_bases_covered,0.01].max * # proportion of bases covered
+             [prop_unambiguous,0.01].max * # proportion of bases that aren't ambiguous
+             [p_good,0.01].max * # proportion of reads that mapped good
+             [inverse_edit_dist,0.01].max * # 1 - mean per-base edit distance
+             [p_unique_bases,0.01].max # prop mapQ >= 5
+      s = prod ** (1.0 / 5)
+      s = 0.01 if !s
+      return [s, 0.01].max
     end
   end
 

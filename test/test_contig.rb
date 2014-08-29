@@ -83,6 +83,14 @@ class TestContig < Test::Unit::TestCase
       assert_equal 7, contig.orf_length, "orf length"
     end
 
+    should "get orf length from ATG to stop" do
+      s = "AAATAGATAGATAGAATGAATCAACTAACTAAATAA"
+      # seq = Bio::FastaFormat.new ">test\n#{s}\n>test_r\n#{s.reverse}\n"
+      seq = Bio::FastaFormat.new ">test\n#{s}\n>test_r"
+      contig = Transrate::Contig.new seq
+      assert_equal 6, contig.orf_length, "orf length"
+    end
+
     should "not fail on bases that aren't ACGTN" do
       seq = Bio::FastaFormat.new ">test\nATGCGTGTARATACGCGTAG"
       contig = Transrate::Contig.new seq

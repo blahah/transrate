@@ -41,7 +41,10 @@ module Transrate
       # and automatically adds the .bam extension
       sorted = File.basename(bamfile, '.bam') + '.sorted'
       if !File.exist?("#{sorted}.bam")
-        Samtools.run "sort #{File.expand_path bamfile} #{sorted}"
+        cmd = "sort"
+        cmd << " -l 2 " # use 2 sort and compression threads, maybe more?
+        cmd << "#{File.expand_path bamfile} #{sorted}"
+        Samtools.run cmd
       end
       File.expand_path(sorted + '.bam')
     end
@@ -82,7 +85,7 @@ module Transrate
 
     # Calculate per-base coverage and mapQ score from a sorted, indexed
     # bam file. Return the path to the coverage file.
-    def self.coverage_and_mapq(bam, fasta)
+    def self.bam_to_bcf(bam, fasta)
       outfile = File.expand_path "#{File.basename(fasta)}.bcf"
       if !File.exist?(outfile)
         cmd = "samtools mpileup"

@@ -25,7 +25,7 @@ module Transrate
     def initialize(assembly, reference,
                    left: nil, right: nil,
                    insertsize: nil, insertsd: nil,
-                   threads: 1)
+                   threads: 1, sensitivity: "very-sensitive")
       if assembly
         if assembly.is_a?(Assembly)
           @assembly = assembly
@@ -48,6 +48,7 @@ module Transrate
                                                       threads)
       end
       @threads = threads
+      @sensitivity = sensitivity
     end
 
     # Run all analyses
@@ -64,22 +65,21 @@ module Transrate
       comparative_metrics
     end
 
-    # Reduce all metrics for the assembly to a single quality score.
-    #
+    # Calculate the geometric mean of an array of numbers
+    def geomean(x)
+      sum = 0.0
+      x.each{ |v| sum += Math.log(v) }
+      sum /= x.size
+      Math.exp(sum)
+    end
+
+    # Reduce all metrics for the assembly to a single quality score
+    # by taking the geometric mean of the scores for all contigs
     #
     #
     # @return [Integer] the assembly score
     def assembly_score
-      @score, pg, rc = nil
-      if @read_metrics.has_run
-        pg = Metric.new('pg', @read_metrics.pr_good_mapping, 0.0)
-      end
-      if @comparative_metrics.has_run
-        rc = Metric.new('rc', @comparative_metrics.reference_coverage, 0.0)
-      end
-      if (pg && rc)
-        @score = DimensionReduce.dimension_reduce([pg, rc])
-      end
+      @score = geomean assembly.assembly.values.map{ |contig| contig.score }
       return @score
     end
 
@@ -90,7 +90,7 @@ module Transrate
 
     def read_metrics left=nil, right=nil
       unless @read_metrics.has_run
-        @read_metrics.run(left, right, threads: @threads)
+        @read_metrics.run(left, right, threads: @threads, sensitivity: @sensitivity)
       end
       @read_metrics
     end
