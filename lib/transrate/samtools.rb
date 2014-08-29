@@ -41,7 +41,10 @@ module Transrate
       # and automatically adds the .bam extension
       sorted = File.basename(bamfile, '.bam') + '.sorted'
       if !File.exist?("#{sorted}.bam")
-        Samtools.run "sort #{File.expand_path bamfile} #{sorted}"
+        cmd = "sort"
+        cmd << " -l 2 " # use 2 sort and compression threads, maybe more?
+        cmd << "#{File.expand_path bamfile} #{sorted}"
+        Samtools.run cmd
       end
       File.expand_path(sorted + '.bam')
     end
