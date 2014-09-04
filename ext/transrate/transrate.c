@@ -19,7 +19,7 @@ VALUE method_dibase_count(VALUE,VALUE);
 VALUE method_kmer_count(VALUE,VALUE,VALUE);
 VALUE method_longest_orf(VALUE, VALUE);
 // read_metrics
-VALUE method_load_bcf(VALUE, VALUE, VALUE);
+VALUE method_load_bcf(VALUE, VALUE, VALUE, VALUE);
 
 VALUE method_get_len(VALUE, VALUE);
 VALUE method_get_contig_name(VALUE, VALUE);
@@ -64,7 +64,7 @@ void Init_transrate() {
   rb_define_method(Contig, "kmer_count", method_kmer_count, 2);
   rb_define_method(Contig, "longest_orf", method_longest_orf, 1);
   // ReadMetrics
-  rb_define_method(ReadMetrics, "load_bcf", method_load_bcf, 2);
+  rb_define_method(ReadMetrics, "load_bcf", method_load_bcf, 3);
   rb_define_method(ReadMetrics, "get_len",
                    method_get_len, 1);
   rb_define_method(ReadMetrics, "get_contig_name",
@@ -87,7 +87,7 @@ void Init_transrate() {
                    method_free_contigs, 0);
 }
 
-VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
+VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size, VALUE _rl) {
   FILE *fh;
   int size,pos;
   char * filename;
@@ -121,7 +121,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size) {
   pos = 0;
   mem = 0;
   prev = 0;
-  read_length = 100;
+  read_length = NUM2INT(_rl);
   previous_name = "na";
   fh = fopen(filename, "r"); // open filename for reading
   cov=-1;

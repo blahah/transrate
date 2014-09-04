@@ -41,6 +41,29 @@ class TestBowtie < Test::Unit::TestCase
       end
     end
 
+    should "use sam file if it is already generated" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @mapper.build_index @reference
+          left = File.basename(@left)
+          right = File.basename(@right)
+          index = File.basename(@mapper.index_name)
+          @mapper.map_reads(@reference, @left, @right)
+          count_file = "150uncovered.l.fq.150uncovered.r.fq"
+          count_file << ".sorghum_transcript.sam-read_count.txt"
+          assert File.exist?(count_file), "count file exists"
+          mtime = File.stat(@mapper.sam).mtime
+          sleep 1
+          @mapper.map_reads(@reference, @left, @right)
+          assert_equal mtime, File.stat(@mapper.sam).mtime, "sam file modified"
+          File.delete(count_file)
+          @mapper.map_reads(@reference, @left, @right)
+          assert File.exist?(count_file), "count file recreated"
+          assert_equal mtime, File.stat(@mapper.sam).mtime, "sam file modified"
+        end
+      end
+    end
+
     should "raise error when no index built" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do

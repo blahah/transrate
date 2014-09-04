@@ -184,65 +184,6 @@ module Transrate
 
     end # basic_bin_stats
 
-    # Calls *block* with two arguments, the contig and an array
-    # of integer per-base coverage counts.
-    #
-    # @param bam [Bio::Db::Sam] a bam alignment of reads against this assembly
-    # @param block [Block] the block to call
-    def each_with_coverage(bam, fasta, &block)
-      logger.debug 'enumerating assembly with coverage'
-      # generate coverage with samtools
-      covfile = Samtools.bam_to_bcf(bam, fasta)
-      # get an assembly enumerator
-      assembly_enum = @assembly.to_enum
-      contig_name, contig = assembly_enum.next
-      # precreate an array of the correct size to contain
-      # coverage. this is necessary because samtools mpileup
-      # doesn't print a result line for bases with 0 coverage
-      contig.coverage = Array.new(contig.length, 0)
-      contig.mapq = Array.new(contig.length, nil)
-      # the columns we need
-      name_i, pos_i, info_i = 0, 1, 7
-      # parse the coverage file
-
-      File.open(covfile).each_line do |line|
-        if line =~ /^#/
-          next
-        end
-        cols = line.chomp.split("\t")
-        name = Bio::FastaDefline.new(cols[name_i]).entry_id
-        pos =  cols[pos_i].to_i
-        if cols[info_i] =~ /DP=([0-9]+);/
-          cov = $1.to_i
-        end
-        if cov > 0 and cols[info_i] =~ /;MQ=([0-9]+);/
-          mq = $1.to_i
-        else
-          mq = nil
-        end
-        unless contig_name == name
-          while contig_name != name
-            begin
-              block.call(contig, contig.coverage, contig.mapq)
-              contig_name, contig = assembly_enum.next
-              contig.coverage = Array.new(contig.length, 0)
-              contig.mapq = Array.new(contig.length, 0)
-            rescue StopIteration => stop_error
-              logger.error 'reached the end of assembly enumerator while ' +
-                        'there were contigs left in the coverage results'
-              logger.error "final assembly contig: #{@assembly.last.name}"
-              logger.error "coverage contig: #{name}"
-              raise stop_error
-            end
-          end
-        end
-        contig.coverage[pos - 1] = cov
-        contig.mapq[pos - 1] = mq
-      end
-      # yield the final contig
-      block.call(contig, contig.coverage, contig.mapq)
-    end
-
   end # Assembly
 
 end # Transrate

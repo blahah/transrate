@@ -5,22 +5,22 @@ module Transrate
 
   class Bowtie2
 
-    require 'which'
-    include Which
-
     attr_reader :index_name, :sam, :read_count
 
     def initialize
-      bowtie2_path = which('bowtie2')
-      if bowtie2_path.empty?
+      which_bowtie2 = Cmd.new('which bowtie2')
+      which_bowtie2.run
+      if !which_bowtie2.status.success?
         raise Bowtie2Error.new("could not find bowtie2 in the path")
       end
-      @bowtie2 = bowtie2_path.first
-      bowtie2_build_path = which('bowtie2-build')
-      if bowtie2_build_path.empty?
+      @bowtie2 = which_bowtie2.stdout.split("\n").first
+
+      which_build = Cmd.new('which bowtie2-build')
+      which_build.run
+      if !which_build.status.success?
         raise Bowtie2Error.new("could not find bowtie2-build in the path")
       end
-      @bowtie2_build = bowtie2_build_path.first
+      @bowtie2_build = which_build.stdout.split("\n").first
       @index_built = false
       @index_name = ""
     end
