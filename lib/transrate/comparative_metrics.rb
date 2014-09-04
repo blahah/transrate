@@ -71,8 +71,13 @@ module Transrate
           contig = @assembly[hit.query]
           contig.has_crb = true
           # how much of the reference is covered by this single contig
-          contig.reference_coverage =
-                             (hit.alnlen - hit.mismatches - hit.gaps)/ hit.tlen
+          if crbblast.target_is_prot
+            contig.reference_coverage =
+                        (hit.alnlen - hit.mismatches - hit.gaps) / (3*hit.tlen)
+          else
+            contig.reference_coverage =
+                            (hit.alnlen - hit.mismatches - hit.gaps) / hit.tlen
+          end
           contig.hits << hit
         end
       end
