@@ -13,6 +13,7 @@ module Transrate
     attr_reader :prop_expressed
     attr_reader :has_run
     attr_reader :total_bases
+    attr_reader :read_length
 
     def initialize assembly
       @assembly = assembly
@@ -23,6 +24,7 @@ module Transrate
         raise RuntimeError.new("could not find bam-read in path")
       end
       @bam_reader = @bam_reader.first
+      @read_length = 100
     end
 
     def run left, right, insertsize:200, insertsd:50, threads:8, sensitivity: "very-sensitive"
@@ -30,10 +32,11 @@ module Transrate
         raise IOError.new "Read file is nil" if readfile.nil?
         readfile.split(",").each do |file|
           unless File.exist? file
-            raise IOError.new "ReadMetrics read file does not exist: #{file}"
+            raise IOError.new "ReadMetrics: read file does not exist: #{file}"
           end
         end
       end
+      get_read_length(left, right)
       @mapper.build_index @assembly.file
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
@@ -66,7 +69,7 @@ module Transrate
       end
       # 37 is number of header lines in bcf file
       if line_count > 37 + @assembly.assembly.length
-        load_bcf(bcf_file, @assembly.assembly.size) # call out to C
+        load_bcf(bcf_file, @assembly.assembly.size, @read_length) # call out to C
         # load contig data while len of contig > 0
         # if contig info returns contig length == -1 then stop because
         #  there are fewer contigs in the bcf file compared to the assembly
@@ -157,6 +160,25 @@ module Transrate
         :n_low_uniqueness_bases => @n_low_uniqueness_bases,
         :p_low_uniqueness_bases => @p_low_uniqueness_bases
       }
+    end
+
+    def get_read_length(left, right)
+      count=0
+      file = File.open(left.split(",").first)
+      name = file.readline.chomp
+      seq = file.readline.chomp
+      na = file.readline.chomp
+      qual = file.readline.chomp
+      read_length = 0
+      while name and count < 5000
+        read_length = [read_length, seq.length].max
+        name = file.readline.chomp rescue nil
+        seq = file.readline.chomp rescue nil
+        na = file.readline.chomp rescue nil
+        qual = file.readline.chomp rescue nil
+        count+=1
+      end
+      @read_length = read_length
     end
 
     def analyse_read_mappings bamfile, insertsize, insertsd, bridge=true
