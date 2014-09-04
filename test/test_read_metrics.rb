@@ -50,10 +50,10 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 202,     stats[:total_mappings], 'number mapping'
           assert_equal 90.58,   stats[:percent_mapping].round(2),
                        'percent mapping'
-          assert_equal 202,     stats[:good_mappings], 'good mapping'
-          assert_equal 90.58,   stats[:pc_good_mapping].round(2),
+          assert_equal 199,     stats[:good_mappings], 'good mapping'
+          assert_equal 89.24,   stats[:pc_good_mapping].round(2),
                        'percent good mapping'
-          assert_equal 0,       stats[:bad_mappings], 'bad mapping'
+          assert_equal 24,       stats[:bad_mappings], 'bad mapping'
           assert_equal 22.86,   stats[:mean_coverage].round(2), 'mean coverage'
           assert_equal 57.94268,stats[:coverage_variance].round(5),
                        'coverage variance'
@@ -94,8 +94,8 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 109.75611, var_a.round(5)
           assert_equal 13.69750, var_b.round(5)
 
-          assert_equal 0.92045, a[:p_good].round(5), "proportion of good mappings"
-          assert_equal 0.90299, b[:p_good].round(5), "proportion of good mappings"
+          assert_equal 0.90909, a[:p_good].round(5), "proportion of good mappings"
+          assert_equal 0.88806, b[:p_good].round(5), "proportion of good mappings"
 
           # uncovered bases
           unc_a = contigs[0].uncovered_bases
@@ -143,6 +143,19 @@ class TestReadMetrics < Test::Unit::TestCase
         end
       end
 
+    end
+
+    should "calculate read length by scanning fastq files" do
+      left = []
+      right = []
+      left << File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      right << File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      left << File.join(File.dirname(__FILE__),
+                       'data', 'bridging_reads.l.fastq')
+      right << File.join(File.dirname(__FILE__),
+                        'data', 'bridging_reads.r.fastq')
+      @read_metrics.get_read_length(left.join(","), right.join(","))
+      assert_equal 100, @read_metrics.read_length
     end
 
   end
