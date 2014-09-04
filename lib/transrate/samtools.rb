@@ -4,17 +4,18 @@ module Transrate
 
     class Bowtie2Error < StandardError; end
 
-    require 'which'
-
     # Get the path to the samtools binary built when bio-samtools
     # was installed
     def self.path
-      samtools_path = Which.which('samtools')
-      if samtools_path.empty?
-        raise SamtoolsError.new("could not find samtools in the path")
+      if !@path
+        which_samtools = Cmd.new("which samtools")
+        which_samtools.run
+        if !which_samtools.status.success?
+          raise SamtoolsError.new("could not find samtools in the path")
+        end
+        @path = which_samtools.stdout.split("\n").first
       end
-      return samtools_path.kind_of?(String) ?
-        samtools_path : samtools_path.first
+      return @path
     end
 
     # Run a samtools command

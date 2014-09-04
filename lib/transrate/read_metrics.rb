@@ -2,9 +2,6 @@ module Transrate
 
   class ReadMetrics
 
-    require 'which'
-    include Which
-
     attr_reader :total
     attr_reader :bad
     attr_reader :supported_bridges
@@ -19,15 +16,18 @@ module Transrate
       @assembly = assembly
       @mapper = Bowtie2.new
       self.initial_values
-      @bam_reader = which('bam-read')
-      if @bam_reader.empty?
+
+      which_bam = Cmd.new('which bam-read')
+      which_bam.run
+      if !which_bam.status.success?
         raise RuntimeError.new("could not find bam-read in path")
       end
-      @bam_reader = @bam_reader.first
+      @bam_reader = which_bam.stdout.split("\n").first
       @read_length = 100
     end
 
-    def run left, right, insertsize:200, insertsd:50, threads:8, sensitivity: "very-sensitive"
+    def run left, right, insertsize:200, insertsd:50, threads:8,
+            sensitivity: "very-sensitive"
       [left, right].each do |readfile|
         raise IOError.new "Read file is nil" if readfile.nil?
         readfile.split(",").each do |file|
@@ -69,7 +69,7 @@ module Transrate
       end
       # 37 is number of header lines in bcf file
       if line_count > 37 + @assembly.assembly.length
-        load_bcf(bcf_file, @assembly.assembly.size, @read_length) # call out to C
+        load_bcf(bcf_file, @assembly.assembly.size, @read_length) # call to C
         # load contig data while len of contig > 0
         # if contig info returns contig length == -1 then stop because
         #  there are fewer contigs in the bcf file compared to the assembly
