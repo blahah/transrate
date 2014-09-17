@@ -18,7 +18,7 @@ class TestInline < Test::Unit::TestCase
         orfs << contig.orf_length
       end
       assert_equal 4, orfs.length
-      assert_equal [333, 370, 131, 84], orfs
+      assert_equal [319, 321, 95, 71], orfs
     end
 
     should 'find longest orf in sequence' do
