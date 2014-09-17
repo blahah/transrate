@@ -43,9 +43,9 @@ module Transrate
       @comp_stats[:n_refs_with_CRBB] = @n_refs_with_recip
       @comp_stats[:rbh_per_reference] = @rbh_per_reference
       @comp_stats[:reference_coverage] = @reference_coverage
-      @comp_stats[:collapse_factor] = @collapse_factor
-      @comp_stats[:n_chimeras] = @n_chimeras
-      @comp_stats[:p_chimeras] = @p_chimeras
+      # @comp_stats[:collapse_factor] = @collapse_factor
+      # @comp_stats[:n_chimeras] = @n_chimeras
+      # @comp_stats[:p_chimeras] = @p_chimeras
     end
 
     def reciprocal_best_blast
