@@ -165,6 +165,10 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size, VALUE _rl) {
         } // end of while loop
       }
       if (line[1]=='C') { // last line of header. set counter back to start
+        if (num < 0) {
+          fprintf(stderr, "Malformed bcf file. No contig description in header");
+          exit(1);
+        }
         num=0;
       }
     } else { // line doesn't start with a #
@@ -258,6 +262,10 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size, VALUE _rl) {
         prev = 1;
 
         // get length of contig from struct array
+        if (contigs[num].len < 0) {
+          fprintf(stderr, "Error parsing bcf header. No contig lengths found.");
+          exit(1);
+        }
         p = contigs[num].len;
         // create new empty array for coverage and mapq
         coverage_array = malloc(p * sizeof(int));
