@@ -166,7 +166,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size, VALUE _rl) {
       }
       if (line[1]=='C') { // last line of header. set counter back to start
         if (num < 0) {
-          fprintf(stderr, "Malformed bcf file. No contig description in header");
+          fprintf(stderr, "Malformed bcf file. No contig description in header.\n");
           exit(1);
         }
         num=0;
@@ -263,7 +263,7 @@ VALUE method_load_bcf(VALUE self, VALUE _filename, VALUE _size, VALUE _rl) {
 
         // get length of contig from struct array
         if (contigs[num].len < 0) {
-          fprintf(stderr, "Error parsing bcf header. No contig lengths found.");
+          fprintf(stderr, "Error parsing bcf header. No contig lengths found.\n");
           exit(1);
         }
         p = contigs[num].len;

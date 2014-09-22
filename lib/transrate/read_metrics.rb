@@ -185,9 +185,11 @@ module Transrate
       if File.exist?(bamfile) && File.size(bamfile) > 0
         csv_output = "#{File.basename(@assembly.file)}_bam_info.csv"
         csv_output = File.expand_path(csv_output)
-        cmd = "#{@bam_reader} #{bamfile} #{csv_output}"
-        reader = Cmd.new cmd
-        reader.run
+        if !File.exist?(csv_output)
+          cmd = "#{@bam_reader} #{bamfile} #{csv_output}"
+          reader = Cmd.new cmd
+          reader.run
+        end
 
         if !reader.status.success?
           logger.warn "couldn't get information from bam file"
