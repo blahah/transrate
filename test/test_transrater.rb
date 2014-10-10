@@ -8,7 +8,7 @@ class TestTransrater < Test::Unit::TestCase
   context "transrater" do
 
     setup do
-      @assembly = File.join(File.dirname(__FILE__), 'data', 'assembly.2.fa')
+      @assembly = File.join(File.dirname(__FILE__), 'data', 'sorghum_transcript.fa')
       @reference = File.join(File.dirname(__FILE__), 'data', 'Os.protein.2.fa')
       @rater = Transrate::Transrater.new(@assembly, @reference)
       @left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
@@ -39,8 +39,8 @@ class TestTransrater < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           stats = @rater.assembly_metrics
-          assert_equal 1566, stats.n50
-          assert_equal 10331, stats.n_bases
+          assert_equal 823, stats.n50
+          assert_equal 1555, stats.n_bases
         end
       end
     end
@@ -59,7 +59,7 @@ class TestTransrater < Test::Unit::TestCase
         Dir.chdir tmpdir do
           all = @rater.all_metrics(@left, @right)
           score = @rater.assembly_score
-          assert_equal 0.15849, score.round(5) # regression test
+          assert_equal 0.31524, score.round(5) # regression test
         end
       end
     end

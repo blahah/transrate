@@ -10,7 +10,6 @@ module Transrate
     attr_reader :reciprocal_hits
     attr_reader :has_run
     attr_reader :reference_coverage
-    attr_reader :n_chimeras, :p_chimeras
     attr_reader :comp_stats
 
     def initialize assembly, reference, threads
@@ -23,14 +22,12 @@ module Transrate
     def run
       @crbblast = reciprocal_best_blast
       @reference_coverage = coverage @crbblast
-      @collapse_factor = collapse_factor @crbblast.reciprocals
       @reciprocal_hits = @crbblast.size
       @rbh_per_reference = @reciprocal_hits.to_f / @reference.size.to_f
       @p_contigs_with_recip = @crbblast.reciprocals.size / @assembly.size.to_f
       @n_contigs_with_recip = @crbblast.reciprocals.size
       count_ref_crbbs
       @p_refs_with_recip = @n_refs_with_recip / @reference.size.to_f
-      chimeras @crbblast
       self.run_comp_stats
       @has_run = true
     end
@@ -43,9 +40,6 @@ module Transrate
       @comp_stats[:n_refs_with_CRBB] = @n_refs_with_recip
       @comp_stats[:rbh_per_reference] = @rbh_per_reference
       @comp_stats[:reference_coverage] = @reference_coverage
-      # @comp_stats[:collapse_factor] = @collapse_factor
-      # @comp_stats[:n_chimeras] = @n_chimeras
-      # @comp_stats[:p_chimeras] = @p_chimeras
     end
 
     def reciprocal_best_blast
@@ -219,48 +213,6 @@ module Transrate
       end
     end
 
-    def chimeras crbblast
-      @n_chimeras = 0
-      crbblast.reciprocals.each_pair do |key, list|
-        p = 0
-        list.each_with_index do |a, i|
-          list.each_with_index do |b, j|
-            if j>i
-              if a.target == b.target
-                astart, astop = [a.tstart, a.tend].minmax
-                bstart, bstop = [b.tstart, b.tend].minmax
-
-                oa = overlap_amount(astart, astop, bstart, bstop)
-                if oa > 0.75
-                  p += 1
-                end
-              else
-                astart, astop = [a.qstart, a.qend].minmax
-                bstart, bstop = [b.qstart, b.qend].minmax
-
-                oa = overlap_amount(astart, astop, bstart, bstop)
-                if oa < 0.25
-                  p += 1
-                end
-              end
-            end
-          end
-        end
-        if p/list.size.to_f >= 0.5
-          @n_chimeras += 1
-          unless @assembly.assembly.key? key
-            puts "key not in assembly: #{key}"
-          end
-          @assembly[key].is_chimera = true
-        end
-      end
-      if crbblast.reciprocals.length > 0
-        @p_chimeras = @n_chimeras / crbblast.reciprocals.length.to_f
-      else
-        @p_chimeras = 0
-      end
-    end
-
     def overlap(astart, astop, bstart, bstop)
       if astart == bstart and astop == bstop
         return 0
@@ -310,23 +262,6 @@ module Transrate
         else
           return 0 # 6 no overlap
         end
-      end
-    end
-
-    # Count unique reference proteins per contig
-    def collapse_factor reciprocals
-      return @collapse_factor unless @collapse_factor.nil?
-      cf_sum = 0
-      reciprocals.each do |query, hits|
-        uniq_hits = Set.new hits.map{ |h| h.target }
-        cf = uniq_hits.length
-        @assembly[query].collapse_factor = cf
-        cf_sum += cf
-      end
-      if reciprocals.size > 0
-        return cf_sum / reciprocals.size
-      else
-        return 0
       end
     end
 

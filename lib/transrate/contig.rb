@@ -10,14 +10,12 @@ module Transrate
     def_delegators :@seq, :size, :length
     attr_accessor :seq, :name
     # read-based metrics
-    attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases, :mapq
+    attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases
     attr_accessor :edit_distance, :bases_mapped, :mean_mapq
     attr_accessor :low_uniqueness_bases, :in_bridges
-    attr_accessor :mean_coverage, :effective_mean
-    attr_accessor :variance, :effective_variance, :effective_length
-    attr_accessor :p_good
+    attr_accessor :p_good, :p_not_segmented
     # reference-based metrics
-    attr_accessor :has_crb, :is_chimera, :collapse_factor, :reference_coverage
+    attr_accessor :has_crb, :reference_coverage
     attr_accessor :hits
 
     def initialize(seq, name: nil)
@@ -27,19 +25,16 @@ module Transrate
       @name = seq.respond_to?(:entry_id) ? seq.entry_id : name
       @hits = []
       @reference_coverage = 0
-      @collapse_factor = 0
-      @is_chimera = false
       @has_crb = false
       @in_bridges = 0
-      @mean_coverage = 0
       @edit_distance = 0
       @bases_mapped = 0
       @low_uniqueness_bases = 0
       @p_good = 0
       @uncovered_bases = length
       @p_uncovered_bases = 1
-      @effective_mean = "NA"
-      @effective_variance = "NA"
+      @mean_mapq = 0
+      @p_not_segmented = 1
     end
 
     def each &block
@@ -57,46 +52,39 @@ module Transrate
         :cpg_ratio => cpg_ratio,
         :orf_length => orf_length,
         :linguistic_complexity_6 => linguistic_complexity(6),
-        :p_unambiguous => 1 - prop_n
       }
     end
 
     def read_metrics
       read = @bases_mapped>0 ? {
-        :effective_mean_coverage => effective_mean,
-        :effective_variance => effective_variance,
         :in_bridges => in_bridges,
         :p_good => @p_good,
         :p_bases_covered => p_bases_covered,
-        :prop_unambiguous => prop_unambiguous,
         :inverse_edit_dist => inverse_edit_dist,
         :p_unique_bases => p_unique_bases,
-        :score => score
+        :score => score,
+        :mean_mapq => mean_mapq,
+        :p_not_segmented => p_not_segmented
       } : {
-        :effective_mean_coverage => "NA",
-        :effective_variance => "NA",
         :in_bridges => "NA",
         :p_good => "NA",
         :p_bases_covered => "NA",
-        :prop_unambiguous => "NA",
         :inverse_edit_dist => "NA",
         :p_unique_bases => "NA",
-        :score => "NA"
+        :score => "NA",
+        :mean_mapq => mean_mapq,
+        :p_not_segmented => p_not_segmented
       }
     end
 
     def comparative_metrics
       reference = @has_crb ? {
         :has_crb => has_crb,
-        :collapse_factor => collapse_factor,
         :reference_coverage => reference_coverage,
-        :is_chimera => is_chimera,
         :hits => hits.map{ |h| h.target }.join(";")
       } : {
         :has_crb => false,
-        :collapse_factor => "NA",
         :reference_coverage => "NA",
-        :is_chimera => "NA",
         :hits => "NA"
       }
     end
@@ -115,7 +103,7 @@ module Transrate
       composition(@seq.seq)
       alphabet = ['a', 'c', 'g', 't', 'n']
       @base_composition = {}
-      @dibase_composition={}
+      @dibase_composition = {}
       bases = []
       dibases = []
       alphabet.each do |c|
@@ -247,10 +235,6 @@ module Transrate
       1 - edit_distance_per_base
     end
 
-    def prop_unambiguous
-      1 - prop_n
-    end
-
     def p_bases_covered
       1 - p_uncovered_bases
     end
@@ -267,7 +251,7 @@ module Transrate
     # Contig score (geometric mean of all score components)
     def score
       prod = [p_bases_covered,0.01].max * # proportion of bases covered
-             [prop_unambiguous,0.01].max * # proportion of bases that aren't ambiguous
+             [p_not_segmented,0.01].max * # prob contig has 0 changepoints
              [p_good,0.01].max * # proportion of reads that mapped good
              [inverse_edit_dist,0.01].max * # 1 - mean per-base edit distance
              [p_unique_bases,0.01].max # prop mapQ >= 5

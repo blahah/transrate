@@ -27,38 +27,23 @@ class TestReadMetrics < Test::Unit::TestCase
       left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
       Dir.mktmpdir do |tmpdir|
+      # tmpdir = Dir.mktmpdir
+      # puts tmpdir
         Dir.chdir tmpdir do
           @read_metrics.run(left, right)
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
-          # checking sam file is consistent
-          total=0
-          bases=0
-          samfile = "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.sam"
-          File.open(samfile).each_line do |line|
-            if line=~/NM:i:([0-9]+)/
-              total += $1.to_i
-              seq = line.split("\t")[9]
-              bases += seq.length
-            end
-          end
-          assert_equal 37921, bases, "total number of bases from sam"
-          assert_equal 387, total, "sum of NM from sam"
-          #
-          assert_equal 37921,   @read_metrics.total_bases, "total bases"
+          assert_equal 39196,   @read_metrics.total_bases, "total bases"
           assert_equal 223,     stats[:num_pairs], 'number of read pairs'
-          assert_equal 202,     stats[:total_mappings], 'number mapping'
-          assert_equal 90.58,   stats[:percent_mapping].round(2),
+          assert_equal 215,     stats[:total_mappings], 'number mapping'
+          assert_equal 96.41,   stats[:percent_mapping].round(2),
                        'percent mapping'
-          assert_equal 199,     stats[:good_mappings], 'good mapping'
-          assert_equal 89.24,   stats[:pc_good_mapping].round(2),
+          assert_equal 144,     stats[:good_mappings], 'good mapping'
+          assert_equal 64.57,   stats[:pc_good_mapping].round(2),
                        'percent good mapping'
-          assert_equal 24,       stats[:bad_mappings], 'bad mapping'
-          assert_equal 22.86,   stats[:mean_coverage].round(2), 'mean coverage'
-          assert_equal 57.94268,stats[:coverage_variance].round(5),
-                       'coverage variance'
-          assert_equal 39.52,   stats[:mean_mapq].round(2), 'mean mapq'
-          assert_equal 1, stats[:potential_bridges], 'bridges'
+          assert_equal 79,      stats[:bad_mappings], 'bad mapping'
+          assert_equal 52.84,   stats[:mean_mapq].round(2), 'mean mapq'
+          assert_equal 2, stats[:potential_bridges], 'bridges'
           assert_equal 2, stats[:n_uncovered_base_contigs], 'uncovered base contig'
           assert_equal 0, stats[:n_uncovered_contigs], 'uncovered contig'
           assert_equal 0, stats[:n_lowcovered_contigs], 'lowcovered contig'
@@ -81,21 +66,16 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:inverse_edit_dist].round(5)
           edit_b = b[:inverse_edit_dist].round(5)
-          assert_equal (1 - 0.00832), edit_a, "edit distance"
-          assert_equal (1 - 0.01138), edit_b, "edit distance"
+          assert_equal 0.99507, edit_a, "edit distance 1"
+          assert_equal 0.98987, edit_b, "edit distance 2"
 
           uniq_a = a[:p_unique_bases]
           uniq_b = a[:p_unique_bases]
           assert_equal 1, uniq_a, "unique bases"
           assert_equal 1, uniq_b, "unique bases"
 
-          var_a = contigs[0].effective_variance
-          var_b = contigs[1].effective_variance
-          assert_equal 109.75611, var_a.round(5)
-          assert_equal 13.69750, var_b.round(5)
-
-          assert_equal 0.90909, a[:p_good].round(5), "proportion of good mappings"
-          assert_equal 0.88806, b[:p_good].round(5), "proportion of good mappings"
+          assert_equal 0.68539, a[:p_good].round(5), "proportion of good mappings"
+          assert_equal 0.62406, b[:p_good].round(5), "proportion of good mappings"
 
           # uncovered bases
           unc_a = contigs[0].uncovered_bases
@@ -107,6 +87,28 @@ class TestReadMetrics < Test::Unit::TestCase
           prop_unc_b = b[:p_bases_covered]
           assert_equal 0.98497, prop_unc_a.round(5), "proportion covered bases"
           assert_equal 0.99878, prop_unc_b.round(5), "proportion covered bases"
+
+        end
+      end
+    end
+
+    should "get segmentation probability for individual contigs" do
+      left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left, right)
+          contigs = []
+          @assembly.each do |name, contig|
+            contigs << contig
+          end
+          a = contigs[0].read_metrics
+          b = contigs[1].read_metrics
+
+          edit_a = a[:p_not_segmented].round(5)
+          edit_b = b[:p_not_segmented].round(5)
+          assert_equal 0.28917, edit_a, "probability not segmented 1"
+          assert_equal 0.79553, edit_b, "probability not segmented 2"
 
         end
       end

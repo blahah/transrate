@@ -163,33 +163,6 @@ class TestCompMetrics < Test::Unit::TestCase
       assert_equal 3600/13200.0, cov, "reference coverage"
     end
 
-    should "calculate potential chimera count" do
-      crb = @comp.reciprocal_best_blast
-      # # T1   |---------|
-      # # T2                 |---------|
-      # # Q1 |----------------------------| # chimera = true
-
-
-      crb.remove_hit("scaf_Os10g39590.1")
-      crb.add_hit("scaf_Os10g39590.1", "LOC_Os03g60760.1",
-                     1, 150, 51, 100, 400, 60) # 0.25
-      crb.add_hit("scaf_Os10g39590.1", "LOC_Os10g39590.1",
-                     200, 350, 51, 100, 400, 60) # 0.25
-
-      # # T3   |---------|
-      # # T3                 |---------|
-      # # Q2 |----------------------------|
-      # # chimera = true because the reference has the region 1-100 duplicated
-      crb.remove_hit("scaf_Os12g21920.1")
-      crb.add_hit("scaf_Os12g21920.1", "LOC_Os12g21920.1",
-                     1, 150, 55, 105, 400, 60) # 0.25
-      crb.add_hit("scaf_Os12g21920.1", "LOC_Os12g21920.1",
-                     200, 350, 51, 100, 400, 60) # 0.25
-
-      @comp.chimeras crb
-      assert_equal 2/11.0, @comp.p_chimeras
-    end
-
     should "calculate overlap amount" do
       assert_equal 0.5, @comp.overlap_amount(201,500,101,400), "1"
       assert_equal 0.5, @comp.overlap_amount(101,400,201,500), "2"
