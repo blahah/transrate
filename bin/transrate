@@ -46,12 +46,6 @@ opts = Trollop::options do
       :type => String
   opt :right, "right reads file in FASTQ format",
       :type => String
-  opt :insertsize, "mean insert size",
-      :default => 200,
-      :type => Integer
-  opt :insertsd, "insert size standard deviation",
-      :default => 50,
-      :type => Integer
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
@@ -60,9 +54,6 @@ opts = Trollop::options do
   opt :loglevel, "the amount of information to print. " +
                  "one of [error, info, warn, debug]",
       :default => 'info'
-  opt :sensitivity, "Sensitivity option to use for bowtie2",
-      :default => 'very-sensitive',
-      :type => String
   opt :install_deps, "install any missing dependencies"
   opt :profile, "debug option: profile the code as it runs"
 end
@@ -116,15 +107,6 @@ if opts.left and opts.right
   end
 end
 
-if opts.sensitivity
-  a = ["very-fast", "fast", "sensitive", "very-sensitive"]
-  unless a.include?(opts.sensitivity)
-    msg = "Valid options for --sensitivity are: "
-    msg << "[very-fast, fast, sensitive, very-sensitive]\n"
-    raise ArgumentError.new(msg)
-  end
-end
-
 if opts.profile
   logger.info "Starting profiler"
   RubyProf.start
@@ -173,8 +155,7 @@ opts.assembly.split(',').each do |assembly|
                               right: opts.right,
                               insertsize: opts.insertsize,
                               insertsd: opts.insertsd,
-                              threads: opts.threads,
-                              sensitivity: opts.sensitivity)
+                              threads: opts.threads)
 
 
   logger.info "Analysing assembly: #{assembly}"
