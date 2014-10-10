@@ -83,12 +83,13 @@ module Transrate
 
     def build_index file, threads
       @index_name = File.basename(file, File.extname(file))
-      unless Dir.exists?(@index_name)
+      unless File.exists?("#{@index_name}/GenomeIndexHash")
         overflow=0
         err = "Overflowed overflow table"
         while err =~ /Overflowed overflow table/ and overflow <= 950
           overflow += 50
-          cmd = "#{@snap} index #{file} #{@index_name} -O#{overflow} -t#{threads}"
+          cmd = "#{@snap} index #{file} #{@index_name} -O#{overflow} "
+          cmd << "-t#{threads}"
           runner = Cmd.new cmd
           runner.run
           err = runner.stderr

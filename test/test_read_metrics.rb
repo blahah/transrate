@@ -27,8 +27,6 @@ class TestReadMetrics < Test::Unit::TestCase
       left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
       Dir.mktmpdir do |tmpdir|
-      # tmpdir = Dir.mktmpdir
-      # puts tmpdir
         Dir.chdir tmpdir do
           @read_metrics.run(left, right)
           stats = @read_metrics.read_stats
