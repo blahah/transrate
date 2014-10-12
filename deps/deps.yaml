@@ -57,6 +57,17 @@ bam-read:
       linux: https://github.com/cboursnell/transrate-bam-read/raw/master/bin/linux/bam-read
       macosx: https://github.com/Blahah/transrate-bam-read/raw/master/bin/macosx/bam-read
   unpack: false
+bam-split:
+  binaries:
+   - bam-split
+  version:
+    number: '0.1'
+    command: 'bam-split'
+  url:
+    64bit:
+      linux: https://github.com/Blahah/transrate-bam-read/raw/master/bin/linux/bam-split
+      macosx: https://github.com/Blahah/transrate-bam-read/raw/master/bin/macosx/bam-split
+  unpack: false
 express:
   binaries:
     - express
