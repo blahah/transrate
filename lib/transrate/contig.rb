@@ -250,11 +250,12 @@ module Transrate
 
     # Contig score (geometric mean of all score components)
     def score
-      prod = [p_bases_covered,0.01].max * # proportion of bases covered
-             [p_not_segmented,0.01].max * # prob contig has 0 changepoints
-             [p_good,0.01].max * # proportion of reads that mapped good
-             [inverse_edit_dist,0.01].max * # 1 - mean per-base edit distance
-             [p_unique_bases,0.01].max # prop mapQ >= 5
+      prod =
+        [p_bases_covered, 0.01].max * # proportion of bases covered
+        [p_not_segmented, 0.01].max * # prob contig has 0 changepoints
+        [p_good, 0.01].max * # proportion of reads that mapped good
+        [inverse_edit_dist, 0.01].max * # 1 - mean per-base edit distance
+        [p_unique_bases, 0.01].max # prop mapQ >= 5
       s = prod ** (1.0 / 5)
       s = 0.01 if !s
       return [s, 0.01].max

@@ -6,6 +6,8 @@ module Transrate
 
   class Express
 
+    require 'ostruct'
+
     # return an Express object
     def initialize
       which = Cmd.new('which express')

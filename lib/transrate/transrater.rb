@@ -72,12 +72,12 @@ module Transrate
 
     # Reduce all metrics for the assembly to a single quality score
     # by taking the geometric mean of the scores for all contigs
-    # and multiplying it by the proportion of fragments with biologically
-    # plausible mappings
+    # and multiplying it by the proportion of fragments whose most likely
+    # mapping is consistent with the assembly
     # @return [Integer] the assembly score
     def assembly_score
       @score = geomean assembly.assembly.values.map{ |contig| contig.score }
-      return @score * @read_metrics.pr_good_mapping
+      return @score * @read_metrics.p_good_mapping
     end
 
     def assembly_metrics

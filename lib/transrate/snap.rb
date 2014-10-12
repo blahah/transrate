@@ -24,12 +24,18 @@ module Transrate
       l.split(",").zip(r.split(",")).each do |left, right|
         cmd << " #{left} #{right}"
       end
+      # NOTE: do NOT turn on the -so flag (sort bam output)
+      # it violates the basic assumption of eXpress's streaming
+      # algorithm: that the fragments are observed in approximately
+      # random order.
       cmd << " -o #{@bam}"
+      cmd << " -s 0 1000" # min and max distance between paired-read starts
+      cmd << " -H 300000" # max seed hits to consider in paired mode
+      cmd << " -h 2000" # max seed hits to consider when reverting to single
       cmd << " -I"   # ignore read IDs
       cmd << " -d 30" # max edit distance (function of read length?)
       cmd << " -t #{threads}"
       cmd << " -b" # bind threads to cores
-      cmd << " -so" # sort bam output
       cmd << " -M"  # format cigar string
       cmd << " -sa" # keep all alignments, don't discard 0x100
       cmd << " -C++" # trim low-quality bases from front and back of reads
@@ -39,18 +45,19 @@ module Transrate
     def map_reads(file, left, right, insertsize: 200,
                   insertsd: 50, outputname: nil, threads: 8)
       raise SnapError.new("Index not built") if !@index_built
+
       lbase = File.basename(left.split(",").first)
       rbase = File.basename(right.split(",").first)
       index = File.basename(@index_name)
       @bam = File.expand_path("#{lbase}.#{rbase}.#{index}.bam")
       @read_count_file = "#{lbase}-#{rbase}-read_count.txt"
-      realistic_dist = insertsize + (3 * insertsd)
+
       unless File.exists? @bam
-        snapcmd = build_paired_cmd left, right, threads
+        snapcmd = build_paired_cmd(left, right, threads)
         runner = Cmd.new snapcmd
         runner.run
         save_readcount runner.stdout
-        if !runner.status.success?
+        unless runner.status.success?
           raise SnapError.new("Snap failed\n#{runner.stderr}")
         end
       else
@@ -62,7 +69,7 @@ module Transrate
     def save_readcount stdout
       stdout.split("\n").each do |line|
         cols = line.split(/\s+/)
-        if cols.length == 13 and cols[0]=="16000"
+        if cols.length == 13 and cols[0]=="2000"
           @read_count = cols[9].to_i / 2
           File.open("#{@read_count_file}", "wb") do |out|
             out.write("#{@read_count}\n")
@@ -97,6 +104,7 @@ module Transrate
       unless Dir.exists?(@index_name)
         overflow = 500
         cmd = "#{@snap} index #{file} #{@index_name}"
+        cmd << " -s 23"
         cmd << " -O#{overflow}"
         cmd << " -t#{threads}"
         cmd << " -bSpace" # contig name terminates with space char

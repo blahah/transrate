@@ -14,6 +14,10 @@ module Transrate
       @stdout, @stderr, @status = Open3.capture3 @cmd
     end
 
+    def to_s
+      @cmd
+    end
+
   end
 
 end

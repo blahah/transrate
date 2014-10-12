@@ -2,7 +2,7 @@ module Transrate
 
   class Samtools
 
-    class Bowtie2Error < StandardError; end
+    class SamtoolsError < StandardError; end
 
     # Get the path to the samtools binary built when bio-samtools
     # was installed
@@ -22,6 +22,10 @@ module Transrate
     def self.run cmd
       runcmd = Cmd.new "#{Samtools.path} #{cmd}"
       runcmd.run
+      if !runcmd.status.success?
+        logger.warn "Samtools command failed: #{runcmd}" +
+                    "\n#{runcmd.stderr}"
+      end
       runcmd.stdout
     end
 
@@ -36,19 +40,37 @@ module Transrate
     end
 
     # Sort a bam file, returning the path to the sorted bamfile
-    def self.sort_bam bamfile
+    def self.sort_bam bamfile, threads=1
       # the sort command behaves inconsistently with the other commands:
       # it takes an output prefix rather than a filename
       # and automatically adds the .bam extension
       sorted = File.basename(bamfile, '.bam') + '.sorted'
       if !File.exist?("#{sorted}.bam")
         cmd = "sort"
-        cmd << " -l 2 " # use 2 sort and compression threads, maybe more?
-        cmd << "#{File.expand_path bamfile} #{sorted}"
+        cmd << " -l #{threads}"
+        cmd << " #{File.expand_path bamfile} #{sorted}"
         Samtools.run cmd
       end
       File.expand_path(sorted + '.bam')
     end
+
+    # Sort a bam file by readname only, returning the path to th
+    # sorted bamfile
+    def self.readsort_bam bamfile, threads=1
+      # the sort command behaves inconsistently with the other commands:
+      # it takes an output prefix rather than a filename
+      # and automatically adds the .bam extension
+      sorted = File.basename(bamfile, '.bam') + '.sorted'
+      if !File.exist?("#{sorted}.bam")
+        cmd = "sort"
+        cmd << " -l #{threads}"
+        cmd << " -n" # sort by read name only
+        cmd << " #{File.expand_path bamfile} #{sorted}"
+        Samtools.run cmd
+      end
+      File.expand_path(sorted + '.bam')
+    end
+
 
     # Index a bamfile, returning the path to the index
     def self.index_bam bamfile
@@ -106,6 +128,16 @@ module Transrate
         end
       end
       outfile
+    end
+
+    def self.merge_bam left, right, out, threads=1
+      cmd = "merge"
+      cmd << " -@ #{threads}"
+      cmd << " #{out}"
+      cmd << " #{left}"
+      cmd << " #{right}"
+      Samtools.run cmd
+      out
     end
 
   end
