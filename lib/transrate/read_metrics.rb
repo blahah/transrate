@@ -104,7 +104,9 @@ module Transrate
         :p_contigs_lowcovered => @p_contigs_lowcovered,
         :edit_distance_per_base => @edit_distance / @assembly.n_bases.to_f,
         :contigs_segmented => @contigs_segmented,
-        :p_contigs_segmented => @p_contigs_segmented
+        :p_contigs_segmented => @p_contigs_segmented,
+        :contigs_good => @contigs_good,
+        :p_contigs_good => @p_contigs_good
       }
     end
 
@@ -180,7 +182,9 @@ module Transrate
       else
         logger.warn "couldn't find bamfile: #{bamfile}"
       end
-
+      @assembly.assembly.each_pair do |name, contig|
+        @contigs_good += 1 if contig.score >= 0.5
+      end
       update_proportions
     end
 
@@ -193,6 +197,7 @@ module Transrate
       @p_contigs_uncovered = @contigs_uncovered / ncontigs
       @p_contigs_lowcovered = @contigs_lowcovered / ncontigs
       @p_contigs_segmented = @contigs_segmented / ncontigs
+      @p_contigs_good = @contigs_good / ncontigs
 
       @p_good_mapping = @good.to_f / @fragments.to_f
       @p_fragments_mapped = @fragments_mapped / @fragments.to_f
@@ -246,6 +251,7 @@ module Transrate
       @contigs_lowcovered = 0 # mean cov < 10
       @contigs_segmented = 0 # p_not_segmented < 0.5
       @edit_distance = 0
+      @contigs_good = 0
     end
 
   end # ReadMetrics

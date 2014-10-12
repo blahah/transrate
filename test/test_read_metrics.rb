@@ -45,6 +45,7 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 2, stats[:contigs_uncovbase], 'uncovered base contig'
           assert_equal 0, stats[:contigs_uncovered], 'uncovered contig'
           assert_equal 0, stats[:contigs_lowcovered], 'lowcovered contig'
+          assert_equal 2, stats[:contigs_good], 'good contigs'
         end
       end
     end
