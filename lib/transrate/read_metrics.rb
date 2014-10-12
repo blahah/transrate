@@ -61,6 +61,7 @@ module Transrate
       assigned_bam = assign_and_quantify readsorted_bam
       unless File.exist? sorted_bam
         File.delete readsorted_bam
+        merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
         Samtools.merge_bam(invalid_bam, assigned_bam, merged_bam, threads=threads)
         File.delete invalid_bam
         File.delete assigned_bam
