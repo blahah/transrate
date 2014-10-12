@@ -34,6 +34,7 @@ module Transrate
     end
 
     def run left, right, insertsize:200, insertsd:50, threads:8
+      # check all read files exist
       [left, right].each do |readfile|
         raise IOError.new "Read file is nil" if readfile.nil?
         readfile.split(",").each do |file|
@@ -42,7 +43,11 @@ module Transrate
           end
         end
       end
+
+      # estimate max read length
       get_read_length(left, right)
+
+      # map reads
       @mapper.build_index(@assembly.file, threads)
       bamfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
@@ -50,6 +55,7 @@ module Transrate
                                   threads: threads)
       @fragments = @mapper.read_count
 
+      # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
       unless File.exist? sorted_bam
@@ -57,8 +63,12 @@ module Transrate
         readsorted_bam = Samtools.readsort_bam valid_bam
         File.delete valid_bam
       end
+
+      # pass valid alignments to eXpress for assignment
       # always have to run the eXpress command to load the results
       assigned_bam = assign_and_quantify readsorted_bam
+
+      # merge the assigned alignments back with the invalid ones
       unless File.exist? sorted_bam
         File.delete readsorted_bam
         merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
@@ -68,6 +78,8 @@ module Transrate
         sorted_bam = Samtools.sort_bam merged_bam
         File.delete merged_bam
       end
+
+      # analyse the final mappings
       analyse_read_mappings(sorted_bam, insertsize, insertsd, true)
 
       @has_run = true
@@ -170,7 +182,6 @@ module Transrate
       end
 
       update_proportions
-
     end
 
     def update_proportions
