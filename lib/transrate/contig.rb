@@ -35,6 +35,7 @@ module Transrate
       @p_uncovered_bases = 1
       @mean_mapq = 0
       @p_not_segmented = 1
+      @score = -1
     end
 
     def each &block
@@ -250,6 +251,7 @@ module Transrate
 
     # Contig score (geometric mean of all score components)
     def score
+      return @score if @score != -1
       prod =
         [p_bases_covered, 0.01].max * # proportion of bases covered
         [p_not_segmented, 0.01].max * # prob contig has 0 changepoints
@@ -258,7 +260,7 @@ module Transrate
         [p_unique_bases, 0.01].max # prop mapQ >= 5
       s = prod ** (1.0 / 5)
       s = 0.01 if !s
-      return [s, 0.01].max
+      @score = [s, 0.01].max
     end
   end
 
