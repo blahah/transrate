@@ -61,7 +61,7 @@ module Transrate
           raise SnapError.new("Snap failed\n#{runner.stderr}")
         end
       else
-        load_readcount
+        load_readcount left
       end
       @bam
     end
@@ -78,12 +78,12 @@ module Transrate
       end
     end
 
-    def load_readcount
+    def load_readcount reads
       @read_count = 0
       if File.exist?("#{@read_count_file}")
         @read_count = File.open("#{@read_count_file}").readlines.join.to_i
       else
-        left.split(",").each do |l|
+        reads.split(",").each do |l|
           cmd = "wc -l #{l}"
           count = Cmd.new(cmd)
           count.run
@@ -105,7 +105,6 @@ module Transrate
         overflow = 500
         cmd = "#{@snap} index #{file} #{@index_name}"
         cmd << " -s 23"
-        cmd << " -O#{overflow}"
         cmd << " -t#{threads}"
         cmd << " -bSpace" # contig name terminates with space char
         runner = Cmd.new cmd
