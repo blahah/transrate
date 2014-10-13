@@ -38,7 +38,7 @@ module Transrate
       cmd << " -b" # bind threads to cores
       cmd << " -M"  # format cigar string
       cmd << " -sa" # keep all alignments, don't discard 0x100
-      cmd << " -C++" # trim low-quality bases from front and back of reads
+      # cmd << " -C++" # trim low-quality bases from front and back of reads
       cmd
     end
 
@@ -69,8 +69,8 @@ module Transrate
     def save_readcount stdout
       stdout.split("\n").each do |line|
         cols = line.split(/\s+/)
-        if cols.length == 13 and cols[0]=="2000"
-          @read_count = cols[9].to_i / 2
+        if cols[0]=="2000" and cols[1]=="30"
+          @read_count = cols[8].to_i / 2
           File.open("#{@read_count_file}", "wb") do |out|
             out.write("#{@read_count}\n")
           end

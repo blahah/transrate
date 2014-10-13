@@ -13,13 +13,17 @@ class TestTransrateBin < Test::Unit::TestCase
       files = ["150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.bam.bai",
       "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.bam",
       "sorghum_transcript_into_Os.protein.2.1.blast",
+      "assembly.2_into_Os.protein.2.1.blast",
       "sorghum_transcript.nhr", "sorghum_transcript.nin", "sorghum_transcript.nsq",
       "Os.protein.2_into_sorghum_transcript.2.blast",
+      "assembly.2.nhr",  "assembly.2.nin",  "assembly.2.nsq",
       "Os.protein.2.phr",  "Os.protein.2.pin",  "Os.protein.2.psq",
-      "transrate_assemblies.csv",
+      "transrate_assemblies.csv", "params.xprs",
+      "sorghum_transcript.fa_results.xprs",
       "sorghum_transcript.fa_bam_info.csv",
       "transrate_sorghum_transcript.fa_contigs.csv",
-      "150uncovered.l.fq-150uncovered.r.fq-read_count.txt"]
+      "150uncovered.l.fq-150uncovered.r.fq-read_count.txt",
+      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.merged.sorted.bam"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
       end

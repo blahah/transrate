@@ -11,7 +11,7 @@ module Transrate
     attr_accessor :seq, :name
     # read-based metrics
     attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases
-    attr_accessor :edit_distance, :bases_mapped, :mean_mapq
+    attr_accessor :p_seq_true, :p_unique
     attr_accessor :low_uniqueness_bases, :in_bridges
     attr_accessor :p_good, :p_not_segmented
     # reference-based metrics
@@ -27,13 +27,12 @@ module Transrate
       @reference_coverage = 0
       @has_crb = false
       @in_bridges = 0
-      @edit_distance = 0
-      @bases_mapped = 0
+      @p_seq_true = 0
       @low_uniqueness_bases = 0
-      @p_good = 0
+      @p_good = -1
       @uncovered_bases = length
       @p_uncovered_bases = 1
-      @mean_mapq = 0
+      @p_unique = 0
       @p_not_segmented = 1
       @score = -1
     end
@@ -57,23 +56,21 @@ module Transrate
     end
 
     def read_metrics
-      read = @bases_mapped>0 ? {
+      read = @p_good>=0 ? {
         :in_bridges => in_bridges,
         :p_good => @p_good,
         :p_bases_covered => p_bases_covered,
-        :inverse_edit_dist => inverse_edit_dist,
-        :p_unique_bases => p_unique_bases,
+        :p_seq_true => p_seq_true,
         :score => score,
-        :mean_mapq => mean_mapq,
+        :p_unique => p_unique,
         :p_not_segmented => p_not_segmented
       } : {
         :in_bridges => "NA",
         :p_good => "NA",
         :p_bases_covered => "NA",
-        :inverse_edit_dist => "NA",
-        :p_unique_bases => "NA",
+        :p_seq_true => "NA",
         :score => "NA",
-        :mean_mapq => mean_mapq,
+        :p_unique => p_unique,
         :p_not_segmented => p_not_segmented
       }
     end
@@ -224,18 +221,6 @@ module Transrate
       return kmer_count(k, @seq.seq)/(4**k).to_f # call to C
     end
 
-    def edit_distance_per_base
-      if bases_mapped and bases_mapped > 0
-        return edit_distance / bases_mapped.to_f
-      else
-        return 0
-      end
-    end
-
-    def inverse_edit_dist
-      1 - edit_distance_per_base
-    end
-
     def p_bases_covered
       1 - p_uncovered_bases
     end
@@ -256,8 +241,8 @@ module Transrate
         [p_bases_covered, 0.01].max * # proportion of bases covered
         [p_not_segmented, 0.01].max * # prob contig has 0 changepoints
         [p_good, 0.01].max * # proportion of reads that mapped good
-        [inverse_edit_dist, 0.01].max * # 1 - mean per-base edit distance
-        [p_unique_bases, 0.01].max # prop mapQ >= 5
+        [p_seq_true, 0.01].max * # scaled 1 - mean per-base edit distance
+        [p_unique, 0.01].max # prop mapQ >= 5
       s = prod ** (1.0 / 5)
       s = 0.01 if !s
       @score = [s, 0.01].max
