@@ -49,7 +49,7 @@ class TestTransrater < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           stats = @rater.read_metrics(@left, @right)
-          assert_equal 223, stats.read_stats[:num_pairs]
+          assert_equal 223, stats.read_stats[:fragments]
         end
       end
     end
@@ -59,7 +59,7 @@ class TestTransrater < Test::Unit::TestCase
         Dir.chdir tmpdir do
           all = @rater.all_metrics(@left, @right)
           score = @rater.assembly_score
-          assert_equal 0.31524, score.round(5) # regression test
+          assert_equal 0.45952, score.round(5) # regression test
         end
       end
     end

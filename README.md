@@ -4,11 +4,12 @@
 
 ## Development status
 
-[![Gem Version](https://badge.fury.io/rb/transrate.png)][gem]
-[![Build Status](https://secure.travis-ci.org/Blahah/transrate.png?branch=master)][travis]
-[![Dependency Status](https://gemnasium.com/Blahah/transrate.png?travis)][gemnasium]
-[![Code Climate](https://codeclimate.com/github/Blahah/transrate.png)][codeclimate]
-[![Coverage Status](https://coveralls.io/repos/Blahah/transrate/badge.png?branch=master)][coveralls]
+[![Gem Version](http://img.shields.io/gem/v/transrate.svg)][gem]
+![Downloads](http://img.shields.io/gem/dtv/transrate.svg)
+[![Build Status](http://img.shields.io/travis/Blahah/transrate/master.svg)][travis]
+[![Dependency Status](http://img.shields.io/gemnasium/Blahah/transrate.svg)][gemnasium]
+[![Code Climate](http://img.shields.io/codeclimate/github/Blahah/transrate.svg)][codeclimate]
+[![Coverage Status](http://img.shields.io/coveralls/Blahah/transrate.svg)][coveralls]
 
 [gem]: https://badge.fury.io/rb/transrate
 [travis]: https://travis-ci.org/Blahah/transrate

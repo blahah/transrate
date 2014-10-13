@@ -31,20 +31,19 @@ class TestReadMetrics < Test::Unit::TestCase
           @read_metrics.run(left, right)
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
-          assert_equal 39196,   @read_metrics.total_bases, "total bases"
-          assert_equal 223,     stats[:num_pairs], 'number of read pairs'
-          assert_equal 215,     stats[:total_mappings], 'number mapping'
-          assert_equal 96.41,   stats[:percent_mapping].round(2),
-                       'percent mapping'
-          assert_equal 144,     stats[:good_mappings], 'good mapping'
-          assert_equal 64.57,   stats[:pc_good_mapping].round(2),
+          assert_equal 223,     stats[:fragments], 'number of read pairs'
+          assert_equal 217,     stats[:fragments_mapped], 'number mapping'
+          assert_equal 0.9731,   stats[:p_fragments_mapped].round(4),
+                       'proportion mapping'
+          assert_equal 141,     stats[:good_mappings], 'good mapping'
+          assert_equal 0.6323,   stats[:p_good_mapping].round(4),
                        'percent good mapping'
-          assert_equal 79,      stats[:bad_mappings], 'bad mapping'
-          assert_equal 52.84,   stats[:mean_mapq].round(2), 'mean mapq'
+          assert_equal 76,      stats[:bad_mappings], 'bad mapping'
           assert_equal 2, stats[:potential_bridges], 'bridges'
-          assert_equal 2, stats[:n_uncovered_base_contigs], 'uncovered base contig'
-          assert_equal 0, stats[:n_uncovered_contigs], 'uncovered contig'
-          assert_equal 0, stats[:n_lowcovered_contigs], 'lowcovered contig'
+          assert_equal 2, stats[:contigs_uncovbase], 'uncovered base contig'
+          assert_equal 0, stats[:contigs_uncovered], 'uncovered contig'
+          assert_equal 0, stats[:contigs_lowcovered], 'lowcovered contig'
+          assert_equal 2, stats[:contigs_good], 'good contigs'
         end
       end
     end
@@ -64,15 +63,15 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:inverse_edit_dist].round(5)
           edit_b = b[:inverse_edit_dist].round(5)
-          assert_equal 0.99507, edit_a, "edit distance 1"
-          assert_equal 0.98987, edit_b, "edit distance 2"
+          assert_equal 0.99487, edit_a, "edit distance 1"
+          assert_equal 0.98983, edit_b, "edit distance 2"
 
           uniq_a = a[:p_unique_bases]
           uniq_b = a[:p_unique_bases]
           assert_equal 1, uniq_a, "unique bases"
           assert_equal 1, uniq_b, "unique bases"
 
-          assert_equal 0.68539, a[:p_good].round(5), "proportion of good mappings"
+          assert_equal 0.69048, a[:p_good].round(5), "proportion of good mappings"
           assert_equal 0.62406, b[:p_good].round(5), "proportion of good mappings"
 
           # uncovered bases
@@ -105,8 +104,8 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:p_not_segmented].round(5)
           edit_b = b[:p_not_segmented].round(5)
-          assert_equal 0.28917, edit_a, "probability not segmented 1"
-          assert_equal 0.79553, edit_b, "probability not segmented 2"
+          assert_equal 0.1237, edit_a, "probability not segmented 1"
+          assert_equal 0.79602, edit_b, "probability not segmented 2"
 
         end
       end
@@ -139,7 +138,7 @@ class TestReadMetrics < Test::Unit::TestCase
         Dir.chdir tmpdir do
           @read_metrics.run(left.join(","), right.join(","))
           stats = @read_metrics.read_stats
-          assert_equal 228, stats[:num_pairs], 'number of read pairs'
+          assert_equal 233, stats[:fragments], 'number of read pairs'
         end
       end
 

@@ -217,7 +217,7 @@ opts.assembly.split(',').each do |assembly|
   if (opts.left && opts.right)
     score = transrater.assembly_score
     unless score.nil?
-      logger.info "OVERALL SCORE: #{score.to_f.round(2) * 100}%"
+      logger.info "TRANSRATE ASSEMBLY SCORE: #{score.round(2)}"
       logger.info "-" * report_width
     end
   end
