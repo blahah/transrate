@@ -29,11 +29,11 @@ snap:
   binaries:
     - snap
   version:
-    number: '1.0beta.11'
+    number: '1.0dev.50'
     command: 'snap'
   url:
     64bit:
-      linux: http://snap.cs.berkeley.edu/downloads/snap-1.0beta.10-linux.tar.gz
+      linux: https://github.com/cboursnell/snap/raw/dev/bin/linux/snap.tar.gz
       macosx: http://snap.cs.berkeley.edu/downloads/snap-1.0beta.1-mac.zip
 samtools:
   binaries:
@@ -50,7 +50,7 @@ bam-read:
   binaries:
    - bam-read
   version:
-    number: '0.3'
+    number: '0.3.1'
     command: 'bam-read'
   url:
     64bit:

@@ -16,7 +16,6 @@ module Transrate
 
       load_executables
       @read_length = 100
-      @mean_mapq = 0
     end
 
     def load_executables
@@ -45,7 +44,7 @@ module Transrate
       end
 
       # estimate max read length
-      get_read_length(left, right)
+      @read_length = get_read_length(left, right)
 
       # map reads
       @mapper.build_index(@assembly.file, threads)
@@ -75,7 +74,7 @@ module Transrate
         Samtools.merge_bam(invalid_bam, assigned_bam, merged_bam, threads=threads)
         File.delete invalid_bam
         File.delete assigned_bam
-        sorted_bam = Samtools.sort_bam merged_bam
+        sorted_bam = Samtools.sort_bam(merged_bam, [4, threads].min)
         File.delete merged_bam
       end
 
@@ -102,7 +101,6 @@ module Transrate
         :p_contigs_uncovered => @p_contigs_uncovered,
         :contigs_lowcovered => @contigs_lowcovered,
         :p_contigs_lowcovered => @p_contigs_lowcovered,
-        :edit_distance_per_base => @edit_distance / @assembly.n_bases.to_f,
         :contigs_segmented => @contigs_segmented,
         :p_contigs_segmented => @p_contigs_segmented,
         :contigs_good => @contigs_good,
@@ -126,7 +124,7 @@ module Transrate
         qual = file.readline.chomp rescue nil
         count+=1
       end
-      @read_length = read_length
+      read_length
     end
 
     def split_bam bamfile
@@ -216,28 +214,27 @@ module Transrate
 
     def populate_contig_data row
       contig = @assembly[row[:name]]
-      @edit_distance += row[:edit_distance]
-      contig.edit_distance = row[:edit_distance]
-      contig.bases_mapped = row[:bases]
+      scale = 0.7
+      contig.p_seq_true = (row[:p_seq_true] - scale) * (1.0 / (1 - scale))
       contig.uncovered_bases = row[:bases_uncovered]
       @bases_uncovered += contig.uncovered_bases
-      if row[:reads_mapped] and row[:reads_mapped] > 0
-        contig.p_good = row[:good]/row[:reads_mapped].to_f
+      if row[:fragments_mapped] and row[:fragments_mapped] > 0
+        contig.p_good = row[:good]/row[:fragments_mapped].to_f
       end
       contig.p_not_segmented = row[:p_not_segmented]
       if contig.p_not_segmented < 0.5
         @contigs_segmented += 1
       end
       contig.in_bridges = row[:bridges]
+      contig.p_unique = row[:p_unique]
       if row[:bridges] > 1
         @potential_bridges += 1
       end
-      @fragments_mapped += row[:reads_mapped]
+      @fragments_mapped += row[:fragments_mapped]
       @good += row[:good]
       if row[:bases_uncovered] > 0
         @contigs_uncovbase += 1
       end
-      @mean_mapq += row[:mapq]
     end
 
     def initial_values
@@ -250,7 +247,6 @@ module Transrate
       @contigs_uncovered = 0 # mean cov < 1
       @contigs_lowcovered = 0 # mean cov < 10
       @contigs_segmented = 0 # p_not_segmented < 0.5
-      @edit_distance = 0
       @contigs_good = 0
     end
 
