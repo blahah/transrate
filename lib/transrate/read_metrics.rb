@@ -59,7 +59,7 @@ module Transrate
       readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
       unless File.exist? sorted_bam
         valid_bam, invalid_bam = split_bam bamfile
-        readsorted_bam = Samtools.readsort_bam valid_bam
+        readsorted_bam = Samtools.readsort_bam(valid_bam, threads)
         File.delete valid_bam
       end
 
@@ -74,7 +74,7 @@ module Transrate
         Samtools.merge_bam(invalid_bam, assigned_bam, merged_bam, threads=threads)
         File.delete invalid_bam
         File.delete assigned_bam
-        sorted_bam = Samtools.sort_bam(merged_bam, [4, threads].min)
+        sorted_bam = Samtools.sort_bam(merged_bam, threads)
         File.delete merged_bam
       end
 

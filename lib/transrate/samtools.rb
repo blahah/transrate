@@ -40,7 +40,7 @@ module Transrate
     end
 
     # Sort a bam file, returning the path to the sorted bamfile
-    def self.sort_bam bamfile, threads=1
+    def self.sort_bam bamfile, threads=4
       # the sort command behaves inconsistently with the other commands:
       # it takes an output prefix rather than a filename
       # and automatically adds the .bam extension
@@ -56,7 +56,7 @@ module Transrate
 
     # Sort a bam file by readname only, returning the path to th
     # sorted bamfile
-    def self.readsort_bam bamfile, threads=1
+    def self.readsort_bam bamfile, threads=4
       # the sort command behaves inconsistently with the other commands:
       # it takes an output prefix rather than a filename
       # and automatically adds the .bam extension
