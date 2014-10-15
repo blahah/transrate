@@ -18,6 +18,7 @@ tmp
 .#*
 \#*
 *so
+dryrun
 
 # YARD artifacts
 .yardoc
