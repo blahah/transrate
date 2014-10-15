@@ -8,10 +8,10 @@ module Transrate
   # the Gem. Versions must be incremented in accordance with
   # Semantic Versioning 2.0 (http://semver.org/).
   module VERSION
-    MAJOR = 0
-    MINOR = 3
-    PATCH = 4
-    BUILD = nil
+    MAJOR = 1
+    MINOR = 0
+    PATCH = 0
+    BUILD = 'alpha.1'
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   end
