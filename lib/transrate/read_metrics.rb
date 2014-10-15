@@ -57,7 +57,7 @@ module Transrate
       # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
-      unless File.exist? sorted_bam
+      unless File.exist? readsorted_bam
         valid_bam, invalid_bam = split_bam bamfile
         readsorted_bam = Samtools.readsort_bam valid_bam
         File.delete valid_bam
