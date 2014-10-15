@@ -32,7 +32,9 @@ module Transrate
         runner = Cmd.new build_command(assembly, bamfile)
         runner.run
         unless runner.status.success?
-          raise ExpressError.new("Express failed\n#{runner.stderr}")
+          raise ExpressError.new("Express failed\n" +
+                                 runner.stderr + "\n" +
+                                 runner.stdout)
         end
         File.rename(ex_output, fin_output)
       end
