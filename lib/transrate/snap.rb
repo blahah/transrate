@@ -102,7 +102,6 @@ module Transrate
     def build_index file, threads
       @index_name = File.basename(file, File.extname(file))
       unless Dir.exists?(@index_name)
-        overflow = 500
         cmd = "#{@snap} index #{file} #{@index_name}"
         cmd << " -s 23"
         cmd << " -t#{threads}"
