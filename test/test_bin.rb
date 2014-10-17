@@ -16,6 +16,7 @@ class TestTransrateBin < Test::Unit::TestCase
       "assembly.2_into_Os.protein.2.1.blast",
       "sorghum_transcript.nhr", "sorghum_transcript.nin", "sorghum_transcript.nsq",
       "Os.protein.2_into_sorghum_transcript.2.blast",
+      "Os.protein.2_into_assembly.2.2.blast",
       "assembly.2.nhr",  "assembly.2.nin",  "assembly.2.nsq",
       "Os.protein.2.phr",  "Os.protein.2.pin",  "Os.protein.2.psq",
       "transrate_assemblies.csv", "params.xprs",

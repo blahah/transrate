@@ -27,9 +27,9 @@ module Transrate
       @reference_coverage = 0
       @has_crb = false
       @in_bridges = 0
+      @p_good = 0
       @p_seq_true = 0
       @low_uniqueness_bases = 0
-      @p_good = -1
       @uncovered_bases = length
       @p_uncovered_bases = 1
       @p_unique = 0
@@ -56,20 +56,12 @@ module Transrate
     end
 
     def read_metrics
-      read = @p_good>=0 ? {
+      {
         :in_bridges => in_bridges,
-        :p_good => @p_good,
+        :p_good => p_good,
         :p_bases_covered => p_bases_covered,
         :p_seq_true => p_seq_true,
         :score => score,
-        :p_unique => p_unique,
-        :p_not_segmented => p_not_segmented
-      } : {
-        :in_bridges => "NA",
-        :p_good => "NA",
-        :p_bases_covered => "NA",
-        :p_seq_true => "NA",
-        :score => "NA",
         :p_unique => p_unique,
         :p_not_segmented => p_not_segmented
       }
