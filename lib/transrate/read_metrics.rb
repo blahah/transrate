@@ -57,23 +57,26 @@ module Transrate
       # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
-      unless File.exist? readsorted_bam
-        valid_bam, invalid_bam = split_bam bamfile
-        readsorted_bam = Samtools.readsort_bam valid_bam
-        File.delete valid_bam
-      end
-
-      # pass valid alignments to eXpress for assignment
-      # always have to run the eXpress command to load the results
-      assigned_bam = assign_and_quantify readsorted_bam
-
-      # merge the assigned alignments back with the invalid ones
+      merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
       unless File.exist? sorted_bam
+        unless File.exist? readsorted_bam
+          valid_bam, invalid_bam = split_bam bamfile
+          readsorted_bam = Samtools.readsort_bam valid_bam
+          File.delete valid_bam
+        end
+
+        # pass valid alignments to eXpress for assignment
+        # always have to run the eXpress command to load the results
+        assigned_bam = assign_and_quantify readsorted_bam
         File.delete readsorted_bam
-        merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
-        Samtools.merge_bam(invalid_bam, assigned_bam, merged_bam, threads=threads)
-        File.delete invalid_bam
-        File.delete assigned_bam
+
+        # merge the assigned alignments back with the invalid ones
+        unless File.exist? merged_bam
+          Samtools.merge_bam(invalid_bam, assigned_bam, merged_bam, threads=threads)
+
+          File.delete invalid_bam
+          File.delete assigned_bam
+        end
         sorted_bam = Samtools.sort_bam(merged_bam, [4, threads].min)
         File.delete merged_bam
       end
