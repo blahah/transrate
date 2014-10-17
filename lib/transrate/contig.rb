@@ -63,7 +63,8 @@ module Transrate
         :p_seq_true => p_seq_true,
         :score => score,
         :p_unique => p_unique,
-        :p_not_segmented => p_not_segmented
+        :p_not_segmented => p_not_segmented,
+        :expression => coverage
       } : {
         :in_bridges => "NA",
         :p_good => "NA",
@@ -71,7 +72,8 @@ module Transrate
         :p_seq_true => "NA",
         :score => "NA",
         :p_unique => p_unique,
-        :p_not_segmented => p_not_segmented
+        :p_not_segmented => p_not_segmented,
+        :expression => coverage
       }
     end
 
