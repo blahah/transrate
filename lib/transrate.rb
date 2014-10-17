@@ -22,7 +22,9 @@ module Transrate
 
   # Create the universal logger and include it in Object
   # making the logger object available everywhere
-  Yell.new(:format => "[%5L]: %m") do |l|
+  format = Yell::Formatter.new("[%5L] %d : %m", "%Y-%m-%d %H:%M:%S")
+  # http://xkcd.com/1179/
+  Yell.new(:format => format) do |l|
     l.level = :info
     l.name = Object
     l.adapter STDOUT, level: [:debug, :info, :warn]
