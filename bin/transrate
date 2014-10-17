@@ -71,7 +71,7 @@ else
   if missing.length > 0
     puts "Dependencies are missing:"
     missing.each do |dep|
-      puts "  - #{dep}"
+      puts "  - #{dep.name} (#{dep.version})"
     end
     puts "To install all missing dependencies, run `transrate --install-deps`"
     exit(1)
