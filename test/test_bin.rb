@@ -93,6 +93,10 @@ class TestTransrateBin < Test::Unit::TestCase
       cmd << " --right #{right.join(",")}"
       c = Transrate::Cmd.new("#{cmd}")
       c.run
+      if !(c.status.success?)
+        puts c.stdout
+        puts c.stderr
+      end
       assert_equal true, c.status.success?, "exit status"
       assert File.exist?("transrate_assemblies.csv")
       assert File.exist?("transrate_sorghum_transcript.fa_contigs.csv"),

@@ -73,12 +73,12 @@ class TestReadMetrics < Test::Unit::TestCase
           unc_a = contigs[0].uncovered_bases
           unc_b = contigs[1].uncovered_bases
           assert_equal 11, unc_a, "uncovered bases"
-          assert_equal 1, unc_b, "uncovered bases"
+          assert_equal 2, unc_b, "uncovered bases"
 
           prop_unc_a = a[:p_bases_covered]
           prop_unc_b = b[:p_bases_covered]
           assert_equal 0.98497, prop_unc_a.round(5), "proportion covered bases"
-          assert_equal 0.99878, prop_unc_b.round(5), "proportion covered bases"
+          assert_equal 0.99757, prop_unc_b.round(5), "proportion covered bases"
 
         end
       end
@@ -100,7 +100,7 @@ class TestReadMetrics < Test::Unit::TestCase
           edit_a = a[:p_not_segmented].round(5)
           edit_b = b[:p_not_segmented].round(5)
           assert_equal 0.11444, edit_a, "probability not segmented 1"
-          assert_equal 0.79629, edit_b, "probability not segmented 2"
+          assert_equal 0.82779, edit_b, "probability not segmented 2"
 
         end
       end
