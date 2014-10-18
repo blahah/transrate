@@ -47,7 +47,7 @@ module Transrate
       sorted = File.basename(bamfile, '.bam') + '.sorted'
       if !File.exist?("#{sorted}.bam")
         cmd = "sort"
-        cmd << " -l #{threads}"
+        cmd << " -@ #{threads}"
         cmd << " #{File.expand_path bamfile} #{sorted}"
         Samtools.run cmd
       end
@@ -63,7 +63,7 @@ module Transrate
       sorted = File.basename(bamfile, '.bam') + '.sorted'
       if !File.exist?("#{sorted}.bam")
         cmd = "sort"
-        cmd << " -l #{threads}"
+        cmd << " -@ #{threads}"
         cmd << " -n" # sort by read name only
         cmd << " #{File.expand_path bamfile} #{sorted}"
         Samtools.run cmd
