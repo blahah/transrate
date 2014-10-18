@@ -6,6 +6,8 @@ require 'csv'
 require 'bindeps'
 require 'ruby-prof'
 
+ARGV[0] = "--help" if ARGV.length() == 0
+
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
@@ -60,7 +62,6 @@ opts = Trollop::options do
   opt :install_deps, "install any missing dependencies"
   opt :profile, "debug option: profile the code as it runs"
 end
-
 gem_dir = Gem.loaded_specs['transrate'].full_gem_path
 gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
 if opts.install_deps
@@ -73,7 +74,7 @@ else
   if missing.length > 0
     puts "Dependencies are missing:"
     missing.each do |dep|
-      puts "  - #{dep}"
+      puts "  - #{dep.name} (#{dep.version})"
     end
     puts "To install all missing dependencies, run `transrate --install-deps`"
     exit(1)
