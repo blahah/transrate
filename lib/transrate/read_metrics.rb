@@ -165,7 +165,7 @@ module Transrate
         coverage = expr[:eff_count] * @read_length / expr[:eff_len]
         @contigs_uncovered += 1 if coverage < 1
         @contigs_lowcovered += 1 if coverage < 10
-        contig.coverage = coverage
+        contig.coverage = coverage.round(2)
         contig.eff_length = expr[:eff_len]
         contig.eff_count = expr[:eff_count]
         contig.tpm = expr[:tpm]
