@@ -10,6 +10,7 @@ module Transrate
     def_delegators :@seq, :size, :length
     attr_accessor :seq, :name
     # read-based metrics
+    attr_accessor :eff_length, :eff_count, :tpm
     attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases
     attr_accessor :p_seq_true, :p_unique
     attr_accessor :low_uniqueness_bases, :in_bridges
@@ -64,7 +65,10 @@ module Transrate
         :score => score,
         :p_unique => p_unique,
         :p_not_segmented => p_not_segmented,
-        :expression => coverage
+        :eff_length => eff_length,
+        :eff_count => eff_count,
+        :tpm => tpm,
+        :coverage => coverage
       }
     end
 

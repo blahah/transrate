@@ -68,8 +68,14 @@ module Transrate
         end
         line = line.chomp.split("\t")
         target = line[1]
+        effective_length = line[3]
         effective_count = line[7]
-        expression[target] = effective_count.to_f
+        tpm = line[14]
+        expression[target] = {
+          :eff_len => effective_length.to_i,
+          :eff_count => effective_count.to_f,
+          :tpm => tpm.to_f
+        }
       end
       expression
     end
