@@ -10,7 +10,8 @@ opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
 
-  Transrate v#{Transrate::VERSION::STRING.dup} by Richard Smith-Unna <rds45@cam.ac.uk>
+  Transrate v#{Transrate::VERSION::STRING.dup}
+  by Richard Smith-Unna <rds45@cam.ac.uk> and Chris Boursnell
 
   DESCRIPTION:
   Analyse a de-novo transcriptome assembly using three kinds of metrics:
@@ -26,8 +27,10 @@ opts = Trollop::options do
   transrate <options>
 
   EXAMPLES:
-  # just check dependencies and install any that are missing
+  # check dependencies and install any that are missing
   transrate --install-deps
+  # get the transrate score for the assembly and each contig
+  transrate --assembly contigs.da --left left.fq --right right.fq
   # contig metrics only
   transrate --assembly contigs.fa
   # contig and reference-based metrics with 8 threads
