@@ -32,7 +32,7 @@ opts = Trollop::options do
   # check dependencies and install any that are missing
   transrate --install-deps
   # get the transrate score for the assembly and each contig
-  transrate --assembly contigs.da --left left.fq --right right.fq
+  transrate --assembly contigs.fa --left left.fq --right right.fq
   # contig metrics only
   transrate --assembly contigs.fa
   # contig and reference-based metrics with 8 threads
