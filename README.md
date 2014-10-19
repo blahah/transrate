@@ -6,6 +6,7 @@
 
 [![Gem Version](http://img.shields.io/gem/v/transrate.svg)][gem]
 ![Downloads](http://img.shields.io/gem/dtv/transrate.svg)
+![Total Downloads](http://img.shields.io/gem/dt/transrate.svg)
 [![Build Status](http://img.shields.io/travis/Blahah/transrate/master.svg)][travis]
 [![Dependency Status](http://img.shields.io/gemnasium/Blahah/transrate.svg)][gemnasium]
 [![Code Climate](http://img.shields.io/codeclimate/github/Blahah/transrate.svg)][codeclimate]
