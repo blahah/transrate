@@ -58,7 +58,7 @@ module Transrate
         runner.run
         save_readcount runner.stdout
         unless runner.status.success?
-          raise SnapError.new("Snap failed\n#{runner.stderr}")
+          raise SnapError.new("Snap failed\n#{runner.stderr}\n#{runner.stdout}")
         end
       else
         load_readcount left
