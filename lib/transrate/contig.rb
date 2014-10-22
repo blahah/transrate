@@ -231,18 +231,16 @@ module Transrate
       (length - low_uniqueness_bases) / length.to_f
     end
 
-    # Contig score (geometric mean of all score components)
+    # Contig score (product of all score components)
     def score
       return @score if @score != -1
       prod =
-        [p_bases_covered, 0.01].max * # proportion of bases covered
-        [p_not_segmented, 0.01].max * # prob contig has 0 changepoints
-        [p_good, 0.01].max * # proportion of reads that mapped good
-        [p_seq_true, 0.01].max * # scaled 1 - mean per-base edit distance
-        [p_unique, 0.01].max # prop mapQ >= 5
-      s = prod ** (1.0 / 5)
-      s = 0.01 if !s
-      @score = [s, 0.01].max
+        [p_bases_covered, 0.01].max.to_f * # proportion of bases covered
+        [p_not_segmented, 0.01].max.to_f * # prob contig has 0 changepoints
+        [p_good, 0.01].max.to_f * # proportion of reads that mapped good
+        [p_seq_true, 0.01].max.to_f * # scaled 1 - mean per-base edit distance
+        [p_unique, 0.01].max.to_f # prop mapQ >= 5
+      @score = [prod, 0.01].max
     end
   end
 
