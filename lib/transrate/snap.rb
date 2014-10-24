@@ -5,6 +5,8 @@ module Transrate
 
   class Snap
 
+    require 'fix-trinity-output'
+
     attr_reader :index_name, :sam, :read_count
 
     def initialize
@@ -51,13 +53,40 @@ module Transrate
       @bam = File.expand_path("#{lbase}.#{rbase}.#{index}.bam")
       @read_count_file = "#{lbase}-#{rbase}-read_count.txt"
 
+      fixer = Fixer.new
       unless File.exists? @bam
         snapcmd = build_paired_cmd(left, right, threads)
         runner = Cmd.new snapcmd
         runner.run
         save_readcount runner.stdout
         unless runner.status.success?
-          raise SnapError.new("Snap failed\n#{runner.stderr}")
+          if runner.stderr=~/Unmatched\sread\sIDs/
+            logger.warn "Unmatched read IDs. Fixing input files..."
+            fixedleft = []
+            fixedright = []
+            i = 0
+            left.split(",").zip(right.split(",")).each do |l, r|
+              prefix = "reads-#{i}"
+              fixer.run(l, r, "#{prefix}")
+              fixedleft << "#{prefix}-fixed.1.fastq"
+              fixedright << "#{prefix}-fixed.2.fastq"
+              i+=1
+            end
+            left = fixedleft.join(",")
+            right = fixedright.join(",")
+            File.delete(@bam)
+            logger.info "Fixed input files"
+            snapcmd = build_paired_cmd(left, right, threads)
+            runner = Cmd.new snapcmd
+            runner.run
+            save_readcount runner.stdout
+            unless runner.status.success?
+              raise SnapError.new("Snap failed\n#{runner.stderr}")
+            end
+          else
+            raise SnapError.new("Snap failed\n#{runner.stderr}")
+          end
+
         end
       else
         load_readcount left

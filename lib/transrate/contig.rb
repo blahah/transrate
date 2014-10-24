@@ -12,8 +12,7 @@ module Transrate
     # read-based metrics
     attr_accessor :eff_length, :eff_count, :tpm
     attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases
-    attr_accessor :p_seq_true, :p_unique
-    attr_accessor :low_uniqueness_bases, :in_bridges
+    attr_accessor :p_seq_true, :p_unique, :in_bridges
     attr_accessor :p_good, :p_not_segmented
     # reference-based metrics
     attr_accessor :has_crb, :reference_coverage
@@ -30,7 +29,6 @@ module Transrate
       @in_bridges = 0
       @p_good = 0
       @p_seq_true = 0
-      @low_uniqueness_bases = 0
       @uncovered_bases = length
       @p_uncovered_bases = 1
       @p_unique = 0
@@ -227,10 +225,6 @@ module Transrate
       @p_uncovered_bases = n / length.to_f
     end
 
-    def p_unique_bases
-      (length - low_uniqueness_bases) / length.to_f
-    end
-
     # Contig score (geometric mean of all score components)
     def score
       return @score if @score != -1
@@ -239,7 +233,7 @@ module Transrate
         [p_not_segmented, 0.01].max * # prob contig has 0 changepoints
         [p_good, 0.01].max * # proportion of reads that mapped good
         [p_seq_true, 0.01].max * # scaled 1 - mean per-base edit distance
-        [p_unique, 0.01].max # prop mapQ >= 5
+        [p_unique, 0.01].max
       s = prod ** (1.0 / 5)
       s = 0.01 if !s
       @score = [s, 0.01].max
