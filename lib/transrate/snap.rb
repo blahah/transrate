@@ -62,27 +62,7 @@ module Transrate
         unless runner.status.success?
           if runner.stderr=~/Unmatched\sread\sIDs/
             logger.warn "Unmatched read IDs. Fixing input files..."
-            fixedleft = []
-            fixedright = []
-            i = 0
-            left.split(",").zip(right.split(",")).each do |l, r|
-              prefix = "reads-#{i}"
-              fixer.run(l, r, "#{prefix}")
-              fixedleft << "#{prefix}-fixed.1.fastq"
-              fixedright << "#{prefix}-fixed.2.fastq"
-              i+=1
-            end
-            left = fixedleft.join(",")
-            right = fixedright.join(",")
-            File.delete(@bam)
-            logger.info "Fixed input files"
-            snapcmd = build_paired_cmd(left, right, threads)
-            runner = Cmd.new snapcmd
-            runner.run
-            save_readcount runner.stdout
-            unless runner.status.success?
-              raise SnapError.new("Snap failed\n#{runner.stderr}")
-            end
+            remap_reads(left, right, threads)
           else
             raise SnapError.new("Snap failed\n#{runner.stderr}")
           end
@@ -91,6 +71,30 @@ module Transrate
         load_readcount left
       end
       @bam
+    end
+
+    def remap_reads(left, right, threads)
+      fixedleft = []
+      fixedright = []
+      i = 0
+      left.split(",").zip(right.split(",")).each do |l, r|
+        prefix = "reads-#{i}"
+        fixer.run(l, r, "#{prefix}")
+        fixedleft << "#{prefix}-fixed.1.fastq"
+        fixedright << "#{prefix}-fixed.2.fastq"
+        i+=1
+      end
+      left = fixedleft.join(",")
+      right = fixedright.join(",")
+      File.delete(@bam)
+      logger.info "Fixed input files"
+      snapcmd = build_paired_cmd(left, right, threads)
+      runner = Cmd.new snapcmd
+      runner.run
+      save_readcount runner.stdout
+      unless runner.status.success?
+        raise SnapError.new("Snap failed\n#{runner.stderr}")
+      end
     end
 
     def save_readcount stdout

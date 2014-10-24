@@ -58,17 +58,12 @@ module Transrate
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
       merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
-      unless File.exist? sorted_bam
-        unless File.exist? readsorted_bam
-          valid_bam, invalid_bam = split_bam bamfile
-          readsorted_bam = Samtools.readsort_bam valid_bam
-          File.delete valid_bam
-        end
-      end
+
+      valid_bam, invalid_bam = split_bam bamfile
 
       # pass valid alignments to eXpress for assignment
       # always have to run the eXpress command to load the results
-      assigned_bam = assign_and_quantify readsorted_bam
+      assigned_bam = assign_and_quantify valid_bam
       File.delete readsorted_bam if File.exist? readsorted_bam
 
       # merge the assigned alignments back with the invalid ones
@@ -217,7 +212,9 @@ module Transrate
         reader = Cmd.new cmd
         reader.run
         if !reader.status.success?
-          logger.warn "couldn't get information from bam file: #{bamfile}"
+          msg = "Couldn't get information from bam file: #{bamfile}\n"
+          msg << "#{reader.stdout}\n#{reader.stderr}"
+          logger.warn msg
         end
       end
     end
