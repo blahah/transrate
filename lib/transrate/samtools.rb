@@ -23,8 +23,9 @@ module Transrate
       runcmd = Cmd.new "#{Samtools.path} #{cmd}"
       runcmd.run
       if !runcmd.status.success?
-        logger.warn "Samtools command failed: #{runcmd}" +
-                    "\n#{runcmd.stderr}"
+        raise SamtoolsError.new("Samtools command failed: #{runcmd}" +
+                                "\n#{runcmd.stderr}" +
+                                "\n#{runcmd.stdout}")
       end
       runcmd.stdout
     end

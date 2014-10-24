@@ -86,7 +86,6 @@ module Transrate
           else
             raise SnapError.new("Snap failed\n#{runner.stderr}")
           end
-
         end
       else
         load_readcount left
