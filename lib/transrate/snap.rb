@@ -39,7 +39,9 @@ module Transrate
       cmd << " -b" # bind threads to cores
       cmd << " -M"  # format cigar string
       cmd << " -sa" # keep all alignments, don't discard 0x100
-      # cmd << " -C++" # trim low-quality bases from front and back of reads
+      cmd << " -D 5" # edit distance to search for mapq calculation
+      cmd << " -om 5" # Output multiple alignments. extra edit distance
+      cmd << " -omax 10" # max alignments per pair/read
       cmd
     end
 
