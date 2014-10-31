@@ -157,7 +157,11 @@ module Transrate
     def analyse_expression express_output
       express_output.each_pair do |name, expr|
         contig = @assembly[name]
-        coverage = expr[:eff_count] * @read_length / expr[:eff_len]
+        if expr[:eff_len]==0
+          coverage = 0
+        else
+          coverage = expr[:eff_count] * @read_length / expr[:eff_len]
+        end
         @contigs_uncovered += 1 if coverage < 1
         @contigs_lowcovered += 1 if coverage < 10
         contig.coverage = coverage.round(2)
