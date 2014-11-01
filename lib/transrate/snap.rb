@@ -55,7 +55,7 @@ module Transrate
       @bam = File.expand_path("#{lbase}.#{rbase}.#{index}.bam")
       @read_count_file = "#{lbase}-#{rbase}-read_count.txt"
 
-      fixer = Fixer.new
+      @fixer = Fixer.new
       unless File.exists? @bam
         snapcmd = build_paired_cmd(left, right, threads)
         runner = Cmd.new snapcmd
@@ -81,7 +81,7 @@ module Transrate
       i = 0
       left.split(",").zip(right.split(",")).each do |l, r|
         prefix = "reads-#{i}"
-        fixer.run(l, r, "#{prefix}")
+        @fixer.run(l, r, "#{prefix}")
         fixedleft << "#{prefix}-fixed.1.fastq"
         fixedright << "#{prefix}-fixed.2.fastq"
         i+=1
