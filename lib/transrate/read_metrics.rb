@@ -137,12 +137,12 @@ module Transrate
         splitter = Cmd.new cmd
         splitter.run
         if !splitter.status.success?
-          logger.warn "Couldn't split bam file: #{bamfile}" +
+          raise StandardError.new "Couldn't split bam file: #{bamfile}" +
                       "\n#{splitter.stdout}\n#{splitter.stderr}"
         end
       end
       if !File.exist? valid
-        logger.warn "Splitting failed to create valid bam: #{valid}"
+        raise StandardError.new "Splitting failed to create valid bam: #{valid}"
       end
       [valid, invalid]
     end
@@ -187,7 +187,7 @@ module Transrate
         end
         @bad = @fragments_mapped - @good
       else
-        logger.warn "couldn't find bamfile: #{bamfile}"
+        raise "couldn't find bamfile: #{bamfile}"
       end
       @assembly.assembly.each_pair do |name, contig|
         @contigs_good += 1 if contig.score >= 0.5
@@ -218,7 +218,7 @@ module Transrate
         if !reader.status.success?
           msg = "Couldn't get information from bam file: #{bamfile}\n"
           msg << "#{reader.stdout}\n#{reader.stderr}"
-          logger.warn msg
+          raise msg
         end
       end
     end
