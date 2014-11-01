@@ -29,11 +29,11 @@ snap:
   binaries:
     - snap
   version:
-    number: '1.0beta.13'
+    number: '1.0beta.14'
     command: 'snap'
   url:
     64bit:
-      linux: https://github.com/HibberdLab/snap/raw/master/bin/linux/snap.tar.gz
+      linux: http://snap.cs.berkeley.edu/downloads/snap-1.0beta.14-linux.tar.gz
       macosx: https://github.com/HibberdLab/snap/raw/osx_1.0beta.13/bin/macosx/snap.tar.gz
 samtools:
   binaries:
