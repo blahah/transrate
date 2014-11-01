@@ -89,6 +89,7 @@ module Transrate
       unless @read_metrics.has_run
         @read_metrics.run(left, right, threads: @threads)
       end
+      @assembly.classify_contigs
       @read_metrics
     end
 

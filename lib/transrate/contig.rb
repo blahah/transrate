@@ -14,7 +14,7 @@ module Transrate
     attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases
     attr_accessor :p_seq_true, :p_unique
     attr_accessor :low_uniqueness_bases, :in_bridges
-    attr_accessor :p_good, :p_not_segmented
+    attr_accessor :p_good, :p_not_segmented, :good
     # reference-based metrics
     attr_accessor :has_crb, :reference_coverage
     attr_accessor :hits
@@ -36,6 +36,8 @@ module Transrate
       @p_unique = 0
       @p_not_segmented = 1
       @score = -1
+      @good = 0
+      @coverage = 0
     end
 
     def each &block
@@ -242,6 +244,33 @@ module Transrate
         [p_unique, 0.01].max.to_f # prop mapQ >= 5
       @score = [prod, 0.01].max
     end
+
+    # Classify the contig into one of the following classes:
+    # - good (score >= 0.5)
+    # - fragmented (in_bridges > 0) and no other problems
+    # - chimeric (p_not_segmented < 0.25) and no other problems
+    # - bad (score < 0.5 and not in any other category)
+    def classify
+      return :good if score >= 0.5
+      # fragmented?
+      if in_bridges > 5
+        if p_not_segmented * p_bases_covered * p_seq_true * p_unique >= 0.5
+          return :fragmented
+        end
+      end
+      # chimeric?
+      if p_not_segmented < 0.25
+        if p_good * p_bases_covered * p_seq_true * p_unique >= 0.5
+          return :chimeric
+        end
+      end
+      return :bad
+    end
+
+    def to_fasta
+
+    end
+
   end
 
 end

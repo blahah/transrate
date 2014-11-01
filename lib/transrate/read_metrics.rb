@@ -241,6 +241,7 @@ module Transrate
         @potential_bridges += 1
       end
       @fragments_mapped += row[:fragments_mapped]
+      contig.good = row[:good]
       @good += row[:good]
       if row[:bases_uncovered] > 0
         @contigs_uncovbase += 1
