@@ -25,16 +25,24 @@ blastplus:
     64bit:
       macosx: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-universal-macosx.tar.gz
       linux: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-x64-linux.tar.gz
-snap:
+bowtie2:
   binaries:
-    - snap
+    - bowtie2
+    - bowtie2-align-l
+    - bowtie2-align-s
+    - bowtie2-build
+    - bowtie2-build-l
+    - bowtie2-build-s
+    - bowtie2-inspect
+    - bowtie2-inspect-l
+    - bowtie2-inspect-s
   version:
-    number: '1.0beta.14'
-    command: 'snap'
+    number: '2.2.3'
+    command: 'bowtie2 --version'
   url:
     64bit:
-      linux: http://snap.cs.berkeley.edu/downloads/snap-1.0beta.14-linux.tar.gz
-      macosx: https://github.com/HibberdLab/snap/raw/osx_1.0beta.13/bin/macosx/snap.tar.gz
+      linux: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-linux-x86_64.zip
+      macosx: http://downloads.sourceforge.net/project/bowtie-bio/bowtie2/2.2.3/bowtie2-2.2.3-macos-x86_64.zip
 samtools:
   binaries:
     - samtools
@@ -61,7 +69,7 @@ bam-split:
   binaries:
    - bam-split
   version:
-    number: '0.1'
+    number: '0.2'
     command: 'bam-split'
   url:
     64bit:
