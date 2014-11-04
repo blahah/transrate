@@ -14,6 +14,7 @@ require 'transrate/comparative_metrics'
 require 'transrate/contig_metrics'
 require 'transrate/samtools'
 require 'transrate/cmd'
+require 'transrate/sam_checker'
 require 'transrate/transrate.so'
 
 # Transrate is a comprehensive transcriptome assembly
