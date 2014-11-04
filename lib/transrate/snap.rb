@@ -5,6 +5,8 @@ module Transrate
 
   class Snap
 
+    require 'fix-trinity-output'
+
     attr_reader :index_name, :sam, :read_count
 
     def initialize
@@ -32,13 +34,14 @@ module Transrate
       cmd << " -s 0 1000" # min and max distance between paired-read starts
       cmd << " -H 300000" # max seed hits to consider in paired mode
       cmd << " -h 2000" # max seed hits to consider when reverting to single
-      cmd << " -I"   # ignore read IDs
       cmd << " -d 30" # max edit distance (function of read length?)
       cmd << " -t #{threads}"
       cmd << " -b" # bind threads to cores
       cmd << " -M"  # format cigar string
       cmd << " -sa" # keep all alignments, don't discard 0x100
-      # cmd << " -C++" # trim low-quality bases from front and back of reads
+      cmd << " -D 5" # edit distance to search for mapq calculation
+      cmd << " -om 5" # Output multiple alignments. extra edit distance
+      cmd << " -omax 10" # max alignments per pair/read
       cmd
     end
 
@@ -52,18 +55,48 @@ module Transrate
       @bam = File.expand_path("#{lbase}.#{rbase}.#{index}.bam")
       @read_count_file = "#{lbase}-#{rbase}-read_count.txt"
 
+      @fixer = Fixer.new # from the fix-trinity-output gem
       unless File.exists? @bam
         snapcmd = build_paired_cmd(left, right, threads)
         runner = Cmd.new snapcmd
         runner.run
         save_readcount runner.stdout
         unless runner.status.success?
-          raise SnapError.new("Snap failed\n#{runner.stderr}\n#{runner.stdout}")
+          if runner.stderr=~/Unmatched\sread\sIDs/
+            logger.warn "Unmatched read IDs. Fixing input files..."
+            remap_reads(left, right, threads)
+          else
+            raise SnapError.new("Snap failed\n#{runner.stderr}")
+          end
         end
       else
         load_readcount left
       end
       @bam
+    end
+
+    def remap_reads(left, right, threads)
+      fixedleft = []
+      fixedright = []
+      i = 0
+      left.split(",").zip(right.split(",")).each do |l, r|
+        prefix = "reads-#{i}"
+        @fixer.run(l, r, "#{prefix}")
+        fixedleft << "#{prefix}-fixed.1.fastq"
+        fixedright << "#{prefix}-fixed.2.fastq"
+        i+=1
+      end
+      left = fixedleft.join(",")
+      right = fixedright.join(",")
+      File.delete(@bam)
+      logger.info "Fixed input files"
+      snapcmd = build_paired_cmd(left, right, threads)
+      runner = Cmd.new snapcmd
+      runner.run
+      save_readcount runner.stdout
+      unless runner.status.success?
+        raise SnapError.new("Snap failed\n#{runner.stderr}")
+      end
     end
 
     def save_readcount stdout
