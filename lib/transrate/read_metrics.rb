@@ -11,7 +11,7 @@ module Transrate
 
     def initialize assembly
       @assembly = assembly
-      @mapper = Snap.new
+      @mapper = Bowtie2.new
       self.initial_values
 
       load_executables
@@ -47,24 +47,24 @@ module Transrate
       @read_length = get_read_length(left, right)
 
       # map reads
-      @mapper.build_index(@assembly.file, threads)
-      bamfile = @mapper.map_reads(@assembly.file, left, right,
+      @mapper.build_index(@assembly.file)
+      samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
                                   threads: threads)
       @fragments = @mapper.read_count
+      bamfile = Samtools.sam_to_bam(samfile)
+      File.delete samfile
 
       # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
-
       valid_bam, invalid_bam = split_bam bamfile
+      readsorted_bam = Samtools.readsort_bam valid_bam
 
       # pass valid alignments to eXpress for assignment
       # always have to run the eXpress command to load the results
-      readsorted_bam = Samtools.readsort_bam(valid_bam)
       assigned_bam = assign_and_quantify readsorted_bam
-      File.delete readsorted_bam if File.exist? readsorted_bam
 
       # merge the assigned alignments back with the invalid ones
       unless File.exist? sorted_bam
@@ -176,7 +176,7 @@ module Transrate
         csv_output = "#{File.basename(@assembly.file)}_bam_info.csv"
         csv_output = File.expand_path(csv_output)
 
-        analyse_bam bamfile, csv_output
+        analyse_bam(bamfile, csv_output)
         # open output csv file
         @potential_bridges = 0
 

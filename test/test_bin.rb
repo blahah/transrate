@@ -24,7 +24,11 @@ class TestTransrateBin < Test::Unit::TestCase
       "sorghum_transcript.fa_bam_info.csv",
       "transrate_sorghum_transcript.fa_contigs.csv",
       "150uncovered.l.fq-150uncovered.r.fq-read_count.txt",
-      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.merged.sorted.bam"]
+      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.merged.sorted.bam",
+      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.merged.valid.bam",
+      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.valid.bam",
+      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.valid.sorted.bam",
+      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.sam-read_count.txt"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
       end
@@ -66,6 +70,10 @@ class TestTransrateBin < Test::Unit::TestCase
       assert File.exist?("transrate_sorghum_transcript.fa_contigs.csv"),
              "contig csv file doesn't exist"
       hash = {}
+      if !c.status.success?
+        puts c.stderr
+        puts c.stdout
+      end
       CSV.foreach("transrate_assemblies.csv", :headers => true,
                                    :header_converters => :symbol,
                                    :converters => :all) do |row|
