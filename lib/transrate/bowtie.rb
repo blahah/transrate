@@ -47,7 +47,6 @@ module Transrate
         # paired end?
         bowtiecmd << " -2 #{right}" if right
         bowtiecmd << " -S #{@sam}"
-        bowtiecmd << " --reorder"
         # run bowtie
         runner = Cmd.new bowtiecmd
         runner.run

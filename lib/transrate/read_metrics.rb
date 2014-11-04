@@ -48,20 +48,18 @@ module Transrate
 
       # map reads
       @mapper.build_index(@assembly.file)
-
       samfile = @mapper.map_reads(@assembly.file, left, right,
                                   insertsize: insertsize,
                                   insertsd: insertsd,
                                   threads: threads)
       @fragments = @mapper.read_count
-
       bamfile = Samtools.sam_to_bam(samfile)
+      File.delete samfile
 
       # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       # readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
       merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
-
       valid_bam, invalid_bam = split_bam bamfile
       readsorted_bam = Samtools.readsort_bam valid_bam
       # pass valid alignments to eXpress for assignment
