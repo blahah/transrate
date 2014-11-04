@@ -82,8 +82,9 @@ module Transrate
         end
         while line
           ls.parse_line(line)
-          @assembly[ls.chrom].edit_distance += ls.edit_distance
-          @assembly[ls.chrom].bases_mapped += ls.length
+          lchrom = @assembly[ls.chrom]
+          lchrom.edit_distance += ls.edit_distance
+          lchrom.bases_mapped += ls.length
           @edit_distance += ls.edit_distance
           @total_bases += ls.length
           if ls.mate_unmapped?
@@ -92,8 +93,9 @@ module Transrate
             line2 = sam.readline rescue nil
             if line2
               rs.parse_line(line2)
-              @assembly[rs.chrom].edit_distance += rs.edit_distance
-              @assembly[rs.chrom].bases_mapped += rs.length
+              rchrom = (rs.chrom == ls.chrom) ? lchrom : @assembly[rs.chrom]
+              rchrom.edit_distance += rs.edit_distance
+              rchrom.bases_mapped += rs.length
               @edit_distance += rs.edit_distance
               @total_bases += rs.length
               self.check_read_pair(ls, rs, realistic_dist)
