@@ -33,7 +33,7 @@ class TestTransrateBin < Test::Unit::TestCase
     should "run help" do
       c=Transrate::Cmd.new("bundle exec bin/transrate --help")
       c.run
-      assert_equal 1751, c.stdout.length, "stdout"
+      assert_equal 1683, c.stdout.length, "stdout"
       assert_equal true, c.status.success?, "exit status"
     end
 

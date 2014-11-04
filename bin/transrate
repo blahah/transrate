@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+PROFILE = false
 
 require 'trollop'
 require 'transrate'
@@ -61,7 +62,6 @@ opts = Trollop::options do
                  "one of [error, info, warn, debug]",
       :default => 'info'
   opt :install_deps, "install any missing dependencies"
-  opt :profile, "debug option: profile the code as it runs"
 end
 
 gem_dir = Gem.loaded_specs['transrate'].full_gem_path
@@ -113,7 +113,7 @@ if opts.left and opts.right
   end
 end
 
-if opts.profile
+if PROFILE
   logger.info "Starting profiler"
   RubyProf.start
 end
@@ -268,7 +268,7 @@ CSV.open(outfile, 'wb') do |file|
   end
 end
 
-if opts.profile
+if PROFILE
   logger.info "Writing profiling results to transrate_profile.txt"
   result = RubyProf.stop
   printer = RubyProf::FlatPrinter.new(result)
