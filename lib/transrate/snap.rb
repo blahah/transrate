@@ -55,7 +55,7 @@ module Transrate
       @bam = File.expand_path("#{lbase}.#{rbase}.#{index}.bam")
       @read_count_file = "#{lbase}-#{rbase}-read_count.txt"
 
-      @fixer = Fixer.new
+      @fixer = Fixer.new # from the fix-trinity-output gem
       unless File.exists? @bam
         snapcmd = build_paired_cmd(left, right, threads)
         runner = Cmd.new snapcmd

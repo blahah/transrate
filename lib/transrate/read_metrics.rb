@@ -56,14 +56,14 @@ module Transrate
 
       # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
-      readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
       merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
 
       valid_bam, invalid_bam = split_bam bamfile
 
       # pass valid alignments to eXpress for assignment
       # always have to run the eXpress command to load the results
-      assigned_bam = assign_and_quantify valid_bam
+      readsorted_bam = Samtools.readsort_bam(valid_bam)
+      assigned_bam = assign_and_quantify readsorted_bam
       File.delete readsorted_bam if File.exist? readsorted_bam
 
       # merge the assigned alignments back with the invalid ones
