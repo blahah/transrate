@@ -32,12 +32,7 @@ module Transrate
         runner = Cmd.new build_command(assembly, bamfile)
         runner.run
         unless runner.status.success?
-          logger.warn "express failed. cleaning sam file and trying again"
-          fix_problem_snap_output bamfile
-          runner.run
-          unless runner.status.success?
-            abort "express failed on the cleaned sam file\n#{runner.stderr}"
-          end
+          abort "express failed on the bam file\n#{runner.stderr}"
         end
         File.rename(ex_output, fin_output)
       end
@@ -83,19 +78,19 @@ module Transrate
       expression
     end
 
-    def fix_problem_snap_output bam
-      # express failed, probably because of temporary snap error
-      # convert bam to sam
-      sam = "#{File.expand_path(File.basename(bam, File.extname(bam)))}.sam"
-      Samtools.run "view -h #{bam} > #{sam}"
-      # run sam fixer on sam
-      checker = SamChecker.new
-      fixed_sam = "#{File.expand_path(File.basename(sam, File.extname(sam)))}.fixed.sam"
-      checker.fix_sam(sam, fixed_sam)
-      # convert sam to bam
-      Samtools.run "view -bS #{fixed_sam} > #{bam}"
-      bam
-    end
+    # def fix_problem_snap_output bam
+    #   # express failed, probably because of temporary snap error
+    #   # convert bam to sam
+    #   sam = "#{File.expand_path(File.basename(bam, File.extname(bam)))}.sam"
+    #   Samtools.run "view -h #{bam} > #{sam}"
+    #   # run sam fixer on sam
+    #   checker = SamChecker.new
+    #   fixed_sam = "#{File.expand_path(File.basename(sam, File.extname(sam)))}.fixed.sam"
+    #   checker.fix_sam(sam, fixed_sam)
+    #   # convert sam to bam
+    #   Samtools.run "view -bS #{fixed_sam} > #{bam}"
+    #   bam
+    # end
 
   end # Express
 
