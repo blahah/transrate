@@ -29,12 +29,12 @@ snap:
   binaries:
     - snap
   version:
-    number: '1.0beta.13'
+    number: '1.0dev.56'
     command: 'snap'
   url:
     64bit:
-      linux: https://github.com/HibberdLab/snap/raw/master/bin/linux/snap.tar.gz
-      macosx: https://github.com/HibberdLab/snap/raw/osx_1.0beta.13/bin/macosx/snap.tar.gz
+      linux: https://github.com/HibberdLab/snap/raw/dev/bin/linux/snap.tar.gz
+      macosx: https://github.com/HibberdLab/snap/raw/dev/bin/macosx/snap.tar.gz
 samtools:
   binaries:
     - samtools
@@ -50,7 +50,7 @@ bam-read:
   binaries:
    - bam-read
   version:
-    number: '0.3.2'
+    number: '0.3.4'
     command: 'bam-read'
   url:
     64bit:
@@ -61,7 +61,7 @@ bam-split:
   binaries:
    - bam-split
   version:
-    number: '0.1'
+    number: '0.2'
     command: 'bam-split'
   url:
     64bit:

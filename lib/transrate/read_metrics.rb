@@ -56,18 +56,13 @@ module Transrate
 
       # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
-      readsorted_bam = "#{File.basename(bamfile, '.bam')}.valid.sorted.bam"
       merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
-      unless File.exist? sorted_bam
-        unless File.exist? readsorted_bam
-          valid_bam, invalid_bam = split_bam bamfile
-          readsorted_bam = Samtools.readsort_bam valid_bam
-          File.delete valid_bam
-        end
-      end
+
+      valid_bam, invalid_bam = split_bam bamfile
 
       # pass valid alignments to eXpress for assignment
       # always have to run the eXpress command to load the results
+      readsorted_bam = Samtools.readsort_bam(valid_bam)
       assigned_bam = assign_and_quantify readsorted_bam
       File.delete readsorted_bam if File.exist? readsorted_bam
 
@@ -142,12 +137,12 @@ module Transrate
         splitter = Cmd.new cmd
         splitter.run
         if !splitter.status.success?
-          logger.warn "Couldn't split bam file: #{bamfile}" +
+          raise StandardError.new "Couldn't split bam file: #{bamfile}" +
                       "\n#{splitter.stdout}\n#{splitter.stderr}"
         end
       end
       if !File.exist? valid
-        logger.warn "Splitting failed to create valid bam: #{valid}"
+        raise StandardError.new "Splitting failed to create valid bam: #{valid}"
       end
       [valid, invalid]
     end
@@ -162,7 +157,11 @@ module Transrate
     def analyse_expression express_output
       express_output.each_pair do |name, expr|
         contig = @assembly[name]
-        coverage = expr[:eff_count] * @read_length / expr[:eff_len]
+        if expr[:eff_len]==0
+          coverage = 0
+        else
+          coverage = expr[:eff_count] * @read_length / expr[:eff_len]
+        end
         @contigs_uncovered += 1 if coverage < 1
         @contigs_lowcovered += 1 if coverage < 10
         contig.coverage = coverage.round(2)
@@ -188,7 +187,7 @@ module Transrate
         end
         @bad = @fragments_mapped - @good
       else
-        logger.warn "couldn't find bamfile: #{bamfile}"
+        raise "couldn't find bamfile: #{bamfile}"
       end
       @assembly.assembly.each_pair do |name, contig|
         @contigs_good += 1 if contig.score >= 0.5
@@ -217,7 +216,9 @@ module Transrate
         reader = Cmd.new cmd
         reader.run
         if !reader.status.success?
-          logger.warn "couldn't get information from bam file: #{bamfile}"
+          msg = "Couldn't get information from bam file: #{bamfile}\n"
+          msg << "#{reader.stdout}\n#{reader.stderr}"
+          raise msg
         end
       end
     end

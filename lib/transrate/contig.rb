@@ -30,7 +30,6 @@ module Transrate
       @in_bridges = 0
       @p_good = 0
       @p_seq_true = 0
-      @low_uniqueness_bases = 0
       @uncovered_bases = length
       @p_uncovered_bases = 1
       @p_unique = 0
@@ -229,10 +228,6 @@ module Transrate
       @p_uncovered_bases = n / length.to_f
     end
 
-    def p_unique_bases
-      (length - low_uniqueness_bases) / length.to_f
-    end
-
     # Contig score (product of all score components)
     def score
       return @score if @score != -1
@@ -241,7 +236,7 @@ module Transrate
         [p_not_segmented, 0.01].max.to_f * # prob contig has 0 changepoints
         [p_good, 0.01].max.to_f * # proportion of reads that mapped good
         [p_seq_true, 0.01].max.to_f * # scaled 1 - mean per-base edit distance
-        [p_unique, 0.01].max.to_f # prop mapQ >= 5
+        [p_unique, 0.01].max.to_f
       @score = [prod, 0.01].max
     end
 

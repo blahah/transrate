@@ -62,22 +62,16 @@ module Transrate
       comparative_metrics
     end
 
-    # Calculate the geometric mean of an array of numbers
-    def geomean(x)
-      sum = 0.0
-      x.each{ |v| sum += Math.log(v) }
-      sum /= x.size
-      Math.exp(sum)
-    end
-
     # Reduce all metrics for the assembly to a single quality score
     # by taking the geometric mean of the scores for all contigs
     # and multiplying it by the proportion of fragments whose most likely
     # mapping is consistent with the assembly
     # @return [Integer] the assembly score
     def assembly_score
-      @score = geomean assembly.assembly.values.map{ |contig| contig.score }
-      return @score * @read_metrics.p_good_mapping
+      if !@score_optimiser
+        @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
+      end
+      return @score_optimiser.raw_score
     end
 
     def assembly_metrics
