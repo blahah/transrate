@@ -63,11 +63,12 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:p_seq_true].round(5)
           edit_b = b[:p_seq_true].round(5)
-          assert_equal 0.98342, edit_a, "edit distance 1"
-          assert_equal 0.96645, edit_b, "edit distance 2"
+          assert_equal 0.98319, edit_a, "edit distance 1"
+          assert_equal 0.96509, edit_b, "edit distance 2"
 
-          assert_equal 0.59524, a[:p_good].round(5), "proportion of good mappings"
-          assert_equal 0.59398, b[:p_good].round(5), "proportion of good mappings"
+          assert_equal 0.8046, a[:p_good].round(5),
+                       "proportion of good mappings"
+          assert_equal 0.875, b[:p_good].round(5), "proportion of good mappings"
 
           # uncovered bases
           unc_a = contigs[0].uncovered_bases
@@ -99,8 +100,8 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:p_not_segmented].round(5)
           edit_b = b[:p_not_segmented].round(5)
-          assert_equal 0.11444, edit_a, "probability not segmented 1"
-          assert_equal 0.82779, edit_b, "probability not segmented 2"
+          assert_equal 0.11649, edit_a, "probability not segmented 1"
+          assert_equal 0.85865, edit_b, "probability not segmented 2"
 
         end
       end
