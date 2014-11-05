@@ -189,12 +189,12 @@ module Transrate
       base = File.basename @file
       files = Hash.new do
         %w(good fragmented chimeric bad).each do |type|
-          handle = File.open(File.join(type, base)
+          handle = File.open("#{type}.#{base}", "wb")
           [type.to_sym, handle]
         end
       end
       # loop through contigs writing them out to the appropriate file
-      contigs.each_pair do |name, contig|
+      @assembly.each_pair do |name, contig|
         category = contig.classify
         handle = files[category]
         handle.push contig.to_fasta

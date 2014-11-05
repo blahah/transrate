@@ -3,6 +3,7 @@ require 'rbconfig'
 require 'yell'
 RbConfig::CONFIG['CFLAGS'] = ''
 
+require 'transrate/score_optimiser'
 require 'transrate/transrater'
 require 'transrate/version'
 require 'transrate/contig'
