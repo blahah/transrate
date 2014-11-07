@@ -2,8 +2,9 @@
   <img alt="Transrate - understand your transcriptome assembly" src="https://github.com/Blahah/transrate/raw/master/docs/transrate_logo_full.png">
 </p>
 
+Need help? Chat to us live: [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Blahah/transrate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Development status
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Blahah/transrate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Gem Version](http://img.shields.io/gem/v/transrate.svg)][gem]
 ![Downloads](http://img.shields.io/gem/dtv/transrate.svg)
