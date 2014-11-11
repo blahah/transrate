@@ -59,6 +59,7 @@ module Transrate
       assigned_bam = "hits.1.samp.bam"
       readsorted_bam = "#{File.basename(bamfile, '.bam')}.readsorted.bam"
       valid_bam = "#{File.basename(bamfile, '.bam')}.valid.bam"
+      invalid_bam = "#{File.basename(bamfile, '.bam')}.invalid.bam"
 
       # check for latest files first and create what is needed
       if !File.exist?(sorted_bam)

@@ -61,7 +61,7 @@ module Transrate
       # the sort command behaves inconsistently with the other commands:
       # it takes an output prefix rather than a filename
       # and automatically adds the .bam extension
-      sorted = File.basename(bamfile, '.bam') + '.sorted'
+      sorted = File.basename(bamfile, '.bam') + '.readsorted'
       if !File.exist?("#{sorted}.bam")
         cmd = "sort"
         cmd << " -@ #{threads}"
