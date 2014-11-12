@@ -161,7 +161,8 @@ module Transrate
 
     def analyse_expression express_output
       express_output.each_pair do |name, expr|
-        contig = @assembly[name]
+        contig_name = Bio::FastaDefline.new(name).entry_id
+        contig = @assembly[contig_name]
         if expr[:eff_len]==0
           coverage = 0
         else
