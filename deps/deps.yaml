@@ -29,7 +29,7 @@ snap:
   binaries:
     - snap
   version:
-    number: '1.0dev.57'
+    number: '1.0dev.58'
     command: 'snap'
   url:
     64bit:
@@ -50,7 +50,7 @@ bam-read:
   binaries:
    - bam-read
   version:
-    number: '0.3.5'
+    number: '0.3.6'
     command: 'bam-read'
   url:
     64bit:

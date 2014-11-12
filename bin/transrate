@@ -142,8 +142,6 @@ end
 
 logger.level = Yell::Level.new opts.loglevel.to_sym
 
-logger.info "Loading reference dataset"
-
 r = opts.reference ? Assembly.new(opts.reference) : nil
 report_width = 35
 
