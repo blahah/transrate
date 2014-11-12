@@ -229,7 +229,8 @@ module Transrate
     end
 
     def populate_contig_data row
-      contig = @assembly[row[:name]]
+      name = Bio::FastaDefline.new(row[:name]).entry_id
+      contig = @assembly[name]
       scale = 0.7
       contig.p_seq_true = (row[:p_seq_true] - scale) * (1.0 / (1 - scale))
       contig.uncovered_bases = row[:bases_uncovered]
