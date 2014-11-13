@@ -218,7 +218,7 @@ module Transrate
 
     def analyse_bam bamfile, csv_output
       if !File.exist?(csv_output)
-        cmd = "#{@bam_reader} #{bamfile} #{csv_output}"
+        cmd = "#{@bam_reader} #{bamfile} #{csv_output} 0.7"
         reader = Cmd.new cmd
         reader.run
         if !reader.status.success?
