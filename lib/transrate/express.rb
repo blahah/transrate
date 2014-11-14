@@ -50,12 +50,12 @@ module Transrate
     # return the constructed eXpress command
     def build_command assembly, bamfile
       cmd = "#{@express}"
-      cmd << " #{File.expand_path assembly}"
-      cmd << " #{File.expand_path bamfile}"
       cmd << " --output-dir ."
       cmd << " --output-align-samp"
       cmd << " --no-update-check"
       cmd << " --additional-online 1"
+      cmd << " #{File.expand_path assembly}"
+      cmd << " #{File.expand_path bamfile}"
       cmd
     end
 
