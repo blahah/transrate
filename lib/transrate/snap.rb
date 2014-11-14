@@ -102,8 +102,8 @@ module Transrate
     def save_readcount stdout
       stdout.split("\n").each do |line|
         cols = line.split(/\s+/)
-        if cols[0]=="2000" and cols[1]=="30"
-          @read_count = cols[8].to_i / 2
+        if cols.size > 5 and cols[0]=~/[0-9\,]+/
+          @read_count = cols[0].gsub(",", "").to_i / 2
           File.open("#{@read_count_file}", "wb") do |out|
             out.write("#{@read_count}\n")
           end

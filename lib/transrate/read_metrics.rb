@@ -54,24 +54,29 @@ module Transrate
                                   threads: threads)
       @fragments = @mapper.read_count
 
-      # classify bam file into valid and invalid alignments
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
+      assigned_bam = "hits.1.samp.bam"
+      readsorted_bam = "#{File.basename(bamfile, '.bam')}.readsorted.bam"
+      valid_bam = "#{File.basename(bamfile, '.bam')}.valid.bam"
+      invalid_bam = "#{File.basename(bamfile, '.bam')}.invalid.bam"
 
-      valid_bam, invalid_bam = split_bam bamfile
-
-      # pass valid alignments to eXpress for assignment
-      # always have to run the eXpress command to load the results
-      readsorted_bam = Samtools.readsort_bam(valid_bam)
-      assigned_bam = assign_and_quantify readsorted_bam
-      File.delete readsorted_bam if File.exist? readsorted_bam
-
-      # merge the assigned alignments back with the invalid ones
-      unless File.exist? sorted_bam
-        unless File.exist? merged_bam
+      # check for latest files first and create what is needed
+      if !File.exist?(sorted_bam)
+        if !File.exist?(merged_bam)
+          if !File.exist?(assigned_bam)
+            if !File.exist?(readsorted_bam)
+              if !File.exist?(valid_bam)
+                valid_bam, invalid_bam = split_bam bamfile
+              end
+              readsorted_bam = Samtools.readsort_bam(valid_bam)
+              File.delete valid_bam
+            end
+            assigned_bam = assign_and_quantify readsorted_bam
+            File.delete readsorted_bam
+          end
           Samtools.merge_bam(invalid_bam, assigned_bam,
                              merged_bam, threads=threads)
-
           File.delete invalid_bam
           File.delete assigned_bam
         end
@@ -156,7 +161,8 @@ module Transrate
 
     def analyse_expression express_output
       express_output.each_pair do |name, expr|
-        contig = @assembly[name]
+        contig_name = Bio::FastaDefline.new(name).entry_id
+        contig = @assembly[contig_name]
         if expr[:eff_len]==0
           coverage = 0
         else
@@ -212,7 +218,7 @@ module Transrate
 
     def analyse_bam bamfile, csv_output
       if !File.exist?(csv_output)
-        cmd = "#{@bam_reader} #{bamfile} #{csv_output}"
+        cmd = "#{@bam_reader} #{bamfile} #{csv_output} 0.7"
         reader = Cmd.new cmd
         reader.run
         if !reader.status.success?
@@ -224,7 +230,8 @@ module Transrate
     end
 
     def populate_contig_data row
-      contig = @assembly[row[:name]]
+      name = Bio::FastaDefline.new(row[:name]).entry_id
+      contig = @assembly[name]
       scale = 0.7
       contig.p_seq_true = (row[:p_seq_true] - scale) * (1.0 / (1 - scale))
       contig.uncovered_bases = row[:bases_uncovered]
