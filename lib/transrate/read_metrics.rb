@@ -161,7 +161,7 @@ module Transrate
 
     def analyse_expression express_output
       express_output.each_pair do |name, expr|
-        contig_name = Bio::FastaDefline.new(name).entry_id
+        contig_name = Bio::FastaDefline.new(name.to_s).entry_id
         contig = @assembly[contig_name]
         if expr[:eff_len]==0
           coverage = 0
@@ -230,7 +230,7 @@ module Transrate
     end
 
     def populate_contig_data row
-      name = Bio::FastaDefline.new(row[:name]).entry_id
+      name = Bio::FastaDefline.new(row[:name].to_s).entry_id
       contig = @assembly[name]
       scale = 0.7
       contig.p_seq_true = (row[:p_seq_true] - scale) * (1.0 / (1 - scale))
