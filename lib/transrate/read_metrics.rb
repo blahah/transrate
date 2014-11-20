@@ -236,7 +236,7 @@ module Transrate
       contig.p_seq_true = (row[:p_seq_true] - scale) * (1.0 / (1 - scale))
       contig.uncovered_bases = row[:bases_uncovered]
       @bases_uncovered += contig.uncovered_bases
-      if row[:fragments_mapped] and row[:fragments_mapped] > 0
+      if row[:fragments_mapped] and row[:fragments_mapped] > 1
         contig.p_good = row[:good]/row[:fragments_mapped].to_f
       end
       contig.p_not_segmented = row[:p_not_segmented]
