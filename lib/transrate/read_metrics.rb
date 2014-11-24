@@ -12,6 +12,7 @@ module Transrate
     def initialize assembly
       @assembly = assembly
       @mapper = Snap.new
+      @express = Express.new
       self.initial_values
 
       load_executables
@@ -153,10 +154,7 @@ module Transrate
     end
 
     def assign_and_quantify bamfile
-      express = Express.new
-      results = express.run(@assembly, bamfile)
-      analyse_expression results.expression
-      results.align_samp
+      express_bam = @express.run(@assembly, bamfile)
     end
 
     def analyse_expression express_output
@@ -194,6 +192,13 @@ module Transrate
         @bad = @fragments_mapped - @good
       else
         raise "couldn't find bamfile: #{bamfile}"
+      end
+      express_results = "#{File.basename @assembly.file}_results.xprs"
+
+      if File.exist?(express_results)
+        analyse_expression(@express.load_expression(express_results))
+      else
+        abort "Can't find #{express_results}"
       end
       @assembly.assembly.each_pair do |name, contig|
         @contigs_good += 1 if contig.score >= 0.5
