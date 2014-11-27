@@ -30,7 +30,7 @@ module Transrate
       ex_output = 'results.xprs'
       @fin_output = "#{File.basename assembly}_#{ex_output}"
 
-      unless File.exists? fin_output
+      unless File.exists? @fin_output
         runner = Cmd.new build_command(assembly, bamfile)
         runner.run
         unless runner.status.success?
@@ -41,7 +41,7 @@ module Transrate
             abort "express failed on the cleaned sam file\n#{runner.stderr}"
           end
         end
-        File.rename(ex_output, fin_output)
+        File.rename(ex_output, @fin_output)
       end
       return 'hits.1.samp.bam'
     end
