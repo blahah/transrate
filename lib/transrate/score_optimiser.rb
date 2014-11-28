@@ -15,17 +15,17 @@ module Transrate
 
     def initialize assembly, read_metrics
       @assembly = assembly
-      read_stats = read_metrics.read_stats
-      total = read_stats.fragments
-      good = read_stats.good
+      total = read_metrics.fragments
+      good = read_metrics.good
       raw_score
       @score = Score.new @contig_score, good, total
     end
 
     def raw_score
-      @contig_score = geomean assembly.assembly.values.map do |contig|
+      contig_scores = @assembly.assembly.values.map do |contig|
         contig.score
       end
+      @contig_score = geomean contig_scores
       @contig_score * (@good / @total.to_f)
     end
 

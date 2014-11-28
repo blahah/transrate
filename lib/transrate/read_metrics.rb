@@ -2,9 +2,8 @@ module Transrate
 
   class ReadMetrics
 
-    attr_reader :fragments_mapping
-    attr_reader :p_good_mapping
-    attr_reader :bad
+    attr_reader :fragments, :fragments_mapping, :p_good_mapping
+    attr_reader :good, :bad
     attr_reader :supported_bridges
     attr_reader :has_run
     attr_reader :read_length
