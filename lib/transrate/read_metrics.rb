@@ -12,6 +12,7 @@ module Transrate
     def initialize assembly
       @assembly = assembly
       @mapper = Snap.new
+      @express = Express.new
       self.initial_values
 
       load_executables
@@ -153,15 +154,12 @@ module Transrate
     end
 
     def assign_and_quantify bamfile
-      express = Express.new
-      results = express.run(@assembly, bamfile)
-      analyse_expression results.expression
-      results.align_samp
+      express_bam = @express.run(@assembly, bamfile)
     end
 
     def analyse_expression express_output
       express_output.each_pair do |name, expr|
-        contig_name = Bio::FastaDefline.new(name).entry_id
+        contig_name = Bio::FastaDefline.new(name.to_s).entry_id
         contig = @assembly[contig_name]
         if expr[:eff_len]==0
           coverage = 0
@@ -194,6 +192,13 @@ module Transrate
         @bad = @fragments_mapped - @good
       else
         raise "couldn't find bamfile: #{bamfile}"
+      end
+      express_results = "#{File.basename @assembly.file}_results.xprs"
+
+      if File.exist?(express_results)
+        analyse_expression(@express.load_expression(express_results))
+      else
+        abort "Can't find #{express_results}"
       end
       @assembly.assembly.each_pair do |name, contig|
         @contigs_good += 1 if contig.score >= 0.5
@@ -230,13 +235,13 @@ module Transrate
     end
 
     def populate_contig_data row
-      name = Bio::FastaDefline.new(row[:name]).entry_id
+      name = Bio::FastaDefline.new(row[:name].to_s).entry_id
       contig = @assembly[name]
       scale = 0.7
       contig.p_seq_true = (row[:p_seq_true] - scale) * (1.0 / (1 - scale))
       contig.uncovered_bases = row[:bases_uncovered]
       @bases_uncovered += contig.uncovered_bases
-      if row[:fragments_mapped] and row[:fragments_mapped] > 0
+      if row[:fragments_mapped] and row[:fragments_mapped] > 1
         contig.p_good = row[:good]/row[:fragments_mapped].to_f
       end
       contig.p_not_segmented = row[:p_not_segmented]

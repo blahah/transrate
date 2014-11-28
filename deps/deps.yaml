@@ -29,7 +29,7 @@ snap:
   binaries:
     - snap
   version:
-    number: '1.0dev.58'
+    number: '1.0dev.61'
     command: 'snap'
   url:
     64bit:
@@ -54,8 +54,8 @@ bam-read:
     command: 'bam-read'
   url:
     64bit:
-      linux: https://github.com/cboursnell/transrate-bam-read/raw/master/bin/linux/bam-read
-      macosx: https://github.com/Blahah/transrate-bam-read/raw/master/bin/macosx/bam-read
+      linux: https://github.com/cboursnell/transrate-tools/raw/master/bin/linux/bam-read
+      macosx: https://github.com/Blahah/transrate-tools/raw/master/bin/macosx/bam-read
   unpack: false
 bam-split:
   binaries:
@@ -65,8 +65,8 @@ bam-split:
     command: 'bam-split'
   url:
     64bit:
-      linux: https://github.com/Blahah/transrate-bam-read/raw/master/bin/linux/bam-split
-      macosx: https://github.com/Blahah/transrate-bam-read/raw/master/bin/macosx/bam-split
+      linux: https://github.com/Blahah/transrate-tools/raw/master/bin/linux/bam-split
+      macosx: https://github.com/Blahah/transrate-tools/raw/master/bin/macosx/bam-split
   unpack: false
 express:
   binaries:
