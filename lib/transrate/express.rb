@@ -8,6 +8,8 @@ module Transrate
 
     require 'ostruct'
 
+    attr_reader :fin_output
+
     # return an Express object
     def initialize
       which = Cmd.new('which express')
@@ -26,9 +28,9 @@ module Transrate
       assembly = assembly.file if assembly.is_a? Assembly
 
       ex_output = 'results.xprs'
-      fin_output = "#{File.basename assembly}_#{ex_output}"
+      @fin_output = "#{File.basename assembly}_#{ex_output}"
 
-      unless File.exists? fin_output
+      unless File.exists? @fin_output
         runner = Cmd.new build_command(assembly, bamfile)
         runner.run
         unless runner.status.success?
@@ -39,23 +41,20 @@ module Transrate
             abort "express failed on the cleaned sam file\n#{runner.stderr}"
           end
         end
-        File.rename(ex_output, fin_output)
+        File.rename(ex_output, @fin_output)
       end
-
-      OpenStruct.new(:results_file => fin_output,
-                     :expression => load_expression(fin_output),
-                     :align_samp => 'hits.1.samp.bam')
+      return 'hits.1.samp.bam'
     end
 
     # return the constructed eXpress command
     def build_command assembly, bamfile
       cmd = "#{@express}"
-      cmd << " #{File.expand_path assembly}"
-      cmd << " #{File.expand_path bamfile}"
       cmd << " --output-dir ."
       cmd << " --output-align-samp"
       cmd << " --no-update-check"
       cmd << " --additional-online 1"
+      cmd << " #{File.expand_path assembly}"
+      cmd << " #{File.expand_path bamfile}"
       cmd
     end
 
@@ -65,7 +64,7 @@ module Transrate
       expression = {}
       first = true
       File.open(file).each do |line|
-        if first
+        if first # skip header line
           first = false
           next
         end
