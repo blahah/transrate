@@ -50,7 +50,7 @@ bam-read:
   binaries:
    - bam-read
   version:
-    number: '0.3.6'
+    number: '1.0.0.beta1'
     command: 'bam-read'
   url:
     64bit:
@@ -61,7 +61,7 @@ bam-split:
   binaries:
    - bam-split
   version:
-    number: '0.2'
+    number: '1.0.0.beta1'
     command: 'bam-split'
   url:
     64bit:

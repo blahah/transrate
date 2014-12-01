@@ -31,36 +31,9 @@ module Transrate
         end
       end
       if position > length + 1
-        # `diff` is how much the cigar makes the read overlap the end
-        diff = position - (length + 1)
-        if list[-1][1] == "S" # the last item in the cigar is "S"
-          # increase the number in the last item in the cigar
-          list[-1][0] = (list[-1][0].to_i + diff).to_s
-          if list[-2][0].to_i > diff
-            # decrease the penultimate item in the cigar
-            list[-2][0] = (list[-2][0].to_i - diff).to_s
-          elsif list[-2][0].to_i == diff
-            # just delete the penultimate item if
-            list.delete_at(-2) # delete_at changes `list`
-          else
-            # this didn't happen in the rice/oases sam file, but it might
-          end
-        elsif list[-1][1] == "M"
-          if list[-1][0].to_i > diff
-            # decrease the number of the last item in the cigar
-            list[-1][0] = (list[-1][0].to_i - diff).to_s
-            # add a new soft mask item to the end of the cigar
-            list << [diff.to_s, "S"]
-          elsif list[-1][0].to_i == diff
-            # just change the last item to soft mask if it's the same length
-            # as the difference
-            list[-1][1] = "S"
-          end
-        end
-        cols[5] = list.join("")
-        return cols.join("\t")
+        return false
       else
-        return sam
+        return true
       end
     end
 
@@ -84,8 +57,10 @@ module Transrate
               sam1 = sam.dup
               @first = false
             else
-              out.write(check(sam1))
-              out.write(check(sam))
+              if check(sam1) and check(sam)
+                out.write(sam1)
+                out.write(sam)
+              end
               @first = true
             end
             @count+=1
