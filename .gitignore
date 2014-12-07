@@ -46,3 +46,6 @@ Makefile
 transrate.bundle
 transrate.o
 .RUBYARCHDIR.time
+
+# vagrant stuff
+.vagrant
