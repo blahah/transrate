@@ -18,10 +18,10 @@ Gem::Specification.new do |gem|
   gem.extensions  = ["ext/transrate/extconf.rb"]
 
   gem.add_dependency 'yell', '~> 2.0', '>= 2.0.4'
-  gem.add_dependency 'trollop', '~> 2.0'
-  gem.add_dependency 'bindeps', '~> 0.1', '>= 0.1.3'
+  gem.add_dependency 'trollop', '~> 2.0', '>= 2.0.0'
+  gem.add_dependency 'bindeps', '~> 1.0', '>= 1.0.1'
   gem.add_dependency 'bio', '~> 1.4', '>= 1.4.3'
-  gem.add_dependency 'crb-blast', '~> 0.4', '>= 0.4.2'
+  gem.add_dependency 'crb-blast', '~> 0.5', '>= 0.5.0'
   gem.add_dependency 'ruby-prof', '~> 0.15', '>= 0.15.1'
   gem.add_dependency 'fix-trinity-output', '~> 1.0', '>= 1.0'
 
@@ -31,5 +31,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'minitest', '~> 4', '>= 4.7.5'
   gem.add_development_dependency 'simplecov', '~> 0.8', '>= 0.8.2'
   gem.add_development_dependency 'shoulda-context', '~> 1.2', '>= 1.2.1'
-  gem.add_development_dependency 'coveralls', '~> 0.7'
+  gem.add_development_dependency 'coveralls', '~> 0.7', '>= 0.7.2'
 end

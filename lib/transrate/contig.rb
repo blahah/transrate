@@ -235,8 +235,7 @@ module Transrate
         [p_bases_covered, 0.01].max.to_f * # proportion of bases covered
         [p_not_segmented, 0.01].max.to_f * # prob contig has 0 changepoints
         [p_good, 0.01].max.to_f * # proportion of reads that mapped good
-        [p_seq_true, 0.01].max.to_f * # scaled 1 - mean per-base edit distance
-        [p_unique, 0.01].max.to_f
+        [p_seq_true, 0.01].max.to_f # scaled 1 - mean per-base edit distance
       @score = [prod, 0.01].max
     end
 
