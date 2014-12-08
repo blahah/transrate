@@ -15,7 +15,7 @@ module Transrate
     end
 
     def raw_score
-      @contig_score = geomean assembly.assembly.values.map do |contig|
+      @contig_score = geomean @assembly.assembly.values.map do |contig|
         contig.score
       end
       @contig_score * (@good / @total.to_f)
