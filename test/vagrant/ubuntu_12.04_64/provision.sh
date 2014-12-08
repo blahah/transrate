@@ -1,3 +1,5 @@
+su vagrant
+
 # Setup
 sudo apt-get update -y
 sudo apt-get install -y curl build-essential git
