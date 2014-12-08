@@ -21,6 +21,14 @@ module Transrate
       @contig_score * (@good / @total.to_f)
     end
 
+    # Calculate the geometric mean of an array of numbers
+    def geomean x
+      sum = 0.0
+      x.each{ |v| sum += Math.log(v) }
+      sum /= x.size
+      Math.exp sum
+    end
+
   end # ScoreOptimiser
 
 end
