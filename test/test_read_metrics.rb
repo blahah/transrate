@@ -32,18 +32,18 @@ class TestReadMetrics < Test::Unit::TestCase
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
           assert_equal 223,     stats[:fragments], 'number of read pairs'
-          assert_equal 217,     stats[:fragments_mapped], 'number mapping'
-          assert_equal 0.9731,   stats[:p_fragments_mapped].round(4),
+          assert_equal 215,     stats[:fragments_mapped], 'number mapping'
+          assert_equal 0.9641,   stats[:p_fragments_mapped].round(4),
                        'proportion mapping'
-          assert_equal 129,     stats[:good_mappings], 'good mapping'
-          assert_equal 0.5785,   stats[:p_good_mapping].round(4),
+          assert_equal 182,     stats[:good_mappings], 'good mapping'
+          assert_equal 0.8161,   stats[:p_good_mapping].round(4),
                        'percent good mapping'
-          assert_equal 88,      stats[:bad_mappings], 'bad mapping'
-          assert_equal 2, stats[:potential_bridges], 'bridges'
+          assert_equal 33,      stats[:bad_mappings], 'bad mapping'
+          assert_equal 1, stats[:potential_bridges], 'bridges'
           assert_equal 2, stats[:contigs_uncovbase], 'uncovered base contig'
           assert_equal 0, stats[:contigs_uncovered], 'uncovered contig'
           assert_equal 0, stats[:contigs_lowcovered], 'lowcovered contig'
-          assert_equal 0, stats[:contigs_good], 'good contigs'
+          assert_equal 1, stats[:contigs_good], 'good contigs'
         end
       end
     end
@@ -63,8 +63,8 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:p_seq_true].round(5)
           edit_b = b[:p_seq_true].round(5)
-          assert_equal 0.98319, edit_a, "edit distance 1"
-          assert_equal 0.96509, edit_b, "edit distance 2"
+          assert_equal 0.98414, edit_a, "edit distance 1"
+          assert_equal 0.974, edit_b, "edit distance 2"
 
           assert_equal 0.8046, a[:p_good].round(5),
                        "proportion of good mappings"
@@ -74,12 +74,12 @@ class TestReadMetrics < Test::Unit::TestCase
           unc_a = contigs[0].uncovered_bases
           unc_b = contigs[1].uncovered_bases
           assert_equal 11, unc_a, "uncovered bases"
-          assert_equal 2, unc_b, "uncovered bases"
+          assert_equal 3, unc_b, "uncovered bases"
 
           prop_unc_a = a[:p_bases_covered]
           prop_unc_b = b[:p_bases_covered]
           assert_equal 0.98497, prop_unc_a.round(5), "proportion covered bases"
-          assert_equal 0.99757, prop_unc_b.round(5), "proportion covered bases"
+          assert_equal 0.99635, prop_unc_b.round(5), "proportion covered bases"
 
         end
       end
@@ -100,8 +100,8 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:p_not_segmented].round(5)
           edit_b = b[:p_not_segmented].round(5)
-          assert_equal 0.11649, edit_a, "probability not segmented 1"
-          assert_equal 0.85865, edit_b, "probability not segmented 2"
+          assert_equal 0.23527, edit_a, "probability not segmented 1"
+          assert_equal 0.9341, edit_b, "probability not segmented 2"
 
         end
       end
