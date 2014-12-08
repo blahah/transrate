@@ -10,8 +10,6 @@ module Transrate
       read_stats = read_metrics.read_stats
       @total = read_stats[:fragments]
       @good = read_stats[:good_mappings]
-      raw_score
-      @score = Score.new @contig_score, @good, @total
     end
 
     def raw_score
