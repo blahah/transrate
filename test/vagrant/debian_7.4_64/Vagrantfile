@@ -12,6 +12,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "chef/debian-7.4"
 
+  # Provision the virtual machine with a local script, provision.sh,
+  # in the same directory as the Vagrantfile
+  config.vm.provision "shell", path: "provision.sh"	
+
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
