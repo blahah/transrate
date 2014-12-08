@@ -24,7 +24,9 @@ class TestTransrateBin < Test::Unit::TestCase
       "sorghum_transcript.fa_bam_info.csv",
       "transrate_sorghum_transcript.fa_contigs.csv",
       "150uncovered.l.fq-150uncovered.r.fq-read_count.txt",
-      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.merged.sorted.bam"]
+      "150uncovered.l.fq.150uncovered.r.fq.sorghum_transcript.merged.sorted.bam",
+      "bad.sorghum_transcript.fa", "chimeric.sorghum_transcript.fa",
+      "fragmented.sorghum_transcript.fa", "good.sorghum_transcript.fa"]
       files.each do |file|
         File.delete(file) if File.exist?(file)
       end
