@@ -262,7 +262,7 @@ module Transrate
     end
 
     def to_fasta
-      @seq.to_fasta(@name)
+      @seq.seq.to_fasta(@name)
     end
 
   end
