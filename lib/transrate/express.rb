@@ -35,6 +35,7 @@ module Transrate
         runner.run
         unless runner.status.success?
           logger.warn "express failed. cleaning sam file and trying again"
+          File.delete("hits.1.samp.bam")
           fix_problem_snap_output bamfile
           runner.run
           unless runner.status.success?
