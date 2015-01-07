@@ -85,6 +85,23 @@ class TestReadMetrics < Test::Unit::TestCase
       end
     end
 
+    should "classify individual contigs" do
+      left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
+      right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left, right)
+          contigs = []
+          @assembly.each do |name, contig|
+            contigs << contig
+          end
+          assert_equal :chimeric, contigs[0].classify
+          assert_equal :good, contigs[1].classify
+        end
+      end
+
+    end
+
     should "get segmentation probability for individual contigs" do
       left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
       right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
