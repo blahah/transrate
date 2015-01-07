@@ -121,5 +121,9 @@ class TestContig < Test::Unit::TestCase
                    "linguistic complexity k=6"
     end
 
+    should "classify contig" do
+      assert_equal :bad, @contig.classify, "contig is not bad"
+    end
+
   end
 end

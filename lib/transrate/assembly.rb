@@ -187,20 +187,18 @@ module Transrate
     def classify_contigs
       # create hash of file handles for each output
       base = File.basename @file
-      files = Hash.new do
-        %w(good fragmented chimeric bad).each do |type|
-          handle = File.open("#{type}.#{base}", "wb")
-          [type.to_sym, handle]
-        end
+      files = {}
+      %w(good fragmented chimeric bad).each do |type|
+        files[type.to_sym] = File.open("#{type}.#{base}", "wb")
       end
       # loop through contigs writing them out to the appropriate file
       @assembly.each_pair do |name, contig|
         category = contig.classify
         handle = files[category]
-        handle.push contig.to_fasta
+        handle.write contig.to_fasta
       end
       # close all the file handles
-      files.each do |handle|
+      files.each do |type, handle|
         handle.close
       end
     end
