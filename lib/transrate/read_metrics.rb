@@ -11,7 +11,7 @@ module Transrate
     def initialize assembly
       @assembly = assembly
       @mapper = Snap.new
-      @express = Express.new
+      @salmon = Salmon.new
       self.initial_values
 
       load_executables
@@ -54,34 +54,23 @@ module Transrate
                                   threads: threads)
       @fragments = @mapper.read_count
 
+      readsorted_bam = "#{File.basename(bamfile, '.bam')}.readsorted.bam"
       sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
       merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
-      assigned_bam = "hits.1.samp.bam"
-      readsorted_bam = "#{File.basename(bamfile, '.bam')}.readsorted.bam"
-      valid_bam = "#{File.basename(bamfile, '.bam')}.valid.bam"
-      invalid_bam = "#{File.basename(bamfile, '.bam')}.invalid.bam"
+      assigned_bam = "postSample.bam"
 
       # check for latest files first and create what is needed
       if !File.exist?(sorted_bam)
-        if !File.exist?(merged_bam)
-          if !File.exist?(assigned_bam)
-            if !File.exist?(readsorted_bam)
-              if !File.exist?(valid_bam)
-                valid_bam, invalid_bam = split_bam bamfile
-              end
-              readsorted_bam = Samtools.readsort_bam(valid_bam)
-              File.delete valid_bam
-            end
-            assigned_bam = assign_and_quantify readsorted_bam
-            File.delete readsorted_bam
+        if !File.exist?(assigned_bam)
+          if !File.exist?(readsorted_bam)
+            readsorted_bam = Samtools.readsort_bam(bamfile)
+            File.delete bamfile
           end
-          Samtools.merge_bam(invalid_bam, assigned_bam,
-                             merged_bam, threads=threads)
-          File.delete invalid_bam
-          File.delete assigned_bam
+          assigned_bam = assign_and_quantify readsorted_bam
+          File.delete readsorted_bam
         end
-        sorted_bam = Samtools.sort_bam(merged_bam, [4, threads].min)
-        File.delete merged_bam
+        sorted_bam = Samtools.sort_bam(assigned_bam, [4, threads].min)
+        File.delete assigned_bam
       end
 
       # analyse the final mappings
@@ -153,7 +142,7 @@ module Transrate
     end
 
     def assign_and_quantify bamfile
-      express_bam = @express.run(@assembly, bamfile)
+      @salmon.run(@assembly, bamfile)
     end
 
     def analyse_expression express_output
@@ -195,7 +184,7 @@ module Transrate
       express_results = "#{File.basename @assembly.file}_results.xprs"
 
       if File.exist?(express_results)
-        analyse_expression(@express.load_expression(express_results))
+        analyse_expression(@salmon.load_expression(express_results))
       else
         abort "Can't find #{express_results}"
       end
