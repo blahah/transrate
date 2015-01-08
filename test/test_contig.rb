@@ -7,7 +7,7 @@ class TestContig < Test::Unit::TestCase
   context "Contig" do
 
     setup do
-      seq = Bio::FastaFormat.new ">test\nATGCGTGTATATACGCGTAG" # cg=3, gc=2, c*g=20
+      seq = Bio::FastaFormat.new ">test;\nATGCGTGTATATACGCGTAG" # cg=3, gc=2, c*g=20
       @contig = Transrate::Contig.new seq
     end
 
@@ -123,6 +123,10 @@ class TestContig < Test::Unit::TestCase
 
     should "classify contig" do
       assert_equal :bad, @contig.classify, "contig is not bad"
+    end
+
+    should "strip trailing semicolons from FASTA entry IDs" do
+      assert_equal "test", @contig.name, "trailing semicolon was not stripped"
     end
 
   end
