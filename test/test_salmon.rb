@@ -12,7 +12,7 @@ class TestSalmon < Test::Unit::TestCase
     should "load an expression file" do
       file = File.join(File.dirname(__FILE__), 'data', 'test.sf')
       results = @salmon.load_expression file
-      assert_equal 18, results.size, "should be four results loaded"
+      assert_equal 18, results.size, "should be 18 results loaded"
       assert_equal 1016, results['scaffold1'][:eff_len], "eff length is wrong"
       assert_equal 20690, results['scaffold1'][:eff_count],
                    "eff count is wrong"
