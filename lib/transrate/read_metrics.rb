@@ -54,7 +54,7 @@ module Transrate
                                   threads: threads)
       @fragments = @mapper.read_count
 
-      sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
+      sorted_bam = "#{File.basename(bamfile, '.bam')}.sorted.bam"
       assigned_bam = "postSample.bam"
 
       # check for latest files first and create what is needed
@@ -138,8 +138,8 @@ module Transrate
       @salmon.run(@assembly, bamfile)
     end
 
-    def analyse_expression express_output
-      express_output.each_pair do |name, expr|
+    def analyse_expression salmon_output
+      salmon_output.each_pair do |name, expr|
         contig_name = Bio::FastaDefline.new(name.to_s).entry_id
         contig = @assembly[contig_name]
         if expr[:eff_len]==0

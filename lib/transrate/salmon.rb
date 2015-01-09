@@ -9,7 +9,7 @@ module Transrate
       which = Cmd.new('which salmon')
       which.run
       if !which.status.success?
-        raise ExpressError.new("could not find salmon in the path")
+        raise SalmonError.new("could not find salmon in the path")
       end
       @salmon = which.stdout.split("\n").first
     end
