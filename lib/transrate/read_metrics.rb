@@ -174,12 +174,12 @@ module Transrate
       else
         raise "couldn't find bamfile: #{bamfile}"
       end
-      express_results = "#{File.basename @assembly.file}_results.xprs"
+      salmon_results = "#{File.basename @assembly.file}_quant.sf"
 
-      if File.exist?(express_results)
-        analyse_expression(@salmon.load_expression(express_results))
+      if File.exist?(salmon_results)
+        analyse_expression(@salmon.load_expression(salmon_results))
       else
-        abort "Can't find #{express_results}"
+        abort "Can't find #{salmon_results}"
       end
       @assembly.assembly.each_pair do |name, contig|
         @contigs_good += 1 if contig.score >= 0.5
