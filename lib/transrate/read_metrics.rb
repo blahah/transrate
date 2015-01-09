@@ -54,20 +54,23 @@ module Transrate
                                   threads: threads)
       @fragments = @mapper.read_count
 
-      sorted_bam = "#{File.basename(bamfile, '.bam')}.sorted.bam"
+      sorted_bam = "postSample.sorted.bam"
       assigned_bam = "postSample.bam"
+      final_bam = "#{File.basename(bamfile, '.bam')}.sorted.bam"
 
       # check for latest files first and create what is needed
-      if !File.exist?(sorted_bam)
-        if !File.exist?(assigned_bam)
-          assigned_bam = assign_and_quantify bamfile
+      if !File.exist?(final_bam)
+        if !File.exist?(sorted_bam)
+          if !File.exist?(assigned_bam)
+            assigned_bam = assign_and_quantify bamfile
+          end
+          sorted_bam = Samtools.sort_bam(assigned_bam, [4, threads].min)
+          File.delete assigned_bam
         end
-        sorted_bam = Samtools.sort_bam(assigned_bam, [4, threads].min)
-        File.delete assigned_bam
+        File.rename(sorted_bam, final_bam)
       end
-
       # analyse the final mappings
-      analyse_read_mappings(sorted_bam, insertsize, insertsd, true)
+      analyse_read_mappings(final_bam, insertsize, insertsd, true)
 
       @has_run = true
     end
