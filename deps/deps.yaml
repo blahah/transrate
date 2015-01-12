@@ -50,23 +50,12 @@ bam-read:
   binaries:
    - bam-read
   version:
-    number: '1.0.0.beta1'
+    number: '1.1.0.beta1'
     command: 'bam-read'
   url:
     64bit:
       linux: https://github.com/cboursnell/transrate-tools/raw/master/bin/linux/bam-read
       macosx: https://github.com/Blahah/transrate-tools/raw/master/bin/macosx/bam-read
-  unpack: false
-bam-split:
-  binaries:
-   - bam-split
-  version:
-    number: '1.0.0.beta1'
-    command: 'bam-split'
-  url:
-    64bit:
-      linux: https://github.com/Blahah/transrate-tools/raw/master/bin/linux/bam-split
-      macosx: https://github.com/Blahah/transrate-tools/raw/master/bin/macosx/bam-split
   unpack: false
 express:
   binaries:

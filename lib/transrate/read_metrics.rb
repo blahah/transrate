@@ -11,7 +11,7 @@ module Transrate
     def initialize assembly
       @assembly = assembly
       @mapper = Snap.new
-      @express = Express.new
+      @salmon = Salmon.new
       self.initial_values
 
       load_executables
@@ -19,7 +19,6 @@ module Transrate
     end
 
     def load_executables
-      @bam_splitter = get_bin_path 'bam-split'
       @bam_reader = get_bin_path 'bam-read'
     end
 
@@ -54,38 +53,18 @@ module Transrate
                                   threads: threads)
       @fragments = @mapper.read_count
 
-      sorted_bam = "#{File.basename(bamfile, '.bam')}.merged.sorted.bam"
-      merged_bam = "#{File.basename(bamfile, '.bam')}.merged.bam"
-      assigned_bam = "hits.1.samp.bam"
-      readsorted_bam = "#{File.basename(bamfile, '.bam')}.readsorted.bam"
-      valid_bam = "#{File.basename(bamfile, '.bam')}.valid.bam"
-      invalid_bam = "#{File.basename(bamfile, '.bam')}.invalid.bam"
+      assigned_bam = "postSample.bam"
+      final_bam = "#{File.basename(bamfile, '.bam')}.assigned.bam"
 
       # check for latest files first and create what is needed
-      if !File.exist?(sorted_bam)
-        if !File.exist?(merged_bam)
-          if !File.exist?(assigned_bam)
-            if !File.exist?(readsorted_bam)
-              if !File.exist?(valid_bam)
-                valid_bam, invalid_bam = split_bam bamfile
-              end
-              readsorted_bam = Samtools.readsort_bam(valid_bam)
-              File.delete valid_bam
-            end
-            assigned_bam = assign_and_quantify readsorted_bam
-            File.delete readsorted_bam
-          end
-          Samtools.merge_bam(invalid_bam, assigned_bam,
-                             merged_bam, threads=threads)
-          File.delete invalid_bam
-          File.delete assigned_bam
+      if !File.exist?(final_bam)
+        if !File.exist?(assigned_bam)
+          assigned_bam = assign_and_quantify bamfile
         end
-        sorted_bam = Samtools.sort_bam(merged_bam, [4, threads].min)
-        File.delete merged_bam
+        File.rename(assigned_bam, final_bam)
       end
-
       # analyse the final mappings
-      analyse_read_mappings(sorted_bam, insertsize, insertsd, true)
+      analyse_read_mappings(final_bam, insertsize, insertsd, true)
 
       @has_run = true
     end
@@ -133,31 +112,12 @@ module Transrate
       read_length
     end
 
-    def split_bam bamfile
-      base = File.basename(bamfile, '.bam')
-      valid = "#{base}.valid.bam"
-      invalid = "#{base}.invalid.bam"
-      if !File.exist? valid
-        cmd = "#{@bam_splitter} #{bamfile}"
-        splitter = Cmd.new cmd
-        splitter.run
-        if !splitter.status.success?
-          raise StandardError.new "Couldn't split bam file: #{bamfile}" +
-                      "\n#{splitter.stdout}\n#{splitter.stderr}"
-        end
-      end
-      if !File.exist? valid
-        raise StandardError.new "Splitting failed to create valid bam: #{valid}"
-      end
-      [valid, invalid]
-    end
-
     def assign_and_quantify bamfile
-      express_bam = @express.run(@assembly, bamfile)
+      @salmon.run(@assembly, bamfile)
     end
 
-    def analyse_expression express_output
-      express_output.each_pair do |name, expr|
+    def analyse_expression salmon_output
+      salmon_output.each_pair do |name, expr|
         contig_name = Bio::FastaDefline.new(name.to_s).entry_id
         contig = @assembly[contig_name]
         if expr[:eff_len]==0
@@ -192,12 +152,12 @@ module Transrate
       else
         raise "couldn't find bamfile: #{bamfile}"
       end
-      express_results = "#{File.basename @assembly.file}_results.xprs"
+      salmon_results = "#{File.basename @assembly.file}_quant.sf"
 
-      if File.exist?(express_results)
-        analyse_expression(@express.load_expression(express_results))
+      if File.exist?(salmon_results)
+        analyse_expression(@salmon.load_expression(salmon_results))
       else
-        abort "Can't find #{express_results}"
+        abort "Can't find #{salmon_results}"
       end
       @assembly.assembly.each_pair do |name, contig|
         @contigs_good += 1 if contig.score >= 0.5
