@@ -19,7 +19,6 @@ module Transrate
     end
 
     def load_executables
-      @bam_splitter = get_bin_path 'bam-split'
       @bam_reader = get_bin_path 'bam-read'
     end
 
@@ -111,25 +110,6 @@ module Transrate
         count+=1
       end
       read_length
-    end
-
-    def split_bam bamfile
-      base = File.basename(bamfile, '.bam')
-      valid = "#{base}.valid.bam"
-      invalid = "#{base}.invalid.bam"
-      if !File.exist? valid
-        cmd = "#{@bam_splitter} #{bamfile}"
-        splitter = Cmd.new cmd
-        splitter.run
-        if !splitter.status.success?
-          raise StandardError.new "Couldn't split bam file: #{bamfile}" +
-                      "\n#{splitter.stdout}\n#{splitter.stderr}"
-        end
-      end
-      if !File.exist? valid
-        raise StandardError.new "Splitting failed to create valid bam: #{valid}"
-      end
-      [valid, invalid]
     end
 
     def assign_and_quantify bamfile
