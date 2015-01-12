@@ -50,7 +50,7 @@ bam-read:
   binaries:
    - bam-read
   version:
-    number: '1.0.0.beta1'
+    number: '1.1.0.beta1'
     command: 'bam-read'
   url:
     64bit:
