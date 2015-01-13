@@ -20,7 +20,12 @@ module Transrate
     attr_accessor :hits
 
     def initialize(seq, name: nil)
-      seq.seq.gsub!("\0", "") # there is probably a better fix than this
+      # fix null bytes in the nucleotide sequence
+      seq.seq.gsub!("\0", "")
+      # trim trailing semicolons (because BLAST strips them)
+      if seq.respond_to?(:entry_id)
+        seq.entry_id.gsub!(/;$/, '')
+      end
       @seq = seq
       @seq.data = nil # no need to store raw fasta string
       @name = seq.respond_to?(:entry_id) ? seq.entry_id : name
