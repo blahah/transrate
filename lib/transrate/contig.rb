@@ -253,13 +253,13 @@ module Transrate
       return :good if score >= 0.5
       # fragmented?
       if in_bridges > 5
-        if p_not_segmented * p_bases_covered * p_seq_true * p_unique >= 0.5
+        if p_not_segmented * p_bases_covered * p_seq_true >= 0.5
           return :fragmented
         end
       end
       # chimeric?
       if p_not_segmented < 0.25
-        if p_good * p_bases_covered * p_seq_true * p_unique >= 0.5
+        if p_good * p_bases_covered * p_seq_true >= 0.5
           return :chimeric
         end
       end
