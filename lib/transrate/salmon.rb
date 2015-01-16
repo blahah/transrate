@@ -32,13 +32,12 @@ module Transrate
     end
 
     def build_command assembly, bamfile, threads=4
-      cmd = "#{@salmon} quant"
+      cmd = "#{@salmon} --no-version-check quant"
       cmd << " --libtype IU"
       cmd << " --alignments #{bamfile}"
       cmd << " --targets #{assembly}"
       cmd << " --threads #{threads}"
       cmd << " --useReadCompat"
-      cmd << " --useFragLenDist"
       cmd << " --sampleOut"
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."
