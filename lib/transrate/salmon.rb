@@ -23,7 +23,7 @@ module Transrate
         salmon = Cmd.new build_command(assembly, bamfile, threads)
         salmon.run
         unless salmon.status.success?
-          logger.warn "salmon failed"
+          logger.error "salmon failed: " + salmon.stderr
           abort
         end
         File.rename(output, @fin_output)
