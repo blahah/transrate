@@ -63,6 +63,7 @@ module Transrate
         save_readcount runner.stdout
         unless runner.status.success?
           if runner.stderr=~/Unmatched\sread\sIDs/
+            logger.warn runner.stderr
             logger.warn "Unmatched read IDs. Fixing input files..."
             remap_reads(left, right, threads)
           else
