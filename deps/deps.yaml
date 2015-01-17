@@ -34,12 +34,12 @@ snap:
   url:
     64bit:
       linux: https://github.com/Blahah/snap/releases/download/v1.0dev.67/snap_v1.0dev.67_linux.tar.gz
-      macosx: https://github.com/Blahah/snap/releases/download/v1.0dev.67/snap_1.0dev.767_macosx.tar.gz
+      macosx: https://github.com/Blahah/snap/releases/download/v1.0dev.67/snap_v1.0dev.67_macosx.tar.gz
 bam-read:
   binaries:
    - bam-read
   version:
-    number: '1.0.0.beta2'
+    number: '1.0.0.beta3'
     command: 'bam-read'
   url:
     64bit:
