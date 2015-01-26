@@ -11,7 +11,7 @@ module Transrate
     MAJOR = 1
     MINOR = 0
     PATCH = 0
-    BUILD = 'beta3'
+    BUILD = 'beta2'
 
     STRING = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   end

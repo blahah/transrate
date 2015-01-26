@@ -18,13 +18,12 @@ module Transrate
       assembly = assembly.file if assembly.is_a? Assembly
       output = "quant.sf"
       @fin_output = "#{File.basename assembly}_#{output}"
-
       unless File.exist? @fin_output
         salmon = Cmd.new build_command(assembly, bamfile, threads)
         salmon.run
         unless salmon.status.success?
-          logger.warn "salmon failed"
-          abort
+          logger.error salmon.stderr
+          raise SalmonError.new("Salmon failed")
         end
         File.rename(output, @fin_output)
       end
@@ -32,13 +31,12 @@ module Transrate
     end
 
     def build_command assembly, bamfile, threads=4
-      cmd = "#{@salmon} quant"
-      cmd << " --libtype IU"
+      cmd = "#{@salmon} --no-version-check quant"
+      cmd << " --libType IU"
       cmd << " --alignments #{bamfile}"
       cmd << " --targets #{assembly}"
       cmd << " --threads #{threads}"
       cmd << " --useReadCompat"
-      cmd << " --useFragLenDist"
       cmd << " --sampleOut"
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."

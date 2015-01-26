@@ -43,14 +43,14 @@ bam-read:
     command: 'bam-read'
   url:
     64bit:
-      linux: https://github.com/cboursnell/transrate-tools/raw/master/bin/linux/bam-read
-      macosx: https://github.com/Blahah/transrate-tools/raw/master/bin/macosx/bam-read
-  unpack: false
+      linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta2/bam-read_1.0.0.beta2_linux.tar.gz
+      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta2/bam-read_1.0.0.beta2_macosx.tar.gz
+  unpack: true
 salmon:
   binaries:
     - salmon
   version:
-    number: 'Salmon v0.2.2'
+    number: 'Salmon v0.2.5'
     command: 'salmon --help'
   url:
     64bit:
