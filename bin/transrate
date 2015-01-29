@@ -75,7 +75,7 @@ else
   missing = Bindeps.missing gem_deps
   blast_missing = []
   blast_missing = Bindeps.missing blast_dep if opts.reference
-  if missing.length + blast_missing > 0
+  if missing.length + blast_missing.length > 0
     puts "Dependencies are missing:"
     missing.each do |dep|
       puts "  - #{dep.name} (#{dep.version})"
