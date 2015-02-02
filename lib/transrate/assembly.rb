@@ -125,7 +125,6 @@ module Transrate
       # and iterate over them
       bin.sort_by! { |c| c.seq.length }
       bin.each do |contig|
-
         # increment our long contig counters if this
         # contig is above the thresholds
         if contig.length < 200
@@ -157,7 +156,6 @@ module Transrate
             cutoff = x2.pop / 100.0
           end
         end
-
       end
 
       # if there aren't enough sequences we might have no value for some
@@ -168,6 +166,11 @@ module Transrate
 
       # calculate and return the statistics as a hash
       mean = cumulative_length / @assembly.size
+      if @assembly.size * mean == 0
+        mean_orf_percent = 0
+      else
+        mean_orf_percent = 300 * orf_length_sum / (@assembly.size * mean)
+      end
       ns = Hash[x.map { |n| "n#{n}" }.zip(res)]
       {
         'n_seqs' => bin.size,
@@ -179,7 +182,7 @@ module Transrate
         'n_over_1k' => n_over_1k,
         'n_over_10k' => n_over_10k,
         'n_with_orf' => n_with_orf,
-        'mean_orf_percent' => 300 * orf_length_sum / (@assembly.size * mean)
+        'mean_orf_percent' => mean_orf_percent
       }.merge ns
 
     end # basic_bin_stats
