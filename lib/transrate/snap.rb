@@ -135,7 +135,6 @@ module Transrate
 
     def build_index file, threads
       @index_name = File.basename(file, File.extname(file))
-      file = check_ambiguous(file)
       unless Dir.exists?(@index_name)
         cmd = "#{@snap} index #{file} #{@index_name}"
         cmd << " -s 23"
@@ -150,30 +149,6 @@ module Transrate
         end
       end
       @index_built = true
-    end
-
-    def check_ambiguous file
-
-      ref = Bio::FastaFormat.open(file)
-      ambiguous = false
-      fixed = ""
-      ref.each do |entry|
-        seq = entry.seq
-        if seq =~ /[RYSWKMBDHV]/
-          seq = seq.gsub(/[RYSWKMBDHV]/, "N")
-          ambiguous = true
-        end
-        fixed << ">#{entry.definition}\n#{seq}\n"
-      end
-      ref.close
-      if ambiguous
-        logger.warn "squelching ambiguous nucleotides"
-        file = "#{File.basename(file, File.extname(file))}.fixed.fasta"
-        File.open(file, "w") do |out|
-          out.write fixed
-        end
-      end
-      return file
     end
 
   end # Snap
