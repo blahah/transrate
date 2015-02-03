@@ -36,7 +36,6 @@ module Transrate
       cmd << " --alignments #{bamfile}"
       cmd << " --targets #{assembly}"
       cmd << " --threads #{threads}"
-      cmd << " --useReadCompat"
       cmd << " --sampleOut"
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."
