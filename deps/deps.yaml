@@ -38,6 +38,9 @@ snap:
 salmon:
   binaries:
     - salmon
+  version:
+    number: '0.2.7'
+    command: 'salmon'
   libraries:
     - libbz2.so.1.0
     - liblzma.so.5
