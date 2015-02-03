@@ -40,7 +40,7 @@ salmon:
     - salmon
   version:
     number: '0.2.7'
-    command: 'salmon'
+    command: 'salmon --help'
   libraries:
     - libbz2.so.1.0
     - liblzma.so.5
