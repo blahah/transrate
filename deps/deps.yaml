@@ -29,12 +29,12 @@ snap:
   binaries:
     - snap
   version:
-    number: '1.0dev.67'
+    number: '1.0dev.67.trfix1'
     command: 'snap'
   url:
     64bit:
-      linux: https://github.com/Blahah/snap/releases/download/v1.0dev.67/snap_v1.0dev.67_linux.tar.gz
-      macosx: https://github.com/Blahah/snap/releases/download/v1.0dev.67/snap_v1.0dev.67_macosx.tar.gz
+      linux: https://github.com/Blahah/snap/releases/download/v1.0dev.67.trfix1/snap_v1.0dev.67.trfix1_linux.tar.gz
+      macosx: https://github.com/Blahah/snap/releases/download/v1.0dev.67.trfix1/snap_v1.0dev.67.trfix1_macosx.tar.gz
 salmon:
   binaries:
     - salmon
