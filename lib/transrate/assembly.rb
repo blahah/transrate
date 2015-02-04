@@ -48,6 +48,13 @@ module Transrate
       Bio::FastaFormat.open(file).each do |entry|
         @n_bases += entry.length
         contig = Contig.new(entry)
+        if @assembly.key?(contig.name)
+          logger.error "Non unique fasta identifier found"
+          logger.error ">#{contig.name}"
+          logger.error "Please make sure there are no duplicate entries in the assembly"
+          logger.error "Contig name is taken from before the first | or space"
+          abort
+        end
         @assembly[contig.name] = contig
       end
       @contig_metrics = ContigMetrics.new self
