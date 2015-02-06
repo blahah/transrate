@@ -39,8 +39,8 @@ bam-read:
     command: 'bam-read'
   url:
     64bit:
-      linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta2/bam-read_1.0.0.beta2_linux.tar.gz
-      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta2/bam-read_1.0.0.beta2_macosx.tar.gz
+      linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta3/bam-read_1.0.0.beta3_linux.tar.gz
+      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta3/bam-read_1.0.0.beta3_macosx.tar.gz
   unpack: true
 salmon:
   binaries:
