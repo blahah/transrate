@@ -29,8 +29,10 @@ class TestAssembly < Test::Unit::TestCase
           assert File.exist?("fragmented.sorghum_100.fa"), "fragmented output"
           assert File.exist?("chimeric.sorghum_100.fa"), "chimeric output"
           assert File.exist?("bad.sorghum_100.fa"), "bad output"
-          assert File.stat("good.sorghum_100.fa").size > 80_000, "good file size"
-          assert File.stat("bad.sorghum_100.fa").size > 53_000, "bad file size"
+          file_size = File.stat("good.sorghum_100.fa").size
+          assert_in_delta 80_748, file_size, 2000, "good file size"
+          file_size = File.stat("bad.sorghum_100.fa").size
+          assert_in_delta 53_986, file_size, 2000, "bad file size"
         end
       end
     end
