@@ -27,10 +27,6 @@ module Transrate
       l.split(",").zip(r.split(",")).each do |left, right|
         cmd << " #{left} #{right}"
       end
-      # NOTE: do NOT turn on the -so flag (sort bam output)
-      # it violates the basic assumption of eXpress's streaming
-      # algorithm: that the fragments are observed in approximately
-      # random order.
       cmd << " -o #{@bam}"
       cmd << " -s 0 1000" # min and max distance between paired-read starts
       cmd << " -H 300000" # max seed hits to consider in paired mode
@@ -39,7 +35,6 @@ module Transrate
       cmd << " -t #{threads}"
       cmd << " -b" # bind threads to cores
       cmd << " -M"  # format cigar string
-      cmd << " -D 5" # edit distance to search for mapq calculation
       cmd << " -om 5" # Output multiple alignments. extra edit distance
       cmd << " -omax 10" # max alignments per pair/read
       cmd
