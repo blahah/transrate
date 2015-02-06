@@ -4,6 +4,11 @@ require 'forwardable'
 
 module Transrate
 
+  class AssemblyError < StandardError
+    def backtrace
+    end
+  end
+
   # Container for a transcriptome assembly and its associated
   # metadata.
   #
@@ -53,7 +58,7 @@ module Transrate
           logger.error ">#{contig.name}"
           logger.error "Please make sure there are no duplicate entries in the assembly"
           logger.error "Contig name is taken from before the first | or space"
-          abort
+          raise AssemblyError
         end
         @assembly[contig.name] = contig
       end

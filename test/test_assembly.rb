@@ -30,9 +30,22 @@ class TestAssembly < Test::Unit::TestCase
           assert File.exist?("chimeric.sorghum_100.fa"), "chimeric output"
           assert File.exist?("bad.sorghum_100.fa"), "bad output"
           file_size = File.stat("good.sorghum_100.fa").size
-          assert_in_delta 80_748, file_size, 2000, "good file size"
+          assert_in_delta 81_000, file_size, 3000, "good file size"
           file_size = File.stat("bad.sorghum_100.fa").size
-          assert_in_delta 53_986, file_size, 2000, "bad file size"
+          assert_in_delta 53_000, file_size, 3000, "bad file size"
+        end
+      end
+    end
+
+    should "capture error with multiple identical named contigs" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          ref = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.fa')
+          cmd = Transrate::Cmd.new("cat #{ref} #{ref} > tmp.fa")
+          cmd.run
+          assert_raise Transrate::AssemblyError do
+            assembly = Transrate::Assembly.new("tmp.fa")
+          end
         end
       end
     end
