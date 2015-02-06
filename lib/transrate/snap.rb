@@ -8,7 +8,7 @@ module Transrate
     require 'fix-trinity-output'
     require 'bio'
 
-    attr_reader :index_name, :sam, :read_count
+    attr_reader :index_name, :bam, :read_count
 
     def initialize
       which_snap = Cmd.new('which snap')
@@ -35,6 +35,7 @@ module Transrate
       cmd << " -t #{threads}"
       cmd << " -b" # bind threads to cores
       cmd << " -M"  # format cigar string
+      cmd << " -D 5" # extra edit distance to search. needed for -om
       cmd << " -om 5" # Output multiple alignments. extra edit distance
       cmd << " -omax 10" # max alignments per pair/read
       cmd

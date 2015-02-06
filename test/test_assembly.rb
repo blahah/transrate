@@ -1,12 +1,13 @@
 require 'helper'
 require 'bio'
+require 'tmpdir'
 
 class TestAssembly < Test::Unit::TestCase
 
   context "Assembly" do
 
     setup do
-      a = File.join(File.dirname(__FILE__), 'data', 'sorghum_transcript.fa')
+      a = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.fa')
       @assembly = Transrate::Assembly.new(a)
     end
 
@@ -18,16 +19,18 @@ class TestAssembly < Test::Unit::TestCase
     should "classify contigs" do
       @assembly.run 1
       read_metrics = Transrate::ReadMetrics.new(@assembly)
-      left = File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
-      right = File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
+      left = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.1.fastq')
+      right = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.2.fastq')
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           read_metrics.run(left, right)
           @assembly.classify_contigs
-          assert_equal 840, File.stat("good.sorghum_transcript.fa").size
-          assert_equal 0, File.stat("fragmented.sorghum_transcript.fa").size
-          assert_equal 749, File.stat("chimeric.sorghum_transcript.fa").size
-          assert_equal 0, File.stat("bad.sorghum_transcript.fa").size
+          assert File.exist?("good.sorghum_100.fa"), "good output exists"
+          assert File.exist?("fragmented.sorghum_100.fa"), "fragmented output"
+          assert File.exist?("chimeric.sorghum_100.fa"), "chimeric output"
+          assert File.exist?("bad.sorghum_100.fa"), "bad output"
+          assert File.stat("good.sorghum_100.fa").size > 80_000, "good file size"
+          assert File.stat("bad.sorghum_100.fa").size > 53_000, "bad file size"
         end
       end
     end

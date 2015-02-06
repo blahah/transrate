@@ -23,7 +23,7 @@ salmon:
   binaries:
     - salmon
   version:
-    number: 'Salmon v0.2.5'
+    number: 'Salmon v0.2.7'
     command: 'salmon --help'
   url:
     64bit:

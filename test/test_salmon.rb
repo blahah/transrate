@@ -22,9 +22,9 @@ class TestSalmon < Test::Unit::TestCase
     should "build a command to run salmon" do
       cmd = @salmon.build_command "assembly.fa", "alignments.bam"
       cmd = cmd.split(" ")[1..-1].join(" ") # remove command so test is portabl
-      test = "quant --libtype IU --alignments alignments.bam "
-      test << "--targets assembly.fa --threads 4 --useReadCompat "
-      test << "--useFragLenDist --sampleOut --sampleUnaligned --output ."
+      test = "quant --libType IU --alignments alignments.bam "
+      test << "--targets assembly.fa --threads 4 --sampleOut "
+      test << "--sampleUnaligned --output ."
       assert_equal test, cmd, "cmd is wrong"
     end
 
