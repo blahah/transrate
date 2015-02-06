@@ -25,12 +25,12 @@ class TestTransrater < Test::Unit::TestCase
       end
     end
 
-    should "handle assembly as an assemby object" do
+    should "handle assembly as an assembly object" do
       assembly_object = Transrate::Assembly.new(@assembly)
       rater = Transrate::Transrater.new(assembly_object, @reference)
     end
 
-    should "handle reference as an assemby object" do
+    should "handle reference as an assembly object" do
       reference_object = Transrate::Assembly.new(@reference)
       rater = Transrate::Transrater.new(@assembly, reference_object)
     end
