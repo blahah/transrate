@@ -55,6 +55,9 @@ VALUE method_composition(VALUE self, VALUE _seq) {
   }
   for (i=0; i < len; i++) {
     base = seq[i];
+    if (base > 90) {
+      base -= 32;
+    }
     switch (base) {
       case 'A': {
         idx=0;
@@ -81,6 +84,9 @@ VALUE method_composition(VALUE self, VALUE _seq) {
 
     if (i > 0) {
       prevbase = seq[i-1];
+      if (prevbase > 90) {
+        prevbase -= 32;
+      }
       switch (prevbase) {
         case 'A': {
           idx=idx;
@@ -138,6 +144,9 @@ VALUE method_kmer_count(VALUE self, VALUE _k, VALUE _s) {
     n = 0;
     for(i = start; i < start+k; i++) {
       base = c_str[i];
+      if (base > 90) {
+        base -= 32;
+      }
       switch (base) {
         case 'A': {
           h = h << 2;

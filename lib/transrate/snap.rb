@@ -8,7 +8,7 @@ module Transrate
     require 'fix-trinity-output'
     require 'bio'
 
-    attr_reader :index_name, :sam, :read_count
+    attr_reader :index_name, :bam, :read_count
 
     def initialize
       which_snap = Cmd.new('which snap')
@@ -27,10 +27,6 @@ module Transrate
       l.split(",").zip(r.split(",")).each do |left, right|
         cmd << " #{left} #{right}"
       end
-      # NOTE: do NOT turn on the -so flag (sort bam output)
-      # it violates the basic assumption of eXpress's streaming
-      # algorithm: that the fragments are observed in approximately
-      # random order.
       cmd << " -o #{@bam}"
       cmd << " -s 0 1000" # min and max distance between paired-read starts
       cmd << " -H 300000" # max seed hits to consider in paired mode
@@ -39,7 +35,7 @@ module Transrate
       cmd << " -t #{threads}"
       cmd << " -b" # bind threads to cores
       cmd << " -M"  # format cigar string
-      cmd << " -D 5" # edit distance to search for mapq calculation
+      cmd << " -D 5" # extra edit distance to search. needed for -om
       cmd << " -om 5" # Output multiple alignments. extra edit distance
       cmd << " -omax 10" # max alignments per pair/read
       cmd
@@ -135,7 +131,6 @@ module Transrate
 
     def build_index file, threads
       @index_name = File.basename(file, File.extname(file))
-      file = check_ambiguous(file)
       unless Dir.exists?(@index_name)
         cmd = "#{@snap} index #{file} #{@index_name}"
         cmd << " -s 23"
@@ -150,30 +145,6 @@ module Transrate
         end
       end
       @index_built = true
-    end
-
-    def check_ambiguous file
-
-      ref = Bio::FastaFormat.open(file)
-      ambiguous = false
-      fixed = ""
-      ref.each do |entry|
-        seq = entry.seq
-        if seq =~ /[RYSWKMBDHV]/
-          seq = seq.gsub(/[RYSWKMBDHV]/, "N")
-          ambiguous = true
-        end
-        fixed << ">#{entry.definition}\n#{seq}\n"
-      end
-      ref.close
-      if ambiguous
-        logger.warn "squelching ambiguous nucleotides"
-        file = "#{File.basename(file, File.extname(file))}.fixed.fasta"
-        File.open(file, "w") do |out|
-          out.write fixed
-        end
-      end
-      return file
     end
 
   end # Snap

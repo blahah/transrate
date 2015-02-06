@@ -1,0 +1,27 @@
+blastplus:
+  binaries:
+    - makeblastdb
+    - blastn
+    - tblastn
+    - blastp
+    - blastx
+    - tblastx
+    - makembindex
+    - psiblast
+    - rpsblast
+    - blastdbcmd
+    - segmasker
+    - dustmasker
+    - blast_formatter
+    - windowmasker
+    - blastdb_aliastool
+    - deltablast
+    - rpstblastn
+    - blastdbcheck
+  version:
+    number: '2.2.29'
+    command: 'blastx -version'
+  url:
+    64bit:
+      macosx: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-universal-macosx.tar.gz
+      linux: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-x64-linux.tar.gz

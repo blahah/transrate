@@ -64,16 +64,23 @@ opts = Trollop::options do
 end
 gem_dir = Gem.loaded_specs['transrate'].full_gem_path
 gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
+blast_dep = File.join(gem_dir, 'deps', 'blast.yaml')
 if opts.install_deps
   puts "Checking dependencies"
   Bindeps.require gem_deps
+  Bindeps.require blast_dep if opts.reference
   puts "All dependencies installed"
   exit
 else
   missing = Bindeps.missing gem_deps
-  if missing.length > 0
+  blast_missing = []
+  blast_missing = Bindeps.missing blast_dep if opts.reference
+  if missing.length + blast_missing.length > 0
     puts "Dependencies are missing:"
     missing.each do |dep|
+      puts "  - #{dep.name} (#{dep.version})"
+    end
+    blast_missing.each do |dep|
       puts "  - #{dep.name} (#{dep.version})"
     end
     puts "To install all missing dependencies, run `transrate --install-deps`"

@@ -1,30 +1,3 @@
-blastplus:
-  binaries:
-    - makeblastdb
-    - blastn
-    - tblastn
-    - blastp
-    - blastx
-    - tblastx
-    - makembindex
-    - psiblast
-    - rpsblast
-    - blastdbcmd
-    - segmasker
-    - dustmasker
-    - blast_formatter
-    - windowmasker
-    - blastdb_aliastool
-    - deltablast
-    - rpstblastn
-    - blastdbcheck
-  version:
-    number: '2.2.29'
-    command: 'blastx -version'
-  url:
-    64bit:
-      macosx: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-universal-macosx.tar.gz
-      linux: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.29/ncbi-blast-2.2.29+-x64-linux.tar.gz
 snap:
   binaries:
     - snap
@@ -69,3 +42,13 @@ bam-read:
       linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta2/bam-read_1.0.0.beta2_linux.tar.gz
       macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta2/bam-read_1.0.0.beta2_macosx.tar.gz
   unpack: true
+salmon:
+  binaries:
+    - salmon
+  version:
+    number: 'Salmon v0.2.7'
+    command: 'salmon --help'
+  url:
+    64bit:
+      linux: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.3/SalmonBeta-v0.2.3_ubuntu-14.04.tar.gz
+      macosx: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.3/SalmonBeta-v0.2.3_ubuntu-14.04.tar.gz
