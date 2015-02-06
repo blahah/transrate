@@ -64,6 +64,12 @@ Rake::TestTask.new do |t|
 end
 
 Rake::TestTask.new do |t|
+  t.name = :snap
+  t.libs << 'test'
+  t.test_files = ['test/test_snap.rb']
+end
+
+Rake::TestTask.new do |t|
   t.name = :salmon
   t.libs << 'test'
   t.test_files = ['test/test_salmon.rb']

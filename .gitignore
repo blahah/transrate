@@ -19,6 +19,7 @@ tmp
 \#*
 *so
 dryrun
+.DS_Store
 
 # YARD artifacts
 .yardoc
