@@ -30,9 +30,9 @@ class TestAssembly < Test::Unit::TestCase
           assert File.exist?("chimeric.sorghum_100.fa"), "chimeric output"
           assert File.exist?("bad.sorghum_100.fa"), "bad output"
           file_size = File.stat("good.sorghum_100.fa").size
-          assert_in_delta 81_000, file_size, 3000, "good file size"
+          assert_in_delta 81_000, file_size, 5000, "good file size"
           file_size = File.stat("bad.sorghum_100.fa").size
-          assert_in_delta 53_000, file_size, 3000, "bad file size"
+          assert_in_delta 53_000, file_size, 5000, "bad file size"
         end
       end
     end

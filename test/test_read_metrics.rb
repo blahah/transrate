@@ -62,8 +62,8 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:p_seq_true].round(5)
           edit_b = b[:p_seq_true].round(5)
-          assert_in_delta 0.6597, edit_a.round(4), 0.005, "edit distance 1"
-          assert_in_delta 0.9364, edit_b.round(4), 0.005, "edit distance 2"
+          assert_in_delta 0.6597, edit_a.round(4), 0.01, "edit distance 1"
+          assert_in_delta 0.9364, edit_b.round(4), 0.01, "edit distance 2"
 
           assert_in_delta 0.5714, a[:p_good].round(4), 0.01, "prop of good mappings"
           assert_in_delta 0.8302, b[:p_good].round(4), 0.01, "prop of good mappings"
