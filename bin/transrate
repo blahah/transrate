@@ -1,13 +1,35 @@
 #!/usr/bin/env ruby
-PROFILE = false
 
 require 'trollop'
 require 'transrate'
 require 'csv'
 require 'bindeps'
-require 'ruby-prof'
 
+include Transrate
+
+# Show the help message if no arguments provided
 ARGV[0] = "--help" if ARGV.length() == 0
+
+# We want clean error messages through the logger, no ugly backtraces
+# because the user doesn't care about them, unless they specifically ask for
+# them with --loglevel debug
+module Kernel
+  alias _raise raise
+
+  def raise(*a)
+    begin
+      _raise(*a)
+    rescue TransrateError => e
+      logger.error e.message
+      logger.debug e.backtrace unless e.backtrace.nil?
+      exit 1
+    end
+  end
+end
+
+class TransrateError < StandardError; end
+class TransrateIOError < TransrateError; end
+class TransrateArgError < TransrateError; end
 
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
@@ -19,8 +41,8 @@ opts = Trollop::options do
   DESCRIPTION:
   Analyse a de-novo transcriptome assembly using three kinds of metrics:
 
-  1. contig-based
-  2. read-mapping (if --left and --right are provided)
+  1. sequence-based (basic)
+  2. read-mapping-based (if --left and --right are provided)
   3. reference-based (if --reference is provided)
 
   Bug reports and feature requests at:
@@ -34,10 +56,10 @@ opts = Trollop::options do
   transrate --install-deps
   # get the transrate score for the assembly and each contig
   transrate --assembly contigs.fa --left left.fq --right right.fq
-  # contig metrics only
+  # basic assembly metrics only
   transrate --assembly contigs.fa
-  # contig and reference-based metrics with 8 threads
-  transrate --assembly contigs.fa --reference Athaliana_protein.fa --threads 8
+  # basic and reference-based metrics with 8 threads
+  transrate --assembly contigs.fa --reference Athaliana_transcripts.fa --threads 8
   # contig and read-based metrics for two assemblies with 32 threads
   transrate --assembly one.fa,two.fa --left l.fq --right r.fq --threads 32
 
@@ -61,66 +83,107 @@ opts = Trollop::options do
                  "one of [error, info, warn, debug]",
       :default => 'info'
   opt :install_deps, "install any missing dependencies"
+  opt :install_read_deps, "install missing dependencies for read metrics only"
+  opt :install_ref_deps, "install missing dependencies for reference metrics only"
 end
+
+# Check dependencies if they are relevant to the command issued,
+# and handle any commands to install missing ones
 gem_dir = Gem.loaded_specs['transrate'].full_gem_path
 gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
 blast_dep = File.join(gem_dir, 'deps', 'blast.yaml')
-if opts.install_deps
+
+if opts.install_deps || opts.install_read_deps || opts.install_ref_deps
+  # user has requested dependency installation
   puts "Checking dependencies"
-  Bindeps.require gem_deps
-  Bindeps.require blast_dep if opts.reference
+
+  missing = []
+  if opts.install_deps || opts.install_read_deps
+    Bindeps.require gem_deps
+    missing += Bindeps.missing gem_deps
+  end
+
+  if opts.install_deps || opts.install_ref_deps
+    Bindeps.require blast_dep
+    missing += bindeps.missing blast_dep
+  end
+
+  unless missing.empty?
+    raise TransrateError.new "Failed to install: \n - #{missing.join('\n - ')}"
+  end
+
   puts "All dependencies installed"
   exit
+
 else
-  missing = Bindeps.missing gem_deps
+  # no dependency installation requested, but check dependencies
+  # for the commands provided are installed
+  missing = []
+  missing = Bindeps.missing gem_deps if opts.left
   blast_missing = []
   blast_missing = Bindeps.missing blast_dep if opts.reference
+
   if missing.length + blast_missing.length > 0
     puts "Dependencies are missing:"
+
     missing.each do |dep|
       puts "  - #{dep.name} (#{dep.version})"
     end
+
     blast_missing.each do |dep|
       puts "  - #{dep.name} (#{dep.version})"
     end
-    puts "To install all missing dependencies, run `transrate --install-deps`"
-    exit(1)
+
+    puts "To install all missing dependencies, run:"
+    puts "  transrate --install-deps"
+    puts "If you only want the read-metrics dependencies:"
+    puts "  transrate --install-read-deps"
+    puts "Or if you only want the reference-metrics dependencies: "
+    puts "  transrate --install-ref-deps"
+
+    exit 1
   end
+
 end
+
+# Handle commands
+unless %w[error info warn debug].include? opts.loglevel
+  raise "Loglevel #{opts.loglevel} is not valid. " +
+  "It must be one of: error, info, warn, debug."
+end
+
+logger.level = Yell::Level.new opts.loglevel.to_sym
 
 if opts.assembly
   opts.assembly.split(',').each do |assembly_file|
     unless File.exist?(assembly_file)
-      raise IOError.new "Assembly fasta file does not exist: #{assembly_file}"
+      raise TransrateIOError.new "Assembly fasta file does not exist: " +
+                                 " #{assembly_file}"
     end
   end
 else
-  raise ArgumentError.new "Option --assembly must be specified. " +
-                          "Try --help for help."
+  raise TransrateArgError.new "Option --assembly must be specified. " +
+                              "Try --help for help."
 end
 
 if opts.reference && !File.exist?(opts.reference)
-  raise IOError.new "Reference fasta file does not exist: #{opts.reference}"
+  raise TransrateIOError.new "Reference fasta file does not exist: " +
+                             " #{opts.reference}"
 end
 
 if opts.left and opts.right
   if opts.left.split(",").length != opts.right.split(",").length
     msg = "Please provide the same number of left reads as right reads"
-    raise ArgumentError.new(msg)
+    raise TransrateArgError.new msg
   end
   opts.left.split(",").zip(opts.right.split(",")).each do |left,right|
     if !File.exist?(left)
-      raise IOError.new "Left read fastq file does not exist: #{left}"
+      raise TransrateIOError.new "Left read fastq file does not exist: #{left}"
     end
     if !File.exist?(right)
-      raise IOError.new "Right read fastq file does not exist: #{right}"
+      raise TransrateIOError.new "Right read fastq file does not exist: #{right}"
     end
   end
-end
-
-if PROFILE
-  logger.info "Starting profiler"
-  RubyProf.start
 end
 
 def pretty_print_hash hash, width
@@ -139,15 +202,6 @@ def pretty_print_hash hash, width
     "#{v}"
   end
 end
-
-include Transrate
-
-unless %w[error info warn debug].include? opts.loglevel
-  raise "Loglevel #{opts.loglevel} is not valid. " +
-        "It must be one of: error, info, warn, debug."
-end
-
-logger.level = Yell::Level.new opts.loglevel.to_sym
 
 r = opts.reference ? Assembly.new(opts.reference) : nil
 report_width = 35
@@ -273,11 +327,4 @@ CSV.open(outfile, 'wb') do |file|
   all.each do |row|
     file << head.map { |x| row[x] }
   end
-end
-
-if PROFILE
-  logger.info "Writing profiling results to transrate_profile.txt"
-  result = RubyProf.stop
-  printer = RubyProf::FlatPrinter.new(result)
-  printer.print(File.open('transrate_profile.txt', 'w'))
 end
