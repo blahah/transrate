@@ -32,19 +32,6 @@ class TestContig < Test::Unit::TestCase
       assert_equal 1, contig.dibase_composition[:gn]
     end
 
-    should "benchmark composition" do
-      seq = "GCCGTGAGCTTCTTGATCGAGTTCTTCTCCCGCTTCGCGAACGCCTTGGACTCCTNGCACGGG"
-      seq << "GTCAGCCCCGCGATGTCGGCGGCCGCGGGCGGGGGG"
-      seq = seq * 100000
-      seq = Bio::FastaFormat.new ">test\n"+seq
-      contig = Transrate::Contig.new seq
-      ruby_time = 11 # time taken with the ruby version
-      c_time = Benchmark.realtime do |x|
-        contig.dibase_composition
-      end
-      assert c_time*100 < ruby_time, "c faster than ruby"
-    end
-
     should "know how many of each two-base pair it contains" do
       assert_equal 3, @contig.dibase_composition[:cg], "cg count"
       assert_equal 3, @contig.dibase_composition[:at], "at count"
