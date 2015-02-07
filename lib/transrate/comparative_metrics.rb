@@ -55,12 +55,12 @@ module Transrate
       crbblast.reciprocals.each do |key, list|
         list.each_with_index do |hit, i|
           unless @reference.assembly.key? hit.target
-            raise "#{hit.target} not in reference"
+            raise TransrateError.new "#{hit.target} not in reference"
           end
           @reference[hit.target].hits << hit
 
           unless @assembly.assembly.key? hit.query
-            raise "#{hit.query} not in assembly"
+            raise TransrateError.new "#{hit.query} not in assembly"
           end
           contig = @assembly[hit.query]
           contig.has_crb = true

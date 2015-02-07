@@ -32,7 +32,7 @@ module Transrate
         end
         @read_metrics = ReadMetrics.new @assembly
       else
-        raise RuntimeError.new("assembly is nil")
+        raise TransrateError.new("assembly is nil")
       end
 
       if reference

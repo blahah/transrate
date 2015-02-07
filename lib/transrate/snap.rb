@@ -1,6 +1,6 @@
 module Transrate
 
-  class SnapError < StandardError
+  class SnapError < TransrateError
   end
 
   class Snap

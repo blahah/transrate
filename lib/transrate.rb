@@ -20,6 +20,11 @@ require 'transrate/transrate.so'
 # quality assessment tool.
 module Transrate
 
+  # Our own set of errors to allow nice custom error handling
+  class TransrateError < StandardError; end
+  class TransrateIOError < TransrateError; end
+  class TransrateArgError < TransrateError; end
+
   # Create the universal logger and include it in Object
   # making the logger object available everywhere
   format = Yell::Formatter.new("[%5L] %d : %m", "%Y-%m-%d %H:%M:%S")

@@ -4,10 +4,7 @@ require 'forwardable'
 
 module Transrate
 
-  class AssemblyError < StandardError
-    def backtrace
-    end
-  end
+  class AssemblyError < TransrateError; end
 
   # Container for a transcriptome assembly and its associated
   # metadata.
@@ -46,7 +43,7 @@ module Transrate
     def initialize file
       @file = File.expand_path file
       unless File.exist? @file
-        raise IOError.new "Assembly file doesn't exist: #{@file}"
+        raise TransrateIOError.new "Assembly file doesn't exist: #{@file}"
       end
       @assembly = {}
       @n_bases = 0

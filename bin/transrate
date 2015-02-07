@@ -27,10 +27,6 @@ module Kernel
   end
 end
 
-class TransrateError < StandardError; end
-class TransrateIOError < TransrateError; end
-class TransrateArgError < TransrateError; end
-
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
@@ -105,7 +101,7 @@ if opts.install_deps || opts.install_read_deps || opts.install_ref_deps
 
   if opts.install_deps || opts.install_ref_deps
     Bindeps.require blast_dep
-    missing += bindeps.missing blast_dep
+    missing += Bindeps.missing blast_dep
   end
 
   unless missing.empty?

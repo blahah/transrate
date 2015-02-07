@@ -26,7 +26,7 @@ module Transrate
       which_bin = Cmd.new("which #{bin}")
       which_bin.run
       if !which_bin.status.success?
-        raise IOError.new("ReadMetrics: could not find #{bin} in path")
+        raise TransrateIOError.new("ReadMetrics: could not find #{bin} in path")
       end
       which_bin.stdout.split("\n").first
     end
@@ -34,10 +34,11 @@ module Transrate
     def run left, right, insertsize:200, insertsd:50, threads:8
       # check all read files exist
       [left, right].each do |readfile|
-        raise IOError.new "Read file is nil" if readfile.nil?
+        raise TransrateIOError.new "Read file is nil" if readfile.nil?
         readfile.split(",").each do |file|
           unless File.exist? file
-            raise IOError.new "ReadMetrics: read file does not exist: #{file}"
+            raise TransrateIOError.new "ReadMetrics: read file does not " +
+                                       "exist: #{file}"
           end
         end
       end
@@ -150,7 +151,7 @@ module Transrate
         end
         @bad = @fragments_mapped - @good
       else
-        raise "couldn't find bamfile: #{bamfile}"
+        raise TransrateError.new "couldn't find bamfile: #{bamfile}"
       end
       salmon_results = "#{File.basename @assembly.file}_quant.sf"
 
@@ -188,7 +189,7 @@ module Transrate
         if !reader.status.success?
           msg = "Couldn't get information from bam file: #{bamfile}\n"
           msg << "#{reader.stdout}\n#{reader.stderr}"
-          raise msg
+          raise TransrateError.new msg
         end
       end
     end

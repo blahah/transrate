@@ -1,6 +1,6 @@
 module Transrate
 
-  class SalmonError < StandardError
+  class SalmonError < TransrateError
   end
 
   class Salmon
