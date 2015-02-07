@@ -3,19 +3,6 @@ require 'rbconfig'
 require 'yell'
 RbConfig::CONFIG['CFLAGS'] = ''
 
-require 'transrate/transrater'
-require 'transrate/version'
-require 'transrate/contig'
-require 'transrate/assembly'
-require 'transrate/snap'
-require 'transrate/score_optimiser'
-require 'transrate/salmon'
-require 'transrate/read_metrics'
-require 'transrate/comparative_metrics'
-require 'transrate/contig_metrics'
-require 'transrate/cmd'
-require 'transrate/transrate.so'
-
 # Transrate is a comprehensive transcriptome assembly
 # quality assessment tool.
 module Transrate
@@ -38,3 +25,16 @@ module Transrate
   Object.send :include, Yell::Loggable
 
 end # Transrate
+
+require 'transrate/transrater'
+require 'transrate/version'
+require 'transrate/contig'
+require 'transrate/assembly'
+require 'transrate/snap'
+require 'transrate/score_optimiser'
+require 'transrate/salmon'
+require 'transrate/read_metrics'
+require 'transrate/comparative_metrics'
+require 'transrate/contig_metrics'
+require 'transrate/cmd'
+require 'transrate/transrate.so'
