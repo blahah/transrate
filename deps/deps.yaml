@@ -50,5 +50,5 @@ salmon:
     command: 'salmon --help'
   url:
     64bit:
-      linux: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.3/SalmonBeta-v0.2.3_ubuntu-14.04.tar.gz
-      macosx: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.3/SalmonBeta-v0.2.3_ubuntu-14.04.tar.gz
+      linux: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.7/Salmon-v0.2.7_CentOS-6.3.tar.gz
+      macosx: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.7/Salmon-v0.2.7_MacOSX-10.10.1.tar.gz
