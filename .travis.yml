@@ -7,3 +7,6 @@ before_script:
   - bundle install
   - bundle exec rake compile
   - bundle exec bin/transrate --install-deps --reference any.fa
+os:
+  - linux
+  - osx
