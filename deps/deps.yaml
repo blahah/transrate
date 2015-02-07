@@ -45,6 +45,22 @@ bam-read:
 salmon:
   binaries:
     - salmon
+  libraries:
+    - libbz2.so.1
+    - libgcc_s.so.1
+    - libgomp.so.1
+    - liblzma.so.0
+    - libm.so.6
+    - libpthread.so.0
+    - librt.so.1
+    - libstdc++.so.6
+    - libtbbmalloc_proxy.so,
+    - libtbbmalloc_proxy.so.2
+    - libtbbmalloc.so
+    - libtbbmalloc.so.2
+    - libtbb.so
+    - libtbb.so.2
+    - libz.so.1
   version:
     number: 'Salmon v0.2.7'
     command: 'salmon --help'
