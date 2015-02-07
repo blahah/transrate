@@ -61,6 +61,13 @@ salmon:
     - libtbb.so
     - libtbb.so.2
     - libz.so.1
+    - libcmph.0.dylib
+    - libcmph.dylib
+    - libcmph.la
+    - libstaden-read.la
+    - libtbb.dylib
+    - libtbbmalloc.dylib
+    - libtbbmalloc_proxy.dylib
   version:
     number: 'Salmon v0.2.7'
     command: 'salmon --help'
