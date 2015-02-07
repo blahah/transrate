@@ -6,7 +6,7 @@ before_script:
   - gem install bindeps
   - bundle install
   - bundle exec rake compile
-  - bundle exec bin/transrate --install-deps --reference any.fa
+  - bundle exec bin/transrate --install-deps
 os:
   - linux
   - osx
