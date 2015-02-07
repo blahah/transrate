@@ -8,29 +8,6 @@ snap:
     64bit:
       linux: https://github.com/Blahah/snap/releases/download/v1.0dev.67.trfix1/snap_v1.0dev.67.trfix1_linux.tar.gz
       macosx: https://github.com/Blahah/snap/releases/download/v1.0dev.67.trfix1/snap_v1.0dev.67.trfix1_macosx.tar.gz
-salmon:
-  binaries:
-    - salmon
-  version:
-    number: '0.2.7'
-    command: 'salmon --help'
-  libraries:
-    - libbz2.so.1.0
-    - liblzma.so.5
-    - libpthread.so.0
-    - libstdc++.so.6
-    - libtbbmalloc_proxy.so.2
-    - libtbbmalloc.so.2
-    - libtbb.so.2
-    - libgcc_s.so.1
-    - libm.so.6
-    - librt.so.1
-    - libtbbmalloc_proxy.so
-    - libtbbmalloc.so
-    - libtbb.so
-  url:
-    64bit:
-      linux: https://github.com/kingsfordgroup/sailfish/releases/download/TravisCI/SalmonBeta-latest_ubuntu-12.04.tar.gz
 bam-read:
   binaries:
    - bam-read
