@@ -70,6 +70,12 @@ opts = Trollop::options do
       :type => String
   opt :right, "right reads file in FASTQ format",
       :type => String
+  opt :insertsize, "read pair insert size",
+      :type => Integer,
+      :default => 200
+  opt :insertsd, "read pair insert size standard deviation",
+      :type => Integer,
+      :default => 50
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
@@ -209,13 +215,7 @@ opts.assembly.split(',').each do |assembly|
   logger.info "Loading assembly: #{assembly}"
 
   a = Assembly.new assembly
-  transrater = Transrater.new(a, r,
-                              left: opts.left,
-                              right: opts.right,
-                              insertsize: opts.insertsize,
-                              insertsd: opts.insertsd,
-                              threads: opts.threads)
-
+  transrater = Transrater.new(a, r, threads: opts.threads)
 
   logger.info "Analysing assembly: #{assembly}"
 
@@ -239,7 +239,9 @@ opts.assembly.split(',').each do |assembly|
     logger.info "Calculating read diagnostics..."
     t0 = Time.now
     read_results = transrater.read_metrics(opts.left,
-                                           opts.right).read_stats
+                                           opts.right,
+                                           insertsize: opts.insertsize,
+                                           insertsd: opts.insertsd).read_stats
 
     if read_results
       logger.info "Read mapping metrics:"

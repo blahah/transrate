@@ -60,7 +60,7 @@ module Transrate
       # check for latest files first and create what is needed
       if !File.exist?(final_bam)
         if !File.exist?(assigned_bam)
-          assigned_bam = assign_and_quantify bamfile
+          assigned_bam = assign_and_quantify(bamfile, threads)
         end
         File.rename(assigned_bam, final_bam)
       end
@@ -113,8 +113,8 @@ module Transrate
       read_length
     end
 
-    def assign_and_quantify bamfile
-      @salmon.run(@assembly, bamfile)
+    def assign_and_quantify(bamfile, threads)
+      @salmon.run(@assembly, bamfile, threads)
     end
 
     def analyse_expression salmon_output

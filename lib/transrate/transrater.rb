@@ -22,8 +22,7 @@ module Transrate
     # @param right [String] path to the right reads
     # @param insertsize [Integer] mean insert size of the read pairs
     # @param insertsd [Integer] standard deviation of the read pair insert size
-    def initialize(assembly, reference, left: nil, right: nil,
-                   insertsize: nil, insertsd: nil, threads: 1)
+    def initialize(assembly, reference, threads: 1)
       if assembly
         if assembly.is_a?(Assembly)
           @assembly = assembly
@@ -52,9 +51,7 @@ module Transrate
     #
     # @param left [String] path to the left reads
     # @param right [String] path to the right reads
-    # @param insertsize [Integer] mean insert size of the read pairs
-    # @param insertsd [Integer] standard deviation of the read pair insert size
-    def run left=nil, right=nil, insertsize=nil, insertsd=nil
+    def run left=nil, right=nil
       assembly_metrics
       if left && right
         read_metrics left, right
@@ -79,9 +76,11 @@ module Transrate
       @assembly
     end
 
-    def read_metrics left=nil, right=nil
+    def read_metrics(left, right, insertsize: 200, insertsd: 50)
       unless @read_metrics.has_run
-        @read_metrics.run(left, right, threads: @threads)
+        @read_metrics.run(left, right,
+                          insertsize: insertsize,
+                          insertsd: insertsd, threads: @threads)
       end
       @assembly.classify_contigs
       @read_metrics
