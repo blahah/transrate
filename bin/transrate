@@ -111,7 +111,9 @@ if opts.install_deps || opts.install_read_deps || opts.install_ref_deps
   end
 
   unless missing.empty?
-    raise TransrateError.new "Failed to install: \n - #{missing.join('\n - ')}"
+    list = missing.collect {|i| "#{i.name}:#{i.version}"}.join("\n - ")
+    msg = "Failed to install: \n - #{list}"
+    raise TransrateError.new msg
   end
 
   puts "All dependencies installed"
