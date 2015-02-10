@@ -36,7 +36,9 @@ Interested in helping? Great! We particularly would like help with the following
 
 - code review
 - documentation review
-- adding features
+- adding features that are already discussed and approved on the issue tracker
 - tackling bugs
 
 For any of these, please just pick an appropriate issue [on the tracker](https://github.com/Blahah/transrate/issues) and make a pull request.
+
+If you want to suggest, and maybe implement, a new feature, please suggest it on the tracker first. This allows us to give feedback on whether it makes sense given the scope of the software, and for the community to discuss requirements for the feature. *Don't* just implement the feature and make a pull request before dicussing it, because you'll probably find your PR waiting a very long time for review.
