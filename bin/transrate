@@ -190,14 +190,14 @@ if opts.left and opts.right
   end
 end
 
-def pretty_print_hash hash, width
+def pretty_print_hash hash, width, round=2
   hash.map do |k, v|
     # show as float if there are any decimal places
-    if v.to_f.round(2).to_s.split('.').last.to_i > 0
-      v = v.to_f.round(2)
+    if v.to_f.round(round).to_s.split('.').last.to_i > 0
+      v = v.to_f.round(round)
     end
     if v.is_a? Float
-      v = v.round(2)
+      v = v.round(round)
     end
     pad = (width - (k.to_s.length + v.to_s.length))
     pad = [pad, 0].max
@@ -279,9 +279,13 @@ opts.assembly.split(',').each do |assembly|
 
   if (opts.left && opts.right)
     score = transrater.assembly_score
+    optimal, cutoff = transrater.assembly_optimal_score
     unless score.nil?
-      logger.info "TRANSRATE ASSEMBLY SCORE: #{score.round(4)}"
+      pretty_print_hash({:TRANSRATE_ASSEMBLY_SCORE => score}, report_width, 4)
       logger.info "-" * report_width
+      pretty_print_hash({:TRANSRATE_OPTIMAL_SCORE => optimal}, report_width, 4)
+      pretty_print_hash({:TRANSRATE_OPTIMAL_CUTOFF => cutoff}, report_width, 4)
+      pretty_print_hash(transrater.good_contigs, report_width)
     end
   end
 
@@ -313,6 +317,8 @@ opts.assembly.split(',').each do |assembly|
                        .merge(comparative_results)
                        .merge({ :assembly => assembly })
                        .merge({ :score => score })
+                       .merge({ :optimal_score => optimal })
+                       .merge({ :cutoff => cutoff })
 
 end
 

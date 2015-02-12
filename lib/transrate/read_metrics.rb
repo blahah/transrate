@@ -88,9 +88,7 @@ module Transrate
         :contigs_lowcovered => @contigs_lowcovered,
         :p_contigs_lowcovered => @p_contigs_lowcovered,
         :contigs_segmented => @contigs_segmented,
-        :p_contigs_segmented => @p_contigs_segmented,
-        :contigs_good => @contigs_good,
-        :p_contigs_good => @p_contigs_good
+        :p_contigs_segmented => @p_contigs_segmented
       }
     end
 
@@ -160,9 +158,6 @@ module Transrate
       else
         abort "Can't find #{salmon_results}"
       end
-      @assembly.assembly.each_pair do |name, contig|
-        @contigs_good += 1 if contig.score >= 0.5
-      end
       update_proportions
     end
 
@@ -175,7 +170,6 @@ module Transrate
       @p_contigs_uncovered = @contigs_uncovered / ncontigs
       @p_contigs_lowcovered = @contigs_lowcovered / ncontigs
       @p_contigs_segmented = @contigs_segmented / ncontigs
-      @p_contigs_good = @contigs_good / ncontigs
 
       @p_good_mapping = @good.to_f / @fragments.to_f
       @p_fragments_mapped = @fragments_mapped / @fragments.to_f
@@ -208,7 +202,6 @@ module Transrate
         @contigs_segmented += 1
       end
       contig.in_bridges = row[:bridges]
-      contig.p_unique = row[:p_unique]
       if row[:bridges] > 1
         @potential_bridges += 1
       end
@@ -230,7 +223,6 @@ module Transrate
       @contigs_uncovered = 0 # mean cov < 1
       @contigs_lowcovered = 0 # mean cov < 10
       @contigs_segmented = 0 # p_not_segmented < 0.5
-      @contigs_good = 0
     end
 
   end # ReadMetrics

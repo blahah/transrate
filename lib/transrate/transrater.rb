@@ -71,6 +71,13 @@ module Transrate
       return @score_optimiser.raw_score
     end
 
+    def assembly_optimal_score
+      if !@score_optimiser
+        @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
+      end
+      return @score_optimiser.optimal_score
+    end
+
     def assembly_metrics
       @assembly.run unless @assembly.has_run
       @assembly
@@ -82,8 +89,19 @@ module Transrate
                           insertsize: insertsize,
                           insertsd: insertsd, threads: @threads)
       end
-      @assembly.classify_contigs
+      if !@score_optimiser
+        @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
+      end
+      score, cutoff = @score_optimiser.optimal_score
+      @assembly.classify_contigs cutoff
       @read_metrics
+    end
+
+    def good_contigs
+      {
+        :good_contigs => @assembly.good_contigs,
+        :p_good_contigs => @assembly.good_contigs/@assembly.size.to_f
+      }
     end
 
     def comparative_metrics

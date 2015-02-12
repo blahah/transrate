@@ -7,6 +7,7 @@ module Transrate
 
     def initialize assembly, read_metrics
       @assembly = assembly
+      @fragments = read_metrics.fragments
       read_stats = read_metrics.read_stats
       @total = read_stats[:fragments]
       @good = read_stats[:good_mappings]
@@ -16,6 +17,36 @@ module Transrate
       scores = @assembly.assembly.values.map{ |c| c.score }
       @contig_score = geomean scores
       @contig_score * (@good / @total.to_f)
+    end
+
+    def optimal_score
+      return [@optimal, @cutoff] unless @optimal.nil?
+      product = 0
+      good = 0
+      @assembly.assembly.each do |key, contig|
+        product += Math.log(contig.score)
+        good += contig.good
+      end
+      count = @assembly.size
+      cutoffscores = {}
+      contigs_sorted = @assembly.assembly.sort_by {|k,v| v.score}.to_h
+
+      contigs_sorted.each do |key, contig|
+        product -= Math.log(contig.score)
+        good -= contig.good
+        count -= 1
+        score = Math.exp(product / count) * (good/@fragments.to_f)
+        cutoffscores[contig.score] = score
+      end
+      @optimal = 0
+      @cutoff = 0
+      cutoffscores.each do |c, score|
+        if score > @optimal
+          @optimal = score
+          @cutoff = c
+        end
+      end
+      return [@optimal, @cutoff]
     end
 
     # Calculate the geometric mean of an array of numbers

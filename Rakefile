@@ -75,6 +75,13 @@ Rake::TestTask.new do |t|
   t.test_files = ['test/test_salmon.rb']
 end
 
+Rake::TestTask.new do |t|
+  t.name = :optimiser
+  t.libs << 'test'
+  t.test_files = ['test/test_optimiser.rb']
+end
+
+
 
 desc "Run tests"
 task :default => :test
