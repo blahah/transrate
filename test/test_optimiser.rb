@@ -17,10 +17,10 @@ class TestOptimiser < Test::Unit::TestCase
 
     should "get optimal score" do
       optimiser = Transrate::ScoreOptimiser.new(@assembly, @readmetrics)
-      assert_equal 0.1471, optimiser.raw_score.round(4)
+      assert_in_delta 0.1471, optimiser.raw_score.round(4), 0.005
       optimal, cutoff = optimiser.optimal_score
-      assert_equal 0.4252, optimal.round(4)
-      assert_equal 0.5638, cutoff.round(4)
+      assert_in_delta 0.4252, optimal.round(4), 0.005
+      assert_in_delta 0.5638, cutoff.round(4), 0.04
     end
 
   end

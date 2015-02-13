@@ -42,7 +42,6 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_equal 93, stats[:contigs_uncovbase], 'uncovered base contig'
           assert_equal 28, stats[:contigs_uncovered], 'uncovered contig'
           assert_equal 72, stats[:contigs_lowcovered], 'lowcovered contig'
-          assert_in_delta 50, stats[:contigs_good], 10, 'good contigs'
         end
       end
     end
@@ -93,10 +92,10 @@ class TestReadMetrics < Test::Unit::TestCase
           @assembly.each do |name, contig|
             contigs << contig
           end
-          assert_equal :bad,  contigs[0].classify
-          assert_equal :good, contigs[1].classify
-          assert_equal :bad,  contigs[2].classify
-          assert_equal :good, contigs[3].classify
+          assert_equal :bad,  contigs[0].classify(0.5)
+          assert_equal :good, contigs[1].classify(0.5)
+          assert_equal :bad,  contigs[2].classify(0.5)
+          assert_equal :good, contigs[3].classify(0.5)
         end
       end
 

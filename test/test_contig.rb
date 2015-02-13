@@ -109,7 +109,7 @@ class TestContig < Test::Unit::TestCase
     end
 
     should "classify contig" do
-      assert_equal :bad, @contig.classify, "contig is not bad"
+      assert_equal :bad, @contig.classify(0.5), "contig is not bad"
     end
 
     should "strip trailing semicolons from FASTA entry IDs" do
