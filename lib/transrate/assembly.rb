@@ -196,23 +196,30 @@ module Transrate
 
     end # basic_bin_stats
 
-    def classify_contigs
+    def classify_contigs cutoff
       # create hash of file handles for each output
       base = File.basename @file
       files = {}
-      %w(good fragmented chimeric bad).each do |type|
+      %w(good bad).each do |type|
         files[type.to_sym] = File.open("#{type}.#{base}", "wb")
       end
       # loop through contigs writing them out to the appropriate file
       @assembly.each_pair do |name, contig|
-        category = contig.classify
-        handle = files[category]
+        handle = files[contig.classify(cutoff)]
         handle.write contig.to_fasta
       end
       # close all the file handles
       files.each do |type, handle|
         handle.close
       end
+    end
+
+    def good_contigs
+      good = 0
+      @assembly.each do |name, contig|
+        good += 1 if contig.classification == :good
+      end
+      good
     end
 
   end # Assembly

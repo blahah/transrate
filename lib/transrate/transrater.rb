@@ -20,8 +20,6 @@ module Transrate
     #   path to the FASTA
     # @param left [String] path to the left reads
     # @param right [String] path to the right reads
-    # @param insertsize [Integer] mean insert size of the read pairs
-    # @param insertsd [Integer] standard deviation of the read pair insert size
     def initialize(assembly, reference, threads: 1)
       if assembly
         if assembly.is_a?(Assembly)
@@ -71,19 +69,35 @@ module Transrate
       return @score_optimiser.raw_score
     end
 
+    def assembly_optimal_score
+      if !@score_optimiser
+        @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
+      end
+      return @score_optimiser.optimal_score
+    end
+
     def assembly_metrics
       @assembly.run unless @assembly.has_run
       @assembly
     end
 
-    def read_metrics(left, right, insertsize: 200, insertsd: 50)
+    def read_metrics(left, right)
       unless @read_metrics.has_run
-        @read_metrics.run(left, right,
-                          insertsize: insertsize,
-                          insertsd: insertsd, threads: @threads)
+        @read_metrics.run(left, right, threads: @threads)
       end
-      @assembly.classify_contigs
+      if !@score_optimiser
+        @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
+      end
+      score, cutoff = @score_optimiser.optimal_score
+      @assembly.classify_contigs cutoff
       @read_metrics
+    end
+
+    def good_contigs
+      {
+        :good_contigs => @assembly.good_contigs,
+        :p_good_contigs => @assembly.good_contigs/@assembly.size.to_f
+      }
     end
 
     def comparative_metrics
@@ -91,8 +105,8 @@ module Transrate
       @comparative_metrics
     end
 
-    def all_metrics left, right, insertsize=nil, insertsd=nil
-      self.run(left, right, insertsize, insertsd)
+    def all_metrics left, right
+      self.run(left, right)
       all = @assembly.basic_stats
       all.merge!(@read_metrics.read_stats)
       all.merge!(@comparative_metrics.comp_stats)

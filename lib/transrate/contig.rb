@@ -12,9 +12,9 @@ module Transrate
     # read-based metrics
     attr_accessor :eff_length, :eff_count, :tpm
     attr_accessor :coverage, :uncovered_bases, :p_uncovered_bases
-    attr_accessor :p_seq_true, :p_unique
+    attr_accessor :p_seq_true
     attr_accessor :low_uniqueness_bases, :in_bridges
-    attr_accessor :p_good, :p_not_segmented, :good
+    attr_accessor :p_good, :p_not_segmented, :good, :classification
     # reference-based metrics
     attr_accessor :has_crb, :reference_coverage
     attr_accessor :hits
@@ -37,11 +37,11 @@ module Transrate
       @p_seq_true = 0
       @uncovered_bases = length
       @p_uncovered_bases = 1
-      @p_unique = 0
       @p_not_segmented = 1
       @score = -1
       @good = 0
       @coverage = 0
+      @classification = :unknown
     end
 
     def each &block
@@ -69,7 +69,6 @@ module Transrate
         :p_bases_covered => p_bases_covered,
         :p_seq_true => p_seq_true,
         :score => score,
-        :p_unique => p_unique,
         :p_not_segmented => p_not_segmented,
         :eff_length => eff_length,
         :eff_count => eff_count,
@@ -249,21 +248,13 @@ module Transrate
     # - fragmented (in_bridges > 0) and no other problems
     # - chimeric (p_not_segmented < 0.25) and no other problems
     # - bad (score < 0.5 and not in any other category)
-    def classify
-      return :good if score >= 0.5
-      # fragmented?
-      if in_bridges > 5
-        if p_not_segmented * p_bases_covered * p_seq_true >= 0.5
-          return :fragmented
-        end
+    def classify cutoff
+      if score >= cutoff
+        @classification = :good
+      else
+        @classification = :bad
       end
-      # chimeric?
-      if p_not_segmented < 0.25
-        if p_good * p_bases_covered * p_seq_true >= 0.5
-          return :chimeric
-        end
-      end
-      return :bad
+      return @classification
     end
 
     def to_fasta
