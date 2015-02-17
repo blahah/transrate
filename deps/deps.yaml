@@ -46,8 +46,8 @@ salmon:
     - libtbbmalloc.dylib
     - libtbbmalloc_proxy.dylib
   version:
-    number: 'Salmon v0.2.7'
-    command: 'salmon --help'
+    number: '0.3'
+    command: 'salmon -v'
   url:
     64bit:
       linux: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.7/Salmon-v0.2.7_Ubuntu-12.04.tar.gz

@@ -39,6 +39,8 @@ module Transrate
       cmd << " --sampleOut"
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."
+      cmd << " --useReadCompat"
+      cmd << " --useErrorModel"
       cmd
     end
 
