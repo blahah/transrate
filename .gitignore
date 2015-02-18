@@ -50,3 +50,7 @@ transrate.o
 
 # vagrant stuff
 .vagrant
+
+# large test files
+test/data/sorghum_100.1.fastq
+test/data/sorghum_100.2.fastq
