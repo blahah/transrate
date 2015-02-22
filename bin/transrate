@@ -73,6 +73,8 @@ opts = Trollop::options do
   opt :threads, "number of threads to use",
       :default => 8,
       :type => Integer
+  opt :merge_assemblies, "merge multiple assemblies into file",
+      :type => String
   opt :outfile, "prefix filename to use for CSV output",
       :default => 'transrate'
   opt :loglevel, "the amount of information to print. " +
@@ -206,7 +208,30 @@ report_width = 35
 
 # loop through the assemblies, storing their outputs in an array of hashes
 all = []
-opts.assembly.split(',').each do |assembly|
+
+assemblies=opts.assembly
+if opts.merge_assemblies
+  merged_file = "merged.fasta"
+  merged = {}
+  assemblies.split(",").each do |file|
+    Bio::FastaFormat.open(file).each do |entry|
+      contig_name = "#{File.basename(file,File.extname(file))}:"
+      contig_name << "#{entry.entry_id}"
+      merged[contig_name] = entry.seq
+    end
+  end
+  logger.info "Merging assemblies into one file...'#{merged_file}'"
+  File.open(merged_file, "wb") do |out|
+    merged.each do |name, seq|
+      out.write ">#{name}\n"
+      out.write "#{seq}\n"
+    end
+  end
+
+  assemblies = merged_file
+end
+
+assemblies.split(',').each do |assembly|
 
   logger.info "Loading assembly: #{assembly}"
 

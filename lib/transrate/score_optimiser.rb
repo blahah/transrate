@@ -1,8 +1,9 @@
 module Transrate
 
-  # This class is currently only used to calculate the basic transrate score.
-  # In future it will be used to automatically optimised the score by
-  # taking the optimal subset of contigs.
+  # This class is used to calculate the basic transrate score.
+  # It is also used to automatically optimise the score by
+  # calculating a cutoff that maximises the number of reads that map
+  # while also minimising the number of low scoring contigs.
   class ScoreOptimiser
 
     def initialize assembly, read_metrics
@@ -29,7 +30,10 @@ module Transrate
       end
       count = @assembly.size
       cutoffscores = {}
-      contigs_sorted = @assembly.assembly.sort_by {|k,v| v.score}.to_h
+      contigs_sorted = {}
+      @assembly.assembly.sort_by { |k,v| v.score }.each do |a,b|
+        contigs_sorted[a] = b
+      end
 
       contigs_sorted.each do |key, contig|
         product -= Math.log(contig.score)
