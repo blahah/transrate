@@ -1,4 +1,7 @@
 # -*- encoding: utf-8 -*-
+$:.push File.expand_path("../lib", __FILE__)
+require File.expand_path('../lib/transrate/version', __FILE__)
+
 Gem::Specification.new do |gem|
   gem.name          = 'transrate'
   gem.authors       = [ "Richard Smith-Unna", "Chris Boursnell" ]
