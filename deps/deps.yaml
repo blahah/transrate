@@ -12,12 +12,12 @@ bam-read:
   binaries:
    - bam-read
   version:
-    number: '1.0.0.beta3'
+    number: '1.0.0.beta4'
     command: 'bam-read'
   url:
     64bit:
-      linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta3/bam-read_1.0.0.beta3_linux.tar.gz
-      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta3/bam-read_1.0.0.beta3_macosx.tar.gz
+      linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta4/bam-read_v1.0.0.beta4_linux.tar.gz
+      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta4/bam-read_v1.0.0.beta4_macosx.tar.gz
   unpack: true
 salmon:
   binaries:
