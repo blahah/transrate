@@ -62,27 +62,28 @@ opts = Trollop::options do
   OPTIONS:
 
   EOS
-  opt :assembly, "assembly file(s) in FASTA format, comma-separated",
+  opt :assembly, "Assembly file(s) in FASTA format, comma-separated",
       :type => String
-  opt :reference, "reference proteome file in FASTA format",
+  opt :reference, "Reference proteome file in FASTA format",
       :type => String
-  opt :left, "left reads file in FASTQ format",
+  opt :left, "Left reads file in FASTQ format",
       :type => String
-  opt :right, "right reads file in FASTQ format",
+  opt :right, "Right reads file in FASTQ format",
       :type => String
-  opt :threads, "number of threads to use",
+  opt :threads, "Number of threads to use",
       :default => 8,
       :type => Integer
-  opt :merge_assemblies, "merge multiple assemblies into file",
+  opt :merge_assemblies, "Merge multiple assemblies into file",
       :type => String
-  opt :outfile, "prefix filename to use for CSV output",
+  opt :outfile, "Prefix filename to use for CSV output",
       :default => 'transrate'
-  opt :loglevel, "the amount of information to print. " +
-                 "one of [error, info, warn, debug]",
+  opt :loglevel, "The amount of information to print. " +
+                 "One of [error, info, warn, debug]",
       :default => 'info'
-  opt :install_deps, "install any missing dependencies"
-  opt :install_read_deps, "install missing dependencies for read metrics only"
-  opt :install_ref_deps, "install missing dependencies for reference metrics only"
+  opt :install_deps, "Install any missing dependencies. One of [all, read, ref]",
+      :type => String, :default => nil
+  # opt :install_read_deps, "install missing dependencies for read metrics only"
+  # opt :install_ref_deps, "install missing dependencies for reference metrics only"
 end
 
 # Check dependencies if they are relevant to the command issued,
@@ -91,7 +92,20 @@ gem_dir = Gem.loaded_specs['transrate'].full_gem_path
 gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
 blast_dep = File.join(gem_dir, 'deps', 'blast.yaml')
 
-if opts.install_deps || opts.install_read_deps || opts.install_ref_deps
+deps, read_deps, ref_deps = nil
+unless opts.install_deps.nil?
+
+  unless %w[all read red].include? opts.install_deps
+    raise TransrateError.new "install-deps #{opts.install_deps} is not valid. " +
+    "You must specify one of: all, read, ref."
+  end
+
+  deps = opts.install_deps == 'all'
+  read_deps = opts.install_deps == 'read'
+  ref_deps = opts.install_deps == 'ref'
+end
+
+if deps || read_deps || ref_deps
   # user has requested dependency installation
   puts "Checking dependencies"
 
@@ -148,7 +162,7 @@ end
 
 # Handle commands
 unless %w[error info warn debug].include? opts.loglevel
-  raise "Loglevel #{opts.loglevel} is not valid. " +
+  raise TransrateError.new "Loglevel #{opts.loglevel} is not valid. " +
   "It must be one of: error, info, warn, debug."
 end
 
