@@ -19,7 +19,7 @@ class TestOptimiser < Test::Unit::TestCase
       optimiser = Transrate::ScoreOptimiser.new(@assembly, @readmetrics)
       assert_in_delta 0.1471, optimiser.raw_score.round(4), 0.005
       optimal, cutoff = optimiser.optimal_score
-      assert_in_delta 0.4252, optimal.round(4), 0.005
+      assert_in_delta 0.4252, optimal.round(4), 0.02
       assert_in_delta 0.5638, cutoff.round(4), 0.04
     end
 
