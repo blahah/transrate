@@ -1,7 +1,4 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require File.expand_path('../lib/transrate/version', __FILE__)
-
 Gem::Specification.new do |gem|
   gem.name          = 'transrate'
   gem.authors       = [ "Richard Smith-Unna", "Chris Boursnell" ]
@@ -12,8 +9,8 @@ Gem::Specification.new do |gem|
   gem.description   = %q{ a library and command-line tool for quality assessment of de-novo transcriptome assemblies }
   gem.version       = Transrate::VERSION::STRING.dup
 
-  gem.files = `git ls-files`.split("\n")
-  gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  gem.files = File.readlines('files.txt').map { |f| f.chomp }
+  gem.executables = ["transrate"]
   gem.require_paths = %w( lib ext )
   gem.extensions  = ["ext/transrate/extconf.rb"]
 
@@ -22,7 +19,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'bindeps', '~> 1.1', '>= 1.1.2'
   gem.add_dependency 'bio', '~> 1.4', '>= 1.4.3'
   gem.add_dependency 'crb-blast', '~> 0.5', '>= 0.5.0'
-  gem.add_dependency 'ruby-prof', '~> 0.15', '>= 0.15.1'
   gem.add_dependency 'fix-trinity-output', '~> 1.0', '>= 1.0'
 
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
