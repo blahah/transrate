@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+# Figure out where this script is located.
+SELFDIR="`dirname \"$0\"`"
+SELFDIR="`cd \"$SELFDIR\" && pwd`"
+
+# Temporarily set PATH and LD_LIBRARY_PATH
+export PATH=$SELFDIR/bin:$PATH
+export LD_LIBRARY_PATH=$SELFDIR/lib:$LD_LIBRARY_PATH
+
+# Tell Bundler where the Gemfile and gems are.
+export BUNDLE_GEMFILE="$SELFDIR/lib/app/Gemfile"
+unset BUNDLE_IGNORE_CONFIG
+
+# Run the actual app using the bundled Ruby interpreter, with Bundler activated.
+exec "$SELFDIR/lib/app/ruby/bin/ruby" -rbundler/setup "$SELFDIR/lib/app/bin/transrate" $@

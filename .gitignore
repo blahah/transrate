@@ -43,6 +43,8 @@ dryrun
 *.coverage
 
 # c extension build artefacts
+# note that we manually add these in a release,
+# but don't want them updated in general
 Makefile
 transrate.bundle
 transrate.o
@@ -54,3 +56,13 @@ transrate.o
 # large test files
 test/data/sorghum_100.1.fastq
 test/data/sorghum_100.2.fastq
+
+# packaging stuff
+*.tar.gz
+transrate-*
+packaging/bindeps
+packaging/vendor
+packaging/packaging
+traveling-ruby*
+*box
+libruby.so*
