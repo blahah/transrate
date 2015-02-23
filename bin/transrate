@@ -225,7 +225,7 @@ all = []
 
 assemblies=opts.assembly
 if opts.merge_assemblies
-  merged_file = "merged.fasta"
+  merged_file = opts.merge_assemblies
   merged = {}
   assemblies.split(",").each do |file|
     Bio::FastaFormat.open(file).each do |entry|
