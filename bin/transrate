@@ -110,12 +110,12 @@ if deps || read_deps || ref_deps
   puts "Checking dependencies"
 
   missing = []
-  if opts.install_deps || opts.install_read_deps
+  if deps || read_deps
     Bindeps.require gem_deps
     missing += Bindeps.missing gem_deps
   end
 
-  if opts.install_deps || opts.install_ref_deps
+  if deps || ref_deps
     Bindeps.require blast_dep
     missing += Bindeps.missing blast_dep
   end
