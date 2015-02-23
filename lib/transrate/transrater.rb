@@ -69,11 +69,11 @@ module Transrate
       return @score_optimiser.raw_score
     end
 
-    def assembly_optimal_score
+    def assembly_optimal_score prefix
       if !@score_optimiser
         @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
       end
-      return @score_optimiser.optimal_score
+      return @score_optimiser.optimal_score prefix
     end
 
     def assembly_metrics

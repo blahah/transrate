@@ -22,7 +22,7 @@ module Transrate
       @contig_score * (@good / @total.to_f)
     end
 
-    def optimal_score prefix='assembly'
+    def optimal_score(prefix='assembly')
       return [@optimal, @cutoff] unless @optimal.nil?
       product = 0
       good = 0
