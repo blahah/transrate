@@ -31,7 +31,7 @@ class TestReadMetrics < Test::Unit::TestCase
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
           assert_equal 25006,    stats[:fragments], 'number of read pairs'
-          assert_equal 21744,    stats[:fragments_mapped], 'number mapping'
+          assert_in_delta 21744, stats[:fragments_mapped], 10, 'number mapping'
           assert_in_delta 0.84,  stats[:p_fragments_mapped].round(4), 0.05
                        'proportion mapping'
           assert_in_delta 17983, stats[:good_mappings], 50, 'good mapping'
