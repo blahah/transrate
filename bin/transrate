@@ -95,7 +95,7 @@ blast_dep = File.join(gem_dir, 'deps', 'blast.yaml')
 deps, read_deps, ref_deps = nil
 unless opts.install_deps.nil?
 
-  unless %w[all read red].include? opts.install_deps
+  unless %w[all read ref].include? opts.install_deps
     raise TransrateError.new "install-deps #{opts.install_deps} is not valid. " +
     "You must specify one of: all, read, ref."
   end
