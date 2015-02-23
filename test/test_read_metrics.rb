@@ -31,17 +31,17 @@ class TestReadMetrics < Test::Unit::TestCase
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
           assert_equal 25006,    stats[:fragments], 'number of read pairs'
-          assert_equal 21000,    stats[:fragments_mapped], 'number mapping'
+          assert_in_delta 21744, stats[:fragments_mapped], 10, 'number mapping'
           assert_in_delta 0.84,  stats[:p_fragments_mapped].round(4), 0.05
                        'proportion mapping'
-          assert_in_delta 17382, stats[:good_mappings], 50, 'good mapping'
-          assert_in_delta 0.6945,stats[:p_good_mapping].round(3), 0.005,
+          assert_in_delta 17983, stats[:good_mappings], 50, 'good mapping'
+          assert_in_delta 0.719,stats[:p_good_mapping].round(3), 0.005,
                        'percent good mapping'
-          assert_in_delta 3637,  stats[:bad_mappings], 50, 'bad mapping'
+          assert_in_delta 3761,  stats[:bad_mappings], 50, 'bad mapping'
           assert_equal 1,  stats[:potential_bridges], 'bridges'
           assert_equal 93, stats[:contigs_uncovbase], 'uncovered base contig'
           assert_equal 28, stats[:contigs_uncovered], 'uncovered contig'
-          assert_equal 72, stats[:contigs_lowcovered], 'lowcovered contig'
+          assert_equal 71, stats[:contigs_lowcovered], 'lowcovered contig'
         end
       end
     end
@@ -65,7 +65,7 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_in_delta 0.9364, edit_b.round(4), 0.01, "edit distance 2"
 
           assert_in_delta 0.5714, a[:p_good].round(4), 0.01, "prop of good mappings"
-          assert_in_delta 0.8302, b[:p_good].round(4), 0.01, "prop of good mappings"
+          assert_in_delta 0.8421, b[:p_good].round(4), 0.01, "prop of good mappings"
 
           # uncovered bases
           unc_a = contigs[0].uncovered_bases
@@ -137,9 +137,9 @@ class TestReadMetrics < Test::Unit::TestCase
           end
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
-          assert_equal 1,  stats[:potential_bridges], 'bridges'
+          assert_equal 1,  stats[:potential_bridges], "bridges"
+          assert_equal 1, contigs.length, "number of bridging contigs found"
           assert_equal "Sb01g002430.1", contigs[0].name
-          assert_equal "Sb05g009350.1", contigs[1].name
         end
       end
     end

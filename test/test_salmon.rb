@@ -24,7 +24,7 @@ class TestSalmon < Test::Unit::TestCase
       cmd = cmd.split(" ")[1..-1].join(" ") # remove command so test is portabl
       test = "quant --libType IU --alignments alignments.bam "
       test << "--targets assembly.fa --threads 4 --sampleOut "
-      test << "--sampleUnaligned --output ."
+      test << "--sampleUnaligned --output . --useReadCompat --useErrorModel"
       assert_equal test, cmd, "cmd is wrong"
     end
 
