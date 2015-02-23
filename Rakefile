@@ -90,7 +90,7 @@ task :default => :test
 # PACKAGING
 
 PACKAGE_NAME = "transrate"
-VERSION = "1.0.0.beta2"
+VERSION = "1.0.0.beta3"
 TRAVELING_RUBY_VERSION = "20150210-2.2.0"
 
 desc "Package your app"
@@ -166,7 +166,7 @@ def create_package(target)
     sh "rm -rf #{package_dir}"
   end
   # cleanup
-  sh "rm -rf packaging/vendor packaging/bindeps"
+  sh "rm -rf packaging/vendor packaging/bindeps .bundle"
 end
 
 def download_runtime(target)
