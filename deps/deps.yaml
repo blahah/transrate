@@ -17,31 +17,23 @@ bam-read:
   url:
     64bit:
       linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta4/bam-read_v1.0.0.beta4_linux.tar.gz
-      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta4/bam-read_v1.0.0.beta4_macosx.tar.gz
+      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta4/bam-read_v1.0.0.beta4_osx.tar.gz
   unpack: true
 salmon:
   binaries:
     - salmon
   libraries:
-    - libbz2.so.1
-    - libgcc_s.so.1
     - libgomp.so.1
-    - liblzma.so.0
     - libm.so.6
-    - libpthread.so.0
     - librt.so.1
-    - libstdc++.so.6
-    - libtbbmalloc_proxy.so,
-    - libtbbmalloc_proxy.so.2
-    - libtbbmalloc.so
-    - libtbbmalloc.so.2
     - libtbb.so
     - libtbb.so.2
-    - libz.so.1
+    - libtbbmalloc.so
+    - libtbbmalloc.so.2
+    - libtbbmalloc_proxy.so
+    - libtbbmalloc_proxy.so.2
     - libcmph.0.dylib
     - libcmph.dylib
-    - libcmph.la
-    - libstaden-read.la
     - libtbb.dylib
     - libtbbmalloc.dylib
     - libtbbmalloc_proxy.dylib
@@ -50,5 +42,5 @@ salmon:
     command: 'salmon -v'
   url:
     64bit:
-      linux: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.7/Salmon-v0.2.7_Ubuntu-12.04.tar.gz
-      macosx: https://github.com/kingsfordgroup/sailfish/releases/download/v0.2.7/Salmon-v0.2.7_MacOSX-10.10.1.tar.gz
+      linux: https://github.com/kingsfordgroup/sailfish/releases/download/v0.3.0/SalmonBeta-v0.3.0_squeeze.tar.gz
+      macosx: https://github.com/kingsfordgroup/sailfish/releases/download/v0.3.0/SalmonBeta-v0.3.0_MacOSX-10.10.2.tar.gz
