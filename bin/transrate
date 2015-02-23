@@ -307,9 +307,12 @@ assemblies.split(',').each do |assembly|
     logger.info "No reference provided, skipping comparative diagnostics"
   end
 
+  prefix = "#{opts.outfile}_#{File.basename(assembly)}"
+
   if (opts.left && opts.right)
     score = transrater.assembly_score
-    optimal, cutoff = transrater.assembly_optimal_score
+
+    optimal, cutoff = transrater.assembly_optimal_score prefix
     unless score.nil?
       pretty_print_hash({:TRANSRATE_ASSEMBLY_SCORE => score}, report_width, 4)
       logger.info "-" * report_width
@@ -320,7 +323,7 @@ assemblies.split(',').each do |assembly|
   end
 
   # write contig metrics to file for each contig
-  outfile = "#{opts.outfile}_#{File.basename(assembly)}_contigs.csv"
+  outfile = "#{prefix}_contigs.csv"
   logger.info "Writing contig metrics for each contig to #{outfile}"
   # have option to turn off, default on
   first=true

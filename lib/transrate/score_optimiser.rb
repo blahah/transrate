@@ -6,6 +6,8 @@ module Transrate
   # while also minimising the number of low scoring contigs.
   class ScoreOptimiser
 
+    require 'csv'
+
     def initialize assembly, read_metrics
       @assembly = assembly
       @fragments = read_metrics.fragments
@@ -20,7 +22,7 @@ module Transrate
       @contig_score * (@good / @total.to_f)
     end
 
-    def optimal_score
+    def optimal_score prefix='assembly'
       return [@optimal, @cutoff] unless @optimal.nil?
       product = 0
       good = 0
@@ -44,7 +46,10 @@ module Transrate
       end
       @optimal = 0
       @cutoff = 0
+      out = CSV.open("#{prefix}_score_optimisation.csv")
+      out << %w[cutoff assembly_score]
       cutoffscores.each do |c, score|
+        out << [c, score]
         if score > @optimal
           @optimal = score
           @cutoff = c
