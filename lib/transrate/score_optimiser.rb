@@ -46,7 +46,7 @@ module Transrate
       end
       @optimal = 0
       @cutoff = 0
-      out = CSV.open("#{prefix}_score_optimisation.csv")
+      out = CSV.open("#{prefix}_score_optimisation.csv", 'w')
       out << %w[cutoff assembly_score]
       cutoffscores.each do |c, score|
         out << [c, score]
