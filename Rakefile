@@ -121,18 +121,14 @@ task :bundle_install do
   if RUBY_VERSION !~ /^2\.2\./
     abort "You can only 'bundle install' using Ruby 2.2, because that's what Traveling Ruby uses."
   end
-  sh "rm -rf packaging/tmp"
-  sh "mkdir packaging/tmp"
-  sh "cp Gemfile Gemfile.lock transrate.gemspec files.txt packaging/tmp/"
   Bundler.with_clean_env do
-    sh "cd packaging/tmp && env BUNDLE_IGNORE_CONFIG=1 bundle install --path ../vendor --without development"
+    sh "env BUNDLE_IGNORE_CONFIG=1 bundle install --path packaging/vendor --without development"
   end
-  sh "rm -rf packaging/tmp"
   sh "rm -f packaging/vendor/*/*/cache/*"
 end
 
 def create_package(target)
-  package_pres = "#{PACKAGE_NAME}-#{VERSION}-#{target}"
+  package_pref = "#{PACKAGE_NAME}-#{VERSION}-#{target}"
   package_dir = "packaging/#{package_pref}"
   sh "rm -rf #{package_dir}"
   sh "mkdir -p #{package_dir}/lib/app"
@@ -157,6 +153,7 @@ def create_package(target)
   sh "mkdir -p packaging/bindeps/#{target}"
   sh "rm -rf packaging/bindeps/#{target}/*"
   sh "cp test/vagrant/#{target}/*.tar.gz packaging/bindeps/#{target}"
+  sh "mkdir packaging/bindeps/#{target}/{bin,lib}"
   sh "cd packaging/bindeps/#{target} && " +
      "find . -maxdepth 1 -name '*.tar.gz' -exec tar -xzf '{}' \\; && " +
      "mv snap bam-read bin/"

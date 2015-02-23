@@ -66,3 +66,4 @@ packaging/packaging
 traveling-ruby*
 *box
 libruby.so*
+libruby*dylib
