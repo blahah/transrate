@@ -41,8 +41,7 @@ module Transrate
       cmd
     end
 
-    def map_reads(file, left, right, insertsize: 200,
-                  insertsd: 50, outputname: nil, threads: 8)
+    def map_reads(file, left, right, outputname: nil, threads: 8)
       raise SnapError.new("Index not built") if !@index_built
 
       lbase = File.basename(left.split(",").first)
