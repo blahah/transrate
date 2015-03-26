@@ -9,7 +9,7 @@ module Transrate
     attr_reader :read_length
 
     def initialize assembly
-      @assembly = assembly
+      @assembly = assembly # Transrate::Assembly
       @mapper = Snap.new
       @salmon = Salmon.new
       self.initial_values
@@ -116,6 +116,7 @@ module Transrate
     def analyse_expression salmon_output
       salmon_output.each_pair do |name, expr|
         contig_name = Bio::FastaDefline.new(name.to_s).entry_id
+        contig_name.gsub!(/;$/, '') # trim trailing semicolon
         contig = @assembly[contig_name]
         if expr[:eff_len]==0
           coverage = 0
@@ -188,6 +189,7 @@ module Transrate
 
     def populate_contig_data row
       name = Bio::FastaDefline.new(row[:name].to_s).entry_id
+      name.gsub!(/;$/, '') # trim trailing semicolon
       contig = @assembly[name]
       contig.p_seq_true = row[:p_seq_true]
       contig.uncovered_bases = row[:bases_uncovered]
