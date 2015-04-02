@@ -48,6 +48,10 @@ module Transrate
       @assembly = {}
       @n_bases = 0
       Bio::FastaFormat.open(file).each do |entry|
+        if entry.seq.length == 0
+          logger.error "Entry found with no sequence #{entry.entry_id}"
+          raise AssemblyError
+        end
         @n_bases += entry.length
         contig = Contig.new(entry)
         if @assembly.key?(contig.name)

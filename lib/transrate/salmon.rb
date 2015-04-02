@@ -17,6 +17,7 @@ module Transrate
     def run assembly, bamfile, threads=8
       assembly = assembly.file if assembly.is_a? Assembly
       output = "quant.sf"
+      sampled_bam = "postSample.bam"
       @fin_output = "#{File.basename assembly}_#{output}"
       unless File.exist? @fin_output
         salmon = Cmd.new build_command(assembly, bamfile, threads)
@@ -25,9 +26,13 @@ module Transrate
           logger.error salmon.stderr
           raise SalmonError.new("Salmon failed")
         end
+        unless File.exist?(sampled_bam)
+          logger.error salmon.stderr
+          raise SalmonError.new("#{sampled_bam} not created")
+        end
         File.rename(output, @fin_output)
       end
-      return 'postSample.bam'
+      return sampled_bam
     end
 
     def build_command assembly, bamfile, threads=4
