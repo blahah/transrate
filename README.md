@@ -2,7 +2,10 @@
   <img alt="Transrate - understand your transcriptome assembly" src="https://github.com/Blahah/transrate/raw/master/docs/transrate_logo_full.png">
 </p>
 
+Download latest binaries: [![Download](https://api.bintray.com/packages/blahah/generic/transrate/images/download.svg)][bintray]
+
 Need help? Chat to us live: [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Blahah/transrate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 ## Development status
 
@@ -19,6 +22,7 @@ Need help? Chat to us live: [![Gitter](https://badges.gitter.im/Join Chat.svg)](
 [gemnasium]: https://gemnasium.com/Blahah/transrate
 [codeclimate]: https://codeclimate.com/github/Blahah/transrate
 [coveralls]: https://coveralls.io/r/Blahah/transrate
+[bintray]: https://bintray.com/blahah/generic/transrate/_latestVersion
 
 This software is being actively developed. Please be aware that there may be bugs. If you find any, please report them on the [issue tracker](https://github.com/Blahah/transrate/issues).
 
