@@ -1,210 +1,381 @@
 require 'helper'
+require 'crb-blast'
+
+module Transrate
+  class ComparativeMetrics
+    attr_reader :assembly
+    attr_reader :reference
+    attr_reader :crbblast
+  end
+end
 
 module CRB_Blast
   class CRB_Blast
-    def change_hit(query_name, target_name, qstart, qend, tstart, tend, qlen, tlen)
-      hits = @reciprocals[query_name]
-      hits.each do |hit|
-        if hit.target == target_name
-          hit.qstart = qstart
-          hit.qend = qend
-          hit.tstart = tstart
-          hit.tend = tend
-          hit.qlen = qlen
-          hit.tlen = tlen
+    def add_missing
+      @missed.each do |query_id, missed|
+        missed.each do |hit|
+          @reciprocals[hit.query] ||= []
+          @reciprocals[hit.query] << hit
         end
       end
-    end
-
-    def add_hit(query_name, target_name, qstart, qend, tstart, tend, qlen, tlen)
-      @reciprocals[query_name] ||= []
-      list = Array.new(14)
-      list[0] = query_name
-      list[1] = target_name
-      list[6] = qstart
-      list[7] = qend
-      list[8] = tstart
-      list[9] = tend
-      list[12] = qlen
-      list[13] = tlen
-      @reciprocals[query_name] << Hit.new(list)
-    end
-
-    def remove_hit(query_name)
-      @reciprocals.delete(query_name)
     end
   end
 end
 
-class TestCompMetrics < Test::Unit::TestCase
+class Tester
+  def self.testpath file
+    return File.join(File.dirname(__FILE__), 'data', file)
+  end
+
+  def self.run_comp_metrics(query, target)
+    querypath = testpath(query)
+    targetpath = testpath(target)
+    @assembly = Transrate::Assembly.new(querypath)
+    @reference = Transrate::Assembly.new(targetpath)
+    @comp = Transrate::ComparativeMetrics.new(@assembly, @reference, 1)
+    @comp.run
+    return @comp
+  end
+end
+
+class TestCompMetrics2 < Test::Unit::TestCase
+
 
   context "ComparativeMetrics" do
 
     setup do
-      querypath = File.join(File.dirname(__FILE__),
-                            'data',
-                            'assembly.2.fa')
-      targetpath = File.join(File.dirname(__FILE__),
-                            'data',
-                            'Os.protein.2.fa')
-      @assembly = Transrate::Assembly.new(querypath)
-      @q_ids = @assembly.assembly.keys
-      @reference = Transrate::Assembly.new(targetpath)
-      @t_ids = @reference.assembly.keys
-      threads = 8
-      @comp = Transrate::ComparativeMetrics.new(@assembly, @reference, threads)
     end
 
-    should "run metrics on assembly" do
+    should "01 should run" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          @comp.run
-          assert @comp.has_run
+          comp = Tester.run_comp_metrics("test_contig_nc1.fa", "test_reference_nc1.fa")
+          assert comp.has_run
         end
       end
     end
 
-    should "calculate reference coverage" do
-      crb = @comp.reciprocal_best_blast
-      # change the results so i know what i have
-      # qstart, qend, tstart, tend, qlen, tlen
-      #
-      # Q       |------------|
-      # T1 |-------------------------|
-      crb.change_hit("scaf_Os03g60760.1", "LOC_Os03g60760.1",
-                     1, 300, 101, 200, 300, 200) # 0.5
-      @reference["LOC_Os03g60760.1"].seq = "A"*200
-      #
-      # Q1   |----------|
-      # Q2                 |------------|
-      # T2  |-------------------------------|
-      crb.change_hit("scaf_Os10g39590.1", "LOC_Os10g39590.1",
-                     1, 150, 51, 100, 150, 200) # 0.25
-      crb.add_hit("scaf_Os10g39590.1", "LOC_Os10g39590.1",
-                     1, 150, 151, 200, 150, 200) # 0.25
-      @reference["LOC_Os10g39590.1"].seq = "A"*200
-      #
-      # adding first block [151..300]  scaf_Os09g38670.1
-      #    450 / 600.0
-      #    LOC_Os09g38670.1  0.75
-
-      #
-      #
-      # Q1           |-----------|
-      # Q2      |----------------------|
-      # T3  |-------------------------------|
-      crb.change_hit("scaf_Os09g38670.1", "LOC_Os09g38670.1",
-                     1, 150, 51, 100, 150, 200) # 0.25
-      crb.add_hit("scaf_Os09g38670.1", "LOC_Os09g38670.1",
-                     1, 450, 26, 175, 450, 200) # 0.75
-      @reference["LOC_Os09g38670.1"].seq = "A"*200
-
-      #
-      # Q1      |----------------------|
-      # Q2           |-----------|
-      # T4  |-------------------------------|
-      crb.change_hit("scaf_Os12g21920.1", "LOC_Os12g21920.1", #
-                     1, 450, 26, 175, 450, 200) # 0.75
-      crb.add_hit("scaf_Os12g21920.1", "LOC_Os12g21920.1",
-                     1, 150, 51, 100, 150, 200) # 0.25
-      @reference["LOC_Os12g21920.1"].seq = "A"*200
-
-
-      #
-      # Q1    |------|
-      # Q2                      |--------|
-      # Q3       |-----------------|
-      # T5  |-------------------------------|
-      crb.change_hit("scaf_Os01g36294.1", "LOC_Os01g36294.1", #
-                     1, 300, 51, 100, 300, 400)
-      crb.add_hit("scaf_Os01g36294.1", "LOC_Os01g36294.1",
-                     1, 300, 200, 250, 300, 400)
-      crb.add_hit("scaf_Os01g36294.1", "LOC_Os01g36294.1",
-                     1, 300, 75, 225, 300, 400)
-      @reference["LOC_Os01g36294.1"].seq = "A"*400
-
-      crb.change_hit("scaf_Os12g22750.1", "LOC_Os12g22750.1",
-                     1, 300, 101, 200, 300, 200) # 0.5 # 300/600
-      @reference["LOC_Os12g22750.1"].seq = "A"*200
-
-      crb.change_hit("scaf_Os02g55190.1", "LOC_Os02g55190.1",
-                     1, 300, 101, 200, 300, 200) # 0.5 # 300/600
-      @reference["LOC_Os02g55190.1"].seq = "A"*200
-
-      crb.change_hit("scaf_Os03g56500.1", "LOC_Os03g56500.1",
-                     1, 300, 101, 200, 300, 400) # 0.25
-      crb.change_hit("scaf_Os03g56500.2", "LOC_Os03g56500.1",
-                     1, 300, 201, 300, 300, 400) # 0.25 # 600 / 1200
-      @reference["LOC_Os03g56500.1"].seq = "A"*400
-
-      crb.change_hit("scaf_Os03g56724.1", "LOC_Os03g56724.1",
-                     1, 300, 101, 200, 300, 200) # 300/600 = 0.5
-      @reference["LOC_Os03g56724.1"].seq = "A"*200
-
-      crb.remove_hit("scaf_Os01g11360.1")
-
-      @reference["LOC_Os03g08270.3"].seq = "A"*200
-      @reference["LOC_Os10g41970.1"].seq = "A"*200
-      @reference["LOC_Os09g26780.1"].seq = "A"*200
-      @reference["LOC_Os12g24659.1"].seq = "A"*200
-      @reference["LOC_Os01g36410.1"].seq = "A"*200
-      @reference["LOC_Os12g22780.1"].seq = "A"*200
-      @reference["LOC_Os02g56470.1"].seq = "A"*200
-      @reference["LOC_Os03g30530.1"].seq = "A"*200
-      @reference["LOC_Os03g49850.1"].seq = "A"*200
-      @reference["LOC_Os01g11360.1"].seq = "A"*200
-      @reference["LOC_Os01g44140.1"].seq = "A"*200
-
-      assert_equal true, crb.target_is_prot, "target is prot"
-      assert_equal false, crb.query_is_prot, "query is prot"
-      # total_length of references should be 4400
-
-      cov = @comp.coverage crb
-      assert_equal 3600/13200.0, cov, "reference coverage"
-    end
-
-    should "calculate overlap amount" do
-      assert_equal 0.5, @comp.overlap_amount(201,500,101,400), "1"
-      assert_equal 0.5, @comp.overlap_amount(101,400,201,500), "2"
-      assert_equal 0.5, @comp.overlap_amount(201,400,101,500), "3"
-      assert_equal 0.5, @comp.overlap_amount(101,500,201,400), "4"
-    end
-
-    should "calculate number of contigs with crbblast hit" do
+    should "01-1n should get reference hits" do
+      # The reciprocals hash in crb blast has contig names as the key.
+      # In order to look up by the reference name we need to reverse this.
+      # Scan through the reciprocals and get this Hit objects and add them to
+      #   the @reference object for each reference sequence
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          @comp.run
-          assert_equal 11, @comp.comp_stats[:n_contigs_with_CRBB]
-          assert_equal 11/13.0, @comp.comp_stats[:p_contigs_with_CRBB]
+          query = Tester.testpath("test_contig_nc1.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          assert_equal 1, comp.reference["reference1"].hits.size, "size of reference hits list"
+          assert_equal "contig1", comp.reference["reference1"].hits[0].query
+          assert_equal "reference1", comp.reference["reference1"].hits[0].target
         end
       end
     end
 
-    should "calculate number of reference sequences with crbblast hit" do
+    should "01-1n get per contig reference coverage" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          @comp.run
-          assert_equal 10, @comp.comp_stats[:n_refs_with_CRBB]
-          assert_equal 0.5, @comp.comp_stats[:p_refs_with_CRBB]
+          query = Tester.testpath("test_contig_nc1.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          assert_equal (2/3.0), comp.assembly["contig1"].reference_coverage
         end
       end
     end
 
-    should "calculate reference sequence coverage" do
-      # n&p of reference sequences covered to (25, 50, 75, 85, 95%)
-      # of their length by CRB-BLAST hit
+    should "01-1a get per contig reference coverage on protein" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          @comp.run
-          stats = @comp.comp_stats
-          assert_equal 10, stats[:cov25]
-          assert_equal 10, stats[:cov50]
-          assert_equal 7, stats[:cov75]
-          assert_equal 6, stats[:cov85]
-          assert_equal 3, stats[:cov95]
+          query = Tester.testpath("test_contig_nc1.fa")
+          target = Tester.testpath("test_reference_aa1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          assert_equal (2/3.0), comp.assembly["contig1"].reference_coverage
         end
       end
     end
+
+    should "01e raise error because you can't have protein queries" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_reference_aa1.fa")
+          target = Tester.testpath("test_contig_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          assert_raise Transrate::TransrateError do
+            comp.per_query_contig_reference_coverage
+          end
+        end
+      end
+    end
+
+    should "02-2n calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+      # tmpdir = Dir.mktmpdir
+      # puts tmpdir
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc2.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          # answer should be 290/300.0
+          assert_equal 29/30.0, comp.reference["reference1"].reference_coverage
+        end
+      end
+    end
+
+    should "02-3n calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc3.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          # answer should be 1.0000
+          assert_equal 1.00, comp.reference["reference1"].reference_coverage
+        end
+      end
+    end
+
+    should "02-3a calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc3.fa")
+          target = Tester.testpath("test_reference_aa1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          # answer should be 1.0000
+          assert_equal 1.00, comp.reference["reference2"].reference_coverage
+        end
+      end
+    end
+
+    should "02-4n calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc4.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal 0.5, comp.reference["reference1"].reference_coverage
+        end
+      end
+    end
+
+    should "02-4a calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc4.fa")
+          target = Tester.testpath("test_reference_aa1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal 0.5, comp.reference["reference2"].reference_coverage
+        end
+      end
+    end
+
+    should "02-5a calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc5.fa")
+          target = Tester.testpath("test_reference_aa1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal (2/3.0), comp.reference["reference2"].reference_coverage
+        end
+      end
+    end
+
+    should "02-5n calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc5.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal (2/3.0), comp.reference["reference1"].reference_coverage
+        end
+      end
+    end
+
+    should "02-6a calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc6.fa")
+          target = Tester.testpath("test_reference_aa1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal (1/3.0), comp.reference["reference2"].reference_coverage
+        end
+      end
+    end
+
+    should "02-6n calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc6.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal (1/3.0), comp.reference["reference1"].reference_coverage
+        end
+      end
+    end
+
+    should "02-7a calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc7.fa")
+          target = Tester.testpath("test_reference_aa1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal (1/3.0), comp.reference["reference2"].reference_coverage
+        end
+      end
+    end
+
+    should "02-7n calculate coverage for each reference sequence" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("test_contig_nc7.fa")
+          target = Tester.testpath("test_reference_nc1.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          crbblast.add_missing
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal (1/3.0), comp.reference["reference1"].reference_coverage
+        end
+      end
+    end
+
+    should "03 calculate all metrics" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          query = Tester.testpath("assembly.2.fa")
+          target = Tester.testpath("Os.protein.2.fa")
+          crbblast = CRB_Blast::CRB_Blast.new query, target
+          crbblast.run(1e-5, 1, true)
+          assembly = Transrate::Assembly.new(query)
+          reference = Transrate::Assembly.new(target)
+          comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
+          comp.get_reference_hits crbblast
+          comp.per_query_contig_reference_coverage
+          comp.per_target_contig_reference_coverage crbblast
+          assert_equal 11, comp.comp_stats[:CRBB_hits], "CRBB hits"
+          assert_equal 11, comp.comp_stats[:n_contigs_with_CRBB], "n_contigs_with_CRBB"
+          assert_equal 0.84615, comp.comp_stats[:p_contigs_with_CRBB].round(5), "p_contigs_with_CRBB"
+          assert_equal 0.55, comp.comp_stats[:rbh_per_reference], "rbh_per_reference"
+          assert_equal 10, comp.comp_stats[:n_refs_with_CRBB], "n_refs_with_CRBB"
+          assert_equal 0.5, comp.comp_stats[:p_refs_with_CRBB], "p_refs_with_CRBB"
+          assert_equal 10, comp.comp_stats[:cov25], "cov25"
+          assert_equal 10, comp.comp_stats[:cov50], "cov50"
+          assert_equal 7, comp.comp_stats[:cov75], "cov75"
+          assert_equal 6, comp.comp_stats[:cov85], "cov85"
+          assert_equal 3, comp.comp_stats[:cov95], "cov95"
+          assert_equal 0.5, comp.comp_stats[:p_cov25], "p_cov25"
+          assert_equal 0.5, comp.comp_stats[:p_cov50], "p_cov50"
+          assert_equal 0.35, comp.comp_stats[:p_cov75], "p_cov75"
+          assert_equal 0.3, comp.comp_stats[:p_cov85], "p_cov85"
+          assert_equal 0.15, comp.comp_stats[:p_cov95], "p_cov95"
+          assert_equal 0.37261, comp.comp_stats[:reference_coverage].round(5), "reference_coverage"
+
+        end
+      end
+    end
+
+
 
   end
 end
