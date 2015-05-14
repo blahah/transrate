@@ -1,5 +1,7 @@
 module Transrate
 
+  class ReadMetricsError < TransrateError; end
+
   class ReadMetrics
 
     attr_reader :fragments, :fragments_mapping, :p_good_mapping
@@ -60,7 +62,12 @@ module Transrate
         if !File.exist?(assigned_bam)
           assigned_bam = assign_and_quantify(bamfile, threads)
         end
-        File.rename(assigned_bam, final_bam)
+        if File.exist?(assigned_bam)
+          File.rename(assigned_bam, final_bam)
+        else
+          logger.error "Couldn't find #{assigned_bam} to rename"
+          raise ReadMetricsError
+        end
       end
       # analyse the final mappings
       analyse_read_mappings final_bam
