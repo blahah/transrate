@@ -64,11 +64,11 @@ opts = Trollop::options do
   EOS
   opt :assembly, "Assembly file(s) in FASTA format, comma-separated",
       :type => String
-  opt :reference, "Reference proteome file in FASTA format",
-      :type => String
   opt :left, "Left reads file in FASTQ format",
       :type => String
   opt :right, "Right reads file in FASTQ format",
+      :type => String
+  opt :reference, "Reference proteome file in FASTA format",
       :type => String
   opt :threads, "Number of threads to use",
       :default => 8,
