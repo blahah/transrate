@@ -8,7 +8,7 @@ SELFDIR="`cd \"$SELFDIR\" && pwd`"
 # Temporarily set PATH and LD_LIBRARY_PATH
 export PATH=$SELFDIR/bin:$PATH
 export LD_LIBRARY_PATH=$SELFDIR/lib:$LD_LIBRARY_PATH
-
+export DYLD_FALLBACK_LIBRARY_PATH=$SELFDIR/lib:$DYLD_FALLBACK_LIBRARY_PATH
 # Tell Bundler where the Gemfile and gems are.
 export BUNDLE_GEMFILE="$SELFDIR/lib/app/Gemfile"
 unset BUNDLE_IGNORE_CONFIG
