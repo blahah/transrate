@@ -6,4 +6,5 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "andy_b_84/debian-squeeze64-vanilla"
-ebd
+  config.vm.network :forwarded_port, guest: 22, host: 18723
+end

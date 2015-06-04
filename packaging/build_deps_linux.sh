@@ -1,4 +1,4 @@
-export PATH=~/gcc-4.8.4/bin:$PATH
+export PATH=~/gcc-4.8.4/bin:~/cmake-3.1.3-Linux-x86_64/bin:$PATH
 
 cd ~
 
