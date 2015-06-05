@@ -44,7 +44,7 @@ module Transrate
       cmd << " --sampleOut"
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."
-      cmd << " --useReadCompat"
+      cmd << " --useVBOpt"
       cmd << " --useErrorModel"
       cmd
     end
@@ -54,9 +54,14 @@ module Transrate
       File.open(file).each do |line|
         if line !~ /^#/
           line = line.chomp.split("\t")
+          unless line.length == 4
+            raise SalmonError.new("Salmon output file should have 4 columns " +
+              "but it had #{line.length}\n" +
+              "Please check you are using the correct version of Salmon")
+          end
           target = line[0]
           effective_length = line[1]
-          effective_count = line[4]
+          effective_count = line[3]
           tpm = line[2]
           expression[target] = {
             :eff_len => effective_length.to_i,

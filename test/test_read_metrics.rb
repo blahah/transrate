@@ -38,7 +38,7 @@ class TestReadMetrics < Test::Unit::TestCase
           assert_in_delta 0.719,stats[:p_good_mapping].round(3), 0.005,
                        'percent good mapping'
           assert_in_delta 3761,  stats[:bad_mappings], 50, 'bad mapping'
-          assert_equal 1,  stats[:potential_bridges], 'bridges'
+          assert_in_delta 2,  stats[:potential_bridges], 1, 'bridges'
           assert_equal 93, stats[:contigs_uncovbase], 'uncovered base contig'
           assert_equal 28, stats[:contigs_uncovered], 'uncovered contig'
           assert_equal 71, stats[:contigs_lowcovered], 'lowcovered contig'
@@ -138,7 +138,7 @@ class TestReadMetrics < Test::Unit::TestCase
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
           assert_equal 1,  stats[:potential_bridges], "bridges"
-          assert_equal 1, contigs.length, "number of bridging contigs found"
+          assert_equal 2, contigs.length, "number of bridging contigs found"
           assert_equal "Sb01g002430.1", contigs[0].name
         end
       end

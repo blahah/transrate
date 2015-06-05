@@ -23,9 +23,11 @@ salmon:
   binaries:
     - salmon
   libraries:
+    - libgcc_s.so.1
     - libgomp.so.1
     - libm.so.6
     - librt.so.1
+    - libstdc++.so.6
     - libtbb.so
     - libtbb.so.2
     - libtbbmalloc.so
@@ -37,10 +39,11 @@ salmon:
     - libtbb.dylib
     - libtbbmalloc.dylib
     - libtbbmalloc_proxy.dylib
+    - libsalmon_core.a
   version:
-    number: '0.3'
+    number: '0.4'
     command: 'salmon -v'
   url:
     64bit:
-      linux: https://github.com/kingsfordgroup/sailfish/releases/download/v0.3.0/SalmonBeta-v0.3.0_squeeze.tar.gz
-      macosx: https://github.com/kingsfordgroup/sailfish/releases/download/v0.3.0/SalmonBeta-v0.3.0_MacOSX-10.10.2.tar.gz
+      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.0/SalmonBeta-0.4.0_DebianSqueeze.tar.gz
+      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.0/SalmonBeta-0.4.0_OSX-10.10.tar.gz
