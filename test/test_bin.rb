@@ -116,6 +116,7 @@ class TestTransrateBin < Test::Unit::TestCase
       end
       assert_in_delta 137748, hash[:n_bases], 1000, "number of bases"
       assert_equal 1692, hash[:n50], "n50"
+      assert_equal 25006 + 223, hash[:fragments], "number of reads"
     end
 
     should "fail when one of multiple assemblies is missing" do
