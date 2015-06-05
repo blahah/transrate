@@ -19,8 +19,6 @@ lib/transrate/read_metrics.rb
 lib/transrate/salmon.rb
 lib/transrate/score_optimiser.rb
 lib/transrate/snap.rb
-lib/transrate/transrate.bundle
-lib/transrate/transrate.so
 lib/transrate/transrater.rb
 lib/transrate/version.rb
 lib/transrate/writer.rb
