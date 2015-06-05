@@ -32,7 +32,8 @@ opts = Trollop::options do
   banner <<-EOS
 
   Transrate v#{Transrate::VERSION::STRING.dup}
-  by Richard Smith-Unna <rds45@cam.ac.uk> and Chris Boursnell
+  by Richard Smith-Unna, Chris Boursnell, Rob Patro,
+     Julian Hibberd, and Steve Kelly
 
   DESCRIPTION:
   Analyse a de-novo transcriptome assembly using three kinds of metrics:
