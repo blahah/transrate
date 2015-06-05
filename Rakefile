@@ -90,7 +90,7 @@ task :default => :test
 # PACKAGING
 
 PACKAGE_NAME = "transrate"
-VERSION = "1.0.0.beta3"
+VERSION = "1.0.0.beta4"
 TRAVELING_RUBY_VERSION = "20150210-2.2.0"
 
 desc "Package your app"
