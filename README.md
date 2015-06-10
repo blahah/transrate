@@ -28,7 +28,7 @@ This software is being actively developed. Please be aware that there may be bug
 
 ## Citation
 
-Transrate is pre-publication academic software. If you use it, please cite the github repository and the DOI: [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.13161.svg)](http://dx.doi.org/10.5281/zenodo.13161).
+Transrate is pre-publication academic software. If you use it, please cite the github repository and the DOI: [![DOI](https://zenodo.org/badge/3687/Blahah/transrate.svg)](http://dx.doi.org/10.5281/zenodo.18325).
 
 ## Documentation
 
