@@ -23,6 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'bio', '~> 1.4', '>= 1.4.3'
   gem.add_dependency 'crb-blast', '~> 0.6', '>= 0.6.4'
   gem.add_dependency 'fix-trinity-output', '~> 1.0', '>= 1.0'
+  gem.add_dependency 'colorize', '~> 0.7', '>= 0.7.7'
 
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
   gem.add_development_dependency 'rake-compiler', '~> 0.9', '>= 0.9.2'

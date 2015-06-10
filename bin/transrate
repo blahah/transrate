@@ -4,6 +4,7 @@ require 'trollop'
 require 'transrate'
 require 'csv'
 require 'bindeps'
+require 'colorize'
 
 include Transrate
 
@@ -27,9 +28,19 @@ module Kernel
   end
 end
 
+txp = '░▓▓^▓▓░'
+toptxp = txp.green
+midtxp = txp.yellow
+bottxp = txp.red
+
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
+         _                                 _
+        | |_ _ __ __ _ _ __  ___ _ __ __ _| |_ ___
+#{toptxp} | __| '__/ _` | '_ \\/ __| '__/ _` | __/ _ \\ #{toptxp}
+#{midtxp} | |_| | | (_| | | | \\__ \\ | | (_| | ||  __/ #{midtxp}
+#{bottxp}  \\__|_|  \\__,_|_| |_|___/_|  \\__,_|\\__\\___| #{bottxp}
 
   Transrate v#{Transrate::VERSION::STRING.dup}
   by Richard Smith-Unna, Chris Boursnell, Rob Patro,
