@@ -36,11 +36,11 @@ bottxp = txp.red
 opts = Trollop::options do
   version Transrate::VERSION::STRING.dup
   banner <<-EOS
-           _                                 _
-          | |_ _ __ __ _ _ __  ___ _ __ __ _| |_ ___
-#{toptxp} | __| '__/ _` | '_ \\/ __| '__/ _` | __/ _ \\ #{toptxp}
-#{midtxp} | |_| | | (_| | | | \\__ \\ | | (_| | ||  __/ #{midtxp}
-#{bottxp}  \\__|_|  \\__,_|_| |_|___/_|  \\__,_|\\__\\___| #{bottxp}
+           _                                        _
+          | |_  _ __  __ _  _ __   ___  _ __  __ _ | |_  ___
+#{toptxp} | __|| '__|/ _` || '_ \\ / __|| '__|/ _` || __|/ _ \\ #{toptxp}
+#{midtxp} | |_ | |  | (_| || | | |\\__ \\| |  | (_| || |_|  __/ #{midtxp}
+#{bottxp}  \\__||_|   \\__,_||_| |_||___/|_|   \\__,_| \\__|\\___| #{bottxp}
 
   Transrate v#{Transrate::VERSION::STRING.dup}
   by Richard Smith-Unna, Chris Boursnell, Rob Patro,
@@ -49,27 +49,14 @@ opts = Trollop::options do
   DESCRIPTION:
   Analyse a de-novo transcriptome assembly using three kinds of metrics:
 
-  1. sequence-based (basic)
-  2. read-mapping-based (if --left and --right are provided)
-  3. reference-based (if --reference is provided)
+  1. sequence based (if --assembly is given)
+  2. read mapping based (if --left and --right are given)
+  3. reference based (if --reference is given)
 
-  Bug reports and feature requests at:
-  http://github.com/blahah/transrate
+  Documentation at http://hibberdlab.com/transrate
 
   USAGE:
   transrate <options>
-
-  EXAMPLES:
-  # check dependencies and install any that are missing
-  transrate --install-deps
-  # get the transrate score for the assembly and each contig
-  transrate --assembly contigs.fa --left left.fq --right right.fq
-  # basic assembly metrics only
-  transrate --assembly contigs.fa
-  # basic and reference-based metrics with 8 threads
-  transrate --assembly contigs.fa --reference Athaliana_transcripts.fa --threads 8
-  # contig and read-based metrics for two assemblies with 32 threads
-  transrate --assembly one.fa,two.fa --left l.fq --right r.fq --threads 32
 
   OPTIONS:
 
@@ -80,22 +67,47 @@ opts = Trollop::options do
       :type => String
   opt :right, "Right reads file in FASTQ format",
       :type => String
-  opt :reference, "Reference proteome file in FASTA format",
+  opt :reference, "Reference proteome or transcriptome file in FASTA format",
       :type => String
   opt :threads, "Number of threads to use",
       :default => 8,
       :type => Integer
-  opt :merge_assemblies, "Merge multiple assemblies into file",
+  opt :merge_assemblies, "Merge best contigs from multiple assemblies into file",
       :type => String
   opt :outfile, "Prefix filename to use for CSV output",
       :default => 'transrate'
-  opt :loglevel, "The amount of information to print. " +
+  opt :loglevel, "Log level. " +
                  "One of [error, info, warn, debug]",
       :default => 'info'
   opt :install_deps, "Install any missing dependencies. One of [all, read, ref]",
       :type => String, :default => nil
-  # opt :install_read_deps, "install missing dependencies for read metrics only"
-  # opt :install_ref_deps, "install missing dependencies for reference metrics only"
+  opt :examples, "Show some example commands with explanations"
+end
+
+if opts.examples
+  puts <<-EOS
+
+  Transrate v#{Transrate::VERSION::STRING.dup}
+
+  EXAMPLE COMMANDS:
+
+  # check dependencies and install any that are missing
+  transrate --install-deps
+
+  # get the transrate score for the assembly and each contig
+  transrate --assembly contigs.fa --left left.fq --right right.fq
+
+  # basic assembly metrics only
+  transrate --assembly contigs.fa
+
+  # basic and reference-based metrics with 8 threads
+  transrate --assembly contigs.fa --reference ref.fa --threads 8
+
+  # contig and read-based metrics for two assemblies with 32 threads
+  transrate --assembly one.fa,two.fa --left l.fq --right r.fq --threads 32
+
+  EOS
+  exit(0)
 end
 
 # Check dependencies if they are relevant to the command issued,
