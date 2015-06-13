@@ -26,6 +26,7 @@ module Transrate
 
 end # Transrate
 
+require 'transrate/transrate'
 require 'transrate/transrater'
 require 'transrate/version'
 require 'transrate/contig'
