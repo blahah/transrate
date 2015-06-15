@@ -290,7 +290,7 @@ assemblies.split(',').each do |assembly|
     pretty_print_hash(contig_results, report_width)
   end
 
-  logger.info "Contig metrics done in #{Time.now - t0} seconds"
+  logger.info "Contig metrics done in #{(Time.now - t0).round} seconds"
 
   read_results = {}
 
@@ -305,7 +305,7 @@ assemblies.split(',').each do |assembly|
       pretty_print_hash(read_results, report_width)
     end
 
-    logger.info "Read metrics done in #{Time.now - t0} seconds"
+    logger.info "Read metrics done in #{(Time.now - t0).round} seconds"
   else
     logger.info "No reads provided, skipping read diagnostics"
   end
@@ -324,7 +324,7 @@ assemblies.split(',').each do |assembly|
       pretty_print_hash(comparative_results, report_width)
     end
 
-    logger.info "Comparative metrics done in #{Time.now - t0} seconds"
+    logger.info "Comparative metrics done in #{(Time.now - t0).round} seconds"
 
     logger.info "-" * report_width
   else
@@ -366,7 +366,7 @@ assemblies.split(',').each do |assembly|
         csv << basic_metrics.keys
         first = false
       end
-      csv << basic_metrics.values
+      csv << basic_metrics.values.map{ |x| x.is_a?(Float) ? x.round(6) : x }
     end
   end
 
@@ -388,6 +388,9 @@ CSV.open(outfile, 'wb') do |file|
   head = [:assembly] + keys
   file << head
   all.each do |row|
-    file << head.map { |x| row[x] }
+    file << head.map { |x|
+      entry = row[x]
+      entry = entry.round(5) if entry.is_a? Float
+    }
   end
 end

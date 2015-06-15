@@ -49,7 +49,7 @@ module Transrate
       out = CSV.open("#{prefix}_score_optimisation.csv", 'w')
       out << %w[cutoff assembly_score]
       cutoffscores.each do |c, score|
-        out << [c, score]
+        out << [c.round(5), score.round(5)]
         if score > @optimal
           @optimal = score
           @cutoff = c
