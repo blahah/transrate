@@ -11,7 +11,7 @@ module Transrate
     attr_reader :index_name, :bam, :read_count
 
     def initialize
-      which_snap = Cmd.new('which snap')
+      which_snap = Cmd.new('which snap-aligner')
       which_snap.run
       if !which_snap.status.success?
         raise SnapError.new("could not find snap in the path")
