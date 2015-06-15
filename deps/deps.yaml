@@ -1,9 +1,9 @@
 snap:
   binaries:
-    - snap
+    - snap-aligner
   version:
     number: '1.0beta.18'
-    command: 'snap'
+    command: 'snap-aligner'
   url:
     64bit:
       linux: https://github.com/Blahah/snap/releases/download/v1.0beta.18/snap_v1.0beta.18_linux.tar.gz
