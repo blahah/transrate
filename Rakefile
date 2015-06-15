@@ -156,7 +156,7 @@ def create_package(target)
   sh "mkdir packaging/bindeps/#{target}/{bin,lib}"
   sh "cd packaging/bindeps/#{target} && " +
      "find . -maxdepth 1 -name '*.tar.gz' -exec tar -xzf '{}' \\; && " +
-     "mv snap-aligner bam-read bin/"
+     "mv snap-aligner bam-read bin/ && cp -r ./*/{bin,lib} ."
   sh "cp -r packaging/bindeps/#{target}/{bin,lib} #{package_dir}/"
   # install c extension
   sh "cp test/vagrant/#{target}/libruby.* #{package_dir}/lib/"
