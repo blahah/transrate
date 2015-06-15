@@ -173,11 +173,11 @@ else
     end
 
     puts "To install all missing dependencies, run:"
-    puts "  transrate --install-deps"
+    puts "  transrate --install-deps a;;"
     puts "If you only want the read-metrics dependencies:"
-    puts "  transrate --install-read-deps"
+    puts "  transrate --install-deps read"
     puts "Or if you only want the reference-metrics dependencies: "
-    puts "  transrate --install-ref-deps"
+    puts "  transrate --install-deps ref"
 
     exit 1
   end
