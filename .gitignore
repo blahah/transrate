@@ -67,3 +67,6 @@ traveling-ruby*
 *box
 libruby.so*
 libruby*dylib
+
+# example data
+example_data*
