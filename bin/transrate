@@ -390,7 +390,7 @@ CSV.open(outfile, 'wb') do |file|
   all.each do |row|
     file << head.map { |x|
       entry = row[x]
-      entry = entry.round(5) if entry.is_a? Float
+      entry.is_a?(Float) ? entry.round(5) : entry
     }
   end
 end
