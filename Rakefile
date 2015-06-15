@@ -90,7 +90,7 @@ task :default => :test
 # PACKAGING
 
 PACKAGE_NAME = "transrate"
-VERSION = "1.0.0.beta4"
+VERSION = "1.0.0"
 TRAVELING_RUBY_VERSION = "20150210-2.2.0"
 
 desc "Package your app"
@@ -156,7 +156,7 @@ def create_package(target)
   sh "mkdir packaging/bindeps/#{target}/{bin,lib}"
   sh "cd packaging/bindeps/#{target} && " +
      "find . -maxdepth 1 -name '*.tar.gz' -exec tar -xzf '{}' \\; && " +
-     "mv snap bam-read bin/"
+     "mv snap-aligner bam-read bin/"
   sh "cp -r packaging/bindeps/#{target}/{bin,lib} #{package_dir}/"
   # install c extension
   sh "cp test/vagrant/#{target}/{transrate,libruby}.* #{package_dir}/lib/"
