@@ -2,22 +2,22 @@ snap:
   binaries:
     - snap
   version:
-    number: '1.0dev.67.trfix1'
+    number: '1.0beta.18'
     command: 'snap'
   url:
     64bit:
-      linux: https://github.com/Blahah/snap/releases/download/v1.0dev.67.trfix1/snap_v1.0dev.67.trfix1_linux.tar.gz
-      macosx: https://github.com/Blahah/snap/releases/download/v1.0dev.67.trfix1/snap_v1.0dev.67.trfix1_macosx.tar.gz
+      linux: https://github.com/Blahah/snap/releases/download/v1.0beta.18/snap_v1.0beta.18_linux.tar.gz
+      macosx: https://github.com/Blahah/snap/releases/download/v1.0beta.18/snap_v1.0beta.18_osx.tar.gz
 bam-read:
   binaries:
    - bam-read
   version:
-    number: '1.0.0.beta4'
+    number: '1.0.0'
     command: 'bam-read'
   url:
     64bit:
-      linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta4/bam-read_v1.0.0.beta4_linux.tar.gz
-      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0.beta4/bam-read_v1.0.0.beta4_osx.tar.gz
+      linux: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0/bam-read_v1.0.0_linux.tar.gz
+      macosx: https://github.com/Blahah/transrate-tools/releases/download/v1.0.0/bam-read_v1.0.0_osx.tar.gz
   unpack: true
 salmon:
   binaries:
@@ -45,5 +45,5 @@ salmon:
     command: 'salmon -v'
   url:
     64bit:
-      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.0/SalmonBeta-0.4.0_DebianSqueeze.tar.gz
-      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.0/SalmonBeta-0.4.0_OSX-10.10.tar.gz
+      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.2/SalmonBeta-0.4.2_DebianSqueeze.tar.gz
+      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.2/SalmonBeta-0.4.2_OSX-10.10.tar.gz
