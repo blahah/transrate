@@ -159,7 +159,8 @@ def create_package(target)
      "mv snap-aligner bam-read bin/"
   sh "cp -r packaging/bindeps/#{target}/{bin,lib} #{package_dir}/"
   # install c extension
-  sh "cp test/vagrant/#{target}/{transrate,libruby}.* #{package_dir}/lib/"
+  sh "cp test/vagrant/#{target}/libruby.* #{package_dir}/lib/"
+  sh "cp test/vagrant/#{target}/transrate.* #{package_dir}/lib/app/ext/transrate/"
   # create package
   if !ENV['DIR_ONLY']
     sh "cd packaging && tar -czf #{package_pref}.tar.gz #{package_pref}"
