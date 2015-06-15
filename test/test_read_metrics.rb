@@ -31,7 +31,7 @@ class TestReadMetrics < Test::Unit::TestCase
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
           assert_equal 25006,    stats[:fragments], 'number of read pairs'
-          assert_in_delta 21744, stats[:fragments_mapped], 10, 'number mapping'
+          assert_in_delta 21732, stats[:fragments_mapped], 10, 'number mapping'
           assert_in_delta 0.84,  stats[:p_fragments_mapped].round(4), 0.05
                        'proportion mapping'
           assert_in_delta 17983, stats[:good_mappings], 50, 'good mapping'
@@ -61,7 +61,7 @@ class TestReadMetrics < Test::Unit::TestCase
 
           edit_a = a[:p_seq_true].round(5)
           edit_b = b[:p_seq_true].round(5)
-          assert_in_delta 0.6597, edit_a.round(4), 0.01, "edit distance 1"
+          assert_in_delta 0.7086, edit_a.round(4), 0.01, "edit distance 1"
           assert_in_delta 0.9364, edit_b.round(4), 0.01, "edit distance 2"
 
           assert_in_delta 0.5714, a[:p_good].round(4), 0.01, "prop of good mappings"

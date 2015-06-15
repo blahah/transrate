@@ -8,13 +8,14 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 SimpleCov.start
 
 require 'minitest/autorun'
-begin; require 'turn/autorun'; rescue LoadError; end
+begin
+  require 'turn/autorun'
+  Turn.config.format = :pretty
+  Turn.config.trace = 5
+rescue LoadError
+end
 require 'shoulda/context'
 require 'transrate'
-require 'transrate/transrate.so'
-
-Turn.config.format = :pretty
-Turn.config.trace = 5
 
 # download large fastq files into test/data/.
 path = "https://github.com/HibberdLab/transrate-test-files/raw/master"

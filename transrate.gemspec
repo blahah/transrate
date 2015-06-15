@@ -25,11 +25,12 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'fix-trinity-output', '~> 1.0', '>= 1.0'
   gem.add_dependency 'colorize', '~> 0.7', '>= 0.7.7'
 
+  gem.add_development_dependency 'test-unit', '~> 3.0'
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
   gem.add_development_dependency 'rake-compiler', '~> 0.9', '>= 0.9.2'
   gem.add_development_dependency 'turn', '~> 0.9', '>= 0.9.7'
   gem.add_development_dependency 'minitest', '~> 4', '>= 4.7.5'
   gem.add_development_dependency 'simplecov', '~> 0.8', '>= 0.8.2'
-  gem.add_development_dependency 'shoulda-context', '~> 1.2', '>= 1.2.1'
+  gem.add_development_dependency 'shoulda', '~> 3.5', '>= 3.5.0'
   gem.add_development_dependency 'coveralls', '~> 0.7', '>= 0.7.2'
 end
