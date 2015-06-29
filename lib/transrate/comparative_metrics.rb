@@ -36,6 +36,9 @@ module Transrate
     end
 
     def get_reference_hits crbblast
+      @reference.each do |name, contig|
+        contig.hits = []
+      end
       crbblast.reciprocals.each do |query_id, list|
         list.each do |hit|
           unless @reference.assembly.key? hit.target
