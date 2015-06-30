@@ -28,7 +28,7 @@ This software is being actively developed. Please be aware that there may be bug
 
 ## Citation
 
-Transrate is pre-publication academic software. If you use it, please cite the preprint on biorXiv:  [![DOI](http://dx.doi.org/10.1101/021626)](http://dx.doi.org/10.1101/021626).
+Transrate is pre-publication academic software. If you use it, please cite [the preprint on biorXiv](http://dx.doi.org/10.1101/021626).
 
 ## Documentation
 
