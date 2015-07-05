@@ -45,7 +45,11 @@ class Cmdline
 
   def parse_arguments args
     Trollop::with_standard_exception_handling argument_parser do
-      raise Trollop::HelpNeeded if args.empty? # show help screen
+      if args.empty? || args.include?("-h") || args.include?("--help")
+        transrate_banner
+        raise Trollop::HelpNeeded
+      end
+
       argument_parser.parse args
     end
   end
@@ -82,17 +86,13 @@ class Cmdline
     end
   end
 
+  def terminal_columns
+    require 'io/console'
+    IO.console.winsize.last
+  end
+
   def help_message
-    txp = '░▓▓▓^▓▓▓░'
-    toptxp = txp.green
-    midtxp = txp.yellow
-    bottxp = txp.red
-    <<-EOS
-           _                                        _
-          | |_  _ __  __ _  _ __   ___  _ __  __ _ | |_  ___
-#{toptxp} | __|| '__|/ _` || '_ \\ / __|| '__|/ _` || __|/ _ \\ #{toptxp}
-#{midtxp} | |_ | |  | (_| || | | |\\__ \\| |  | (_| || |_|  __/ #{midtxp}
-#{bottxp}  \\__||_|   \\__,_||_| |_||___/|_|   \\__,_| \\__|\\___| #{bottxp}
+  <<-EOS
 
 Transrate v#{Transrate::VERSION::STRING.dup}
 by Richard Smith-Unna, Chris Boursnell, Rob Patro,
@@ -115,29 +115,47 @@ OPTIONS:
     EOS
   end
 
+  def transrate_banner
+    if terminal_columns > 70
+      txp = '░▓▓▓^▓▓▓░'
+      toptxp = txp.green
+      midtxp = txp.yellow
+      bottxp = txp.red
+      puts <<-EOS
+           _                                        _
+          | |_  _ __  __ _  _ __   ___  _ __  __ _ | |_  ___
+#{toptxp} | __|| '__|/ _` || '_ \\ / __|| '__|/ _` || __|/ _ \\ #{toptxp}
+#{midtxp} | |_ | |  | (_| || | | |\\__ \\| |  | (_| || |_|  __/ #{midtxp}
+#{bottxp}  \\__||_|   \\__,_||_| |_||___/|_|   \\__,_| \\__|\\___| #{bottxp}
+      EOS
+    end
+    ""
+  end
+
   def print_examples
-    puts <<-EOS
+    msg = <<-EOS
 
-Transrate v#{Transrate::VERSION::STRING.dup}
+    Transrate v#{Transrate::VERSION::STRING.dup}
 
-EXAMPLE COMMANDS:
+    EXAMPLE COMMANDS:
 
-# check dependencies and install any that are missing
-transrate --install-deps all
+    # check dependencies and install any that are missing
+    transrate --install-deps all
 
-# get the transrate score for the assembly and each contig
-transrate --assembly contigs.fa --left left.fq --right right.fq
+    # get the transrate score for the assembly and each contig
+    transrate --assembly contigs.fa --left left.fq --right right.fq
 
-# basic assembly metrics only
-transrate --assembly contigs.fa
+    # basic assembly metrics only
+    transrate --assembly contigs.fa
 
-# basic and reference-based metrics with 8 threads
-transrate --assembly contigs.fa --reference ref.fa --threads 8
+    # basic and reference-based metrics with 8 threads
+    transrate --assembly contigs.fa --reference ref.fa --threads 8
 
-# contig and read-based metrics for two assemblies with 32 threads
-transrate --assembly one.fa,two.fa --left l.fq --right r.fq --threads 32
+    # contig and read-based metrics for two assemblies with 32 threads
+    transrate --assembly one.fa,two.fa --left l.fq --right r.fq --threads 32
 
     EOS
+    puts msg.split("\n").map{ |line| line.lstrip }.join("\n")
     exit(0)
   end
 
