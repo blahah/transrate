@@ -36,38 +36,49 @@ class TestTransrateBin < Test::Unit::TestCase
     end
 
     should "run help" do
-      c=Transrate::Cmd.new("bundle exec bin/transrate --help")
-      c.run
-      assert c.stdout =~ /DESCRIPTION/
-      assert_equal true, c.status.success?, "exit status"
+      captured_stdout = capture_stdout do
+        Transrate::Cmdline.new("--help".split)
+      end
+      at_exit do
+        assert last_exit_successful?, "exit success"
+        assert captured_stdout =~ /Analyse a de-novo transcriptome assembly/,
+               "error message"
+      end
     end
 
-    should "fail on non existent assembly files" do
-      c=Transrate::Cmd.new("bundle exec bin/transrate --assembly foo.fasta")
-      c.run
-      assert_equal false, c.status.success?, "exit success"
+    should "fail nicely on non existent assembly files" do
+      assert_raises Transrate::TransrateIOError do
+        Transrate::Cmdline.new("--assembly foo.fasta".split)
+      end
+    end
+
+    should "fail nicely when assembly is not provided" do
+      assert_raises Transrate::TransrateArgError do
+        Transrate::Cmdline.new("--left left.fq".split)
+      end
     end
 
     should "fail on non existent reference files" do
-      c=Transrate::Cmd.new("bundle exec bin/transrate --reference foo.fasta")
-      c.run
-      assert_equal false, c.status.success?, "exit status"
+      assembly, reference, left, right = sorghum_data
+      assert_raises Transrate::TransrateIOError do
+        Transrate::Cmdline.new("--assembly #{assembly} --reference foo.fasta".split)
+      end
     end
 
     should "run on test data" do
-      assembly = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.fa')
-      reference = File.join(File.dirname(__FILE__), 'data', 'Os.protein.2.fa')
-      left = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.1.fastq')
-      right = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.2.fastq')
-      cmd = "bundle exec bin/transrate --assembly #{assembly}"
+      assembly, reference, left, right = sorghum_data
+      cmd = "--assembly #{assembly}"
       cmd << " --reference #{reference}"
       cmd << " --left #{left}"
       cmd << " --right #{right}"
-      c = Transrate::Cmd.new("#{cmd}")
+      c = Transrate::Cmdline.new(cmd.split)
       c.run
-      assert_equal true, c.status.success?, "exit status"
+      at_exit do
+
+      end
+      assert_equal true, last_exit_successful?, "exit status"
       assert File.exist?("transrate_assemblies.csv"), "csv file doesn't exist"
-      assert File.exist?("transrate_sorghum_100.fa_contigs.csv"),
+      assert File.exist?("transrate_sorghum_100.fa  _contigs.csv"),
              "contig csv file doesn't exist"
       hash = {}
       CSV.foreach("transrate_assemblies.csv", :headers => true,
@@ -86,17 +97,15 @@ class TestTransrateBin < Test::Unit::TestCase
     end
 
     should "run on test data with comma separated list of fastq files" do
-      assembly = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.fa')
-      left = []
-      right = []
-      left << File.join(File.dirname(__FILE__), 'data', 'sorghum_100.1.fastq')
+      assembly, reference, left, right = sorghum_data
+      left = [left]
       left << File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
-      right << File.join(File.dirname(__FILE__), 'data', 'sorghum_100.2.fastq')
+      right = [right]
       right << File.join(File.dirname(__FILE__), 'data', '150uncovered.r.fq')
-      cmd = "bundle exec bin/transrate --assembly #{assembly}"
+      cmd = "--assembly #{assembly}"
       cmd << " --left #{left.join(",")}"
       cmd << " --right #{right.join(",")}"
-      c = Transrate::Cmd.new("#{cmd}")
+      c = Transrate::Cmdline.new("#{cmd}")
       c.run
       if !(c.status.success?)
         puts c.stdout

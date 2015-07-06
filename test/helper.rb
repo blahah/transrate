@@ -7,6 +7,38 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 ]
 SimpleCov.start
 
+require "stringio"
+
+def capture_stderr
+  real_stderr, $stderr = $stderr, StringIO.new
+  yield
+  $stderr.string
+ensure
+  $stderr = real_stderr
+end
+
+def capture_stdout
+  real_stdout, $stdout = $stdout, StringIO.new
+  yield
+  $stdout.string
+ensure
+  $stdout = real_stdout
+end
+
+# use within an at_exit block, exploits the capture of last exception in
+# the global var $!
+def last_exit_successful?
+  $!.nil? || $!.is_a?(SystemExit) && $!.success?
+end
+
+def sorghum_data
+  assembly = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.fa')
+  reference = File.join(File.dirname(__FILE__), 'data', 'Os.protein.2.fa')
+  left = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.1.fastq')
+  right = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.2.fastq')
+  [assembly, reference, left, right]
+end
+
 require 'minitest/autorun'
 begin
   require 'turn/autorun'
