@@ -240,7 +240,8 @@ OPTIONS:
     if deps || read_deps || ref_deps
       # user has requested dependency installation
       puts "Checking dependencies"
-      install_missing_dependencies(deps, read_deps, ref_deps)
+      install_missing_dependencies(deps, read_deps, ref_deps,
+                                   gem_deps, blast_dep)
     else
       # no dependency installation requested, but check dependencies
       # for the commands provided are installed
@@ -261,7 +262,8 @@ OPTIONS:
     end
   end
 
-  def install_missing_dependencies(deps, read_deps, ref_deps)
+  def install_missing_dependencies(deps, read_deps, ref_deps,
+                                   gem_deps, blast_dep)
     missing = []
     if deps || read_deps
       Bindeps.require gem_deps
