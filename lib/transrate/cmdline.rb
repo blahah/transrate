@@ -254,7 +254,7 @@ OPTIONS:
   end # check_dependencies
 
   def check_install_command
-    unless %w[all read ref].include? @@opts.install_deps
+    unless %w[all read ref].include? @opts.install_deps
       msg = "install-deps #{@opts.install_deps} is not valid. " +
             "You must specify one of: all, read, ref."
       raise TransrateError.new(msg)
