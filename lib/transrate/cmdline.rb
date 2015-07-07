@@ -79,7 +79,8 @@ class Cmdline
           "Log level. One of [error, info, warn, debug]",
           :default => 'info'
       opt :install_deps,
-          "Install any missing dependencies. One of [all, read, ref]",
+          "Install any missing dependencies. One of " +
+          "[#{cmdline.allowed_deps.join(', ')}]",
           :type => String, :default => nil
       opt :examples, "Show some example commands with explanations"
     end
@@ -258,10 +259,19 @@ OPTIONS:
 
   end # check_dependencies
 
+  def allowed_deps
+    binkey = 'TRANSRATE_PACKAGED_BINARY'
+    if ENV.has_key?(binkey) && ENV[binkey] == 'true'
+      return ['read']
+    else
+      return ['read', 'ref', 'all']
+    end
+  end
+
   def check_install_command
-    unless %w[all read ref].include? @opts.install_deps
+    unless allowed_deps.include? @opts.install_deps
       msg = "install-deps #{@opts.install_deps} is not valid. " +
-            "You must specify one of: all, read, ref."
+            "You must specify one of: #{allowed_deps.join(', ')}."
       raise TransrateError.new(msg)
     end
   end

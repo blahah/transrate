@@ -13,5 +13,8 @@ export DYLD_FALLBACK_LIBRARY_PATH=$SELFDIR/lib:$DYLD_FALLBACK_LIBRARY_PATH
 export BUNDLE_GEMFILE="$SELFDIR/lib/app/Gemfile"
 unset BUNDLE_IGNORE_CONFIG
 
+# Tell transrate this is the packaged version
+export TRANSRATE_PACKAGED_BINARY=true
+
 # Run the actual app using the bundled Ruby interpreter, with Bundler activated.
 exec "$SELFDIR/lib/app/ruby/bin/ruby" -rbundler/setup "$SELFDIR/lib/app/bin/transrate" $@
