@@ -60,9 +60,9 @@ class Cmdline
       banner cmdline.help_message
       opt :assembly, "Assembly file(s) in FASTA format, comma-separated",
           :type => String
-      opt :left, "Left reads file in FASTQ format",
+      opt :left, "Left reads file(s) in FASTQ format, comma-separated",
           :type => String
-      opt :right, "Right reads file in FASTQ format",
+      opt :right, "Right reads file(s) in FASTQ format, comma-separated",
           :type => String
       opt :reference,
           "Reference proteome or transcriptome file in FASTA format",
