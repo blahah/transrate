@@ -2,7 +2,7 @@ require 'helper'
 require 'bio'
 require 'tmpdir'
 
-class TestAssembly < Test::Unit::TestCase
+class TestAssembly < MiniTest::Test
 
   context "Assembly" do
 
@@ -41,8 +41,10 @@ class TestAssembly < Test::Unit::TestCase
           ref = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.fa')
           cmd = Transrate::Cmd.new("cat #{ref} #{ref} > tmp.fa")
           cmd.run
-          assert_raise Transrate::AssemblyError do
-            assembly = Transrate::Assembly.new("tmp.fa")
+          capture_stderr do
+            assert_raises Transrate::AssemblyError do
+              assembly = Transrate::Assembly.new("tmp.fa")
+            end
           end
         end
       end

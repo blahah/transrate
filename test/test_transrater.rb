@@ -3,7 +3,7 @@
 require 'helper'
 require 'tmpdir'
 
-class TestTransrater < Test::Unit::TestCase
+class TestTransrater < MiniTest::Test
 
   context "transrater" do
 
@@ -20,7 +20,7 @@ class TestTransrater < Test::Unit::TestCase
     end
 
     should "raise error when assembly input is nil" do
-      assert_raise Transrate::TransrateError do
+      assert_raises Transrate::TransrateError do
         rater = Transrate::Transrater.new(nil, @reference)
       end
     end

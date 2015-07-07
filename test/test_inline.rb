@@ -3,7 +3,7 @@
 require 'helper'
 require 'bio'
 
-class TestInline < Test::Unit::TestCase
+class TestInline < MiniTest::Test
 
   context 'transrate' do
 

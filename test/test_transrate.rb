@@ -2,7 +2,7 @@
 
 require 'helper'
 
-class TestTransrate < Test::Unit::TestCase
+class TestTransrate < MiniTest::Test
 
   context "transrate" do
 

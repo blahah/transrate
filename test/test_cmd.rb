@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestCmd < Test::Unit::TestCase
+class TestCmd < MiniTest::Test
 
   context "Cmd" do
 

@@ -1,7 +1,7 @@
 require 'helper'
 require 'tmpdir'
 
-class TestReadMetrics < Test::Unit::TestCase
+class TestReadMetrics < MiniTest::Test
 
   context "ReadMetrics" do
 
