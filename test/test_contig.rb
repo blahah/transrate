@@ -2,7 +2,7 @@ require 'helper'
 require 'bio'
 require 'benchmark'
 
-class TestContig < Test::Unit::TestCase
+class TestContig < MiniTest::Test
 
   context "Contig" do
 

@@ -1,6 +1,6 @@
 require 'helper'
 
-class TestContigMetrics < Test::Unit::TestCase
+class TestContigMetrics < MiniTest::Test
 
   context "transrate" do
 

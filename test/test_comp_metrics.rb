@@ -38,7 +38,7 @@ class Tester
   end
 end
 
-class TestCompMetrics2 < Test::Unit::TestCase
+class TestCompMetrics2 < MiniTest::Test
 
 
   context "ComparativeMetrics" do
@@ -122,7 +122,7 @@ class TestCompMetrics2 < Test::Unit::TestCase
           reference = Transrate::Assembly.new(target)
           comp = Transrate::ComparativeMetrics.new(assembly, reference, 1)
           comp.get_reference_hits crbblast
-          assert_raise Transrate::TransrateError do
+          assert_raises Transrate::TransrateError do
             comp.per_query_contig_reference_coverage
           end
         end

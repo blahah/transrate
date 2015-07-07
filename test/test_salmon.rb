@@ -1,7 +1,7 @@
 require 'helper'
 require 'tmpdir'
 
-class TestSalmon < Test::Unit::TestCase
+class TestSalmon < MiniTest::Test
 
   context "Salmon" do
 

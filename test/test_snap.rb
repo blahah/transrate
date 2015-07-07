@@ -1,7 +1,7 @@
 require 'helper'
 require 'tmpdir'
 
-class TestSnap < Test::Unit::TestCase
+class TestSnap < MiniTest::Test
 
   context "Snap" do
 
