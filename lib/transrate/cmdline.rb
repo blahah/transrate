@@ -21,7 +21,6 @@ class Cmdline
     results = []
 
     assemblies = @opts.assembly.split(',')
-    assemblies = assemblies.map { |a| File.expand_path a }
     result_paths = assembly_result_paths assemblies
 
     r = @opts.reference ? Assembly.new(File.expand_path @opts.reference) : nil
@@ -178,6 +177,9 @@ OPTIONS:
 
   def check_assembly
     if @opts.assembly
+      @opts[:assembly] = @opts.assembly.split(',').map do |a|
+        File.expand_path a
+      end.join(',')
       @opts.assembly.split(',').each do |assembly_file|
         unless File.exist?(assembly_file)
           raise TransrateIOError.new "Assembly fasta file does not exist: " +
@@ -191,10 +193,10 @@ OPTIONS:
   end
 
   def check_reference
+    @opts[:reference] = File.expand_path @opts.reference
     if @opts.reference && !File.exist?(@opts.reference)
       raise TransrateIOError.new "Reference fasta file does not exist: " +
                                  " #{@opts.reference}"
-      @opts[:reference] = File.expand_path @opts.reference
     end
   end
 
@@ -204,6 +206,12 @@ OPTIONS:
         msg = "Please provide the same number of left reads as right reads"
         raise TransrateArgError.new msg
       end
+      @opts[:left] = @opts.left.split(',').map { |f|
+        File.expand_path f
+      }.join(',')
+      @opts[:right] = @opts.right.split(',').map { |f|
+        File.expand_path f
+      }.join(',')
       @opts.left.split(",").zip(@opts.right.split(",")).each do |left,right|
         if !File.exist?(left)
           raise TransrateIOError.new "Left read fastq file does not exist: #{left}"
@@ -212,12 +220,6 @@ OPTIONS:
           raise TransrateIOError.new "Right read fastq file does not exist: #{right}"
         end
       end
-      @opts[:left] = @opts.left.split(',').map { |f|
-        File.expand_path f
-      }.join(',')
-      @opts[:right] = @opts.right.split(',').map { |f|
-        File.expand_path f
-      }.join(',')
     end
   end
 
