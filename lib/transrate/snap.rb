@@ -56,6 +56,7 @@ module Transrate
         runner = Cmd.new snapcmd
         runner.run
         save_readcount runner.stdout
+        save_logs(runner.stdout, runner.stderr)
         unless runner.status.success?
           if runner.stderr=~/Unmatched\sread\sIDs/
             logger.warn runner.stderr
@@ -69,6 +70,14 @@ module Transrate
         load_readcount left
       end
       @bam
+    end
+
+    def save_logs(stdout, stderr)
+      FileUtils.mkdir_p 'logs'
+      File.open('logs/snap.log', 'a') do |f|
+        f.write stdout
+        f.write stderr
+      end
     end
 
     def remap_reads(left, right, threads)
@@ -90,6 +99,7 @@ module Transrate
       runner = Cmd.new snapcmd
       runner.run
       save_readcount runner.stdout
+      save_logs(runner.stdout, runner.stderr)
       unless runner.status.success?
         raise SnapError.new("Snap failed\n#{runner.stderr}")
       end
