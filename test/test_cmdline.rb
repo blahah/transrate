@@ -9,17 +9,6 @@ class TestCmdline < MiniTest::Test
       `rm -rf transrate_results`
     end
 
-    should "run help" do
-      captured_stdout = capture_stdout do
-        Transrate::Cmdline.new("--help".split)
-      end
-      at_exit do
-        assert last_exit_successful?, "exit success"
-        assert captured_stdout =~ /Analyse a de-novo transcriptome assembly/,
-               "error message"
-      end
-    end
-
     should "fail nicely on non existent assembly files" do
       assert_raises Transrate::TransrateIOError do
         Transrate::Cmdline.new("--assembly foo.fasta".split)
@@ -46,7 +35,7 @@ class TestCmdline < MiniTest::Test
     should "run on test data" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          capture_stdout do
+          captured_stdout = capture_stdout do
             assembly, reference, left, right = sorghum_data
             cmd = "--assembly #{assembly}"
             cmd << " --reference #{reference}"
@@ -79,7 +68,7 @@ class TestCmdline < MiniTest::Test
     should "run on test data with comma separated list of fastq files" do
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
-          capture_stdout do
+          captured_stdout = capture_stdout do
             assembly, reference, left, right = sorghum_data
             left = [left]
             left << File.join(File.dirname(__FILE__), 'data', '150uncovered.l.fq')
