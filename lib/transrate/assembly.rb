@@ -59,6 +59,10 @@ module Transrate
           logger.error ">#{contig.name}"
           logger.error "Please make sure there are no duplicate entries in the assembly"
           logger.error "Contig name is taken from before the first | or space"
+          logger.error "If you used Trinity, there is a known bug that breaks" +
+                       "contig names to make them non-unique."
+          logger.error "You can fix your Trinity assembly by replacing | with _"
+          logger.error "e.g. `sed 's/\\|/_/' Trinity.fa > Trinity.fixed.fa`"
           raise AssemblyError
         end
         @assembly[contig.name] = contig
