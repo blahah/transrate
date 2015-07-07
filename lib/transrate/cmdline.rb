@@ -193,10 +193,12 @@ OPTIONS:
   end
 
   def check_reference
-    @opts[:reference] = File.expand_path @opts.reference
-    if @opts.reference && !File.exist?(@opts.reference)
-      raise TransrateIOError.new "Reference fasta file does not exist: " +
+    if @opts.reference
+      @opts[:reference] = File.expand_path @opts.reference
+      if !File.exist?(@opts.reference)
+        raise TransrateIOError.new "Reference fasta file does not exist: " +
                                  " #{@opts.reference}"
+      end
     end
   end
 
