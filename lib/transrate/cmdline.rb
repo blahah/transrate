@@ -262,7 +262,7 @@ OPTIONS:
   def allowed_deps
     binkey = 'TRANSRATE_PACKAGED_BINARY'
     if ENV.has_key?(binkey) && ENV[binkey] == 'true'
-      return ['read']
+      return ['ref']
     else
       return ['read', 'ref', 'all']
     end
