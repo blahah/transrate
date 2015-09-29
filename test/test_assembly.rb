@@ -50,5 +50,20 @@ class TestAssembly < MiniTest::Test
       end
     end
 
+    should "capture error with bad characters in contig name" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          ref = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.fa')
+          cmd = Transrate::Cmd.new("cat #{ref} | sed 's/\./,/g' > tmp.fa")
+          cmd.run
+          capture_stderr do
+            assert_raises Transrate::AssemblyError do
+              assembly = Transrate::Assembly.new("tmp.fa")
+            end
+          end
+        end
+      end
+    end
+
   end
 end

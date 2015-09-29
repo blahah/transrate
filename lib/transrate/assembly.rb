@@ -65,6 +65,10 @@ module Transrate
           logger.error "e.g. `sed 's/\\|/_/' Trinity.fa > Trinity.fixed.fa`"
           raise AssemblyError
         end
+        if contig.name =~ /\,/
+          logger.error "Contig names can't contain commas"
+          raise AssemblyError
+        end
         @assembly[contig.name] = contig
       end
       @contig_metrics = ContigMetrics.new self
