@@ -53,6 +53,7 @@ module Transrate
       assembly_metrics
       if left && right
         read_metrics left, right
+        @assembly.classify_contigs @cutoff
       end
       comparative_metrics
     end
@@ -88,8 +89,7 @@ module Transrate
       if !@score_optimiser
         @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
       end
-      score, cutoff = @score_optimiser.optimal_score
-      @assembly.classify_contigs cutoff
+      @score, @cutoff = @score_optimiser.optimal_score
       @read_metrics
     end
 
