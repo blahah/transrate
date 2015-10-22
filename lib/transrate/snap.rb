@@ -120,21 +120,39 @@ module Transrate
 
     def build_index file, threads
       @index_name = File.basename(file, File.extname(file))
-      unless Dir.exists?(@index_name)
-        cmd = "#{@snap} index #{file} #{@index_name}"
-        cmd << " -s 23"
-        cmd << " -t#{threads}"
-        cmd << " -bSpace" # contig name terminates with space char
-        runner = Cmd.new cmd
-        runner.run
-        if !runner.status.success?
-          err = runner.stderr
-          msg = "Failed to build Snap index\n#{runner.stderr}"
+      n = 4
+      err = ""
+      loop do
+        if n > 8
+          msg = "Failed to build Snap index"
           raise SnapError.new(msg)
+        end
+        unless Dir.exists?(@index_name)
+          cmd = "#{@snap} index #{file} #{@index_name}"
+          cmd << " -s 23"
+          cmd << " -t#{threads}"
+          cmd << " -bSpace" # contig name terminates with space char
+          cmd << " -locationSize #{n}"
+
+          runner = Cmd.new cmd
+          runner.run
+          if !runner.status.success?
+            err = runner.stderr
+            if err =~ /Ran out of overflow table namespace/
+              n += 1
+              Dir.delete(@index_name) if Dir.exist?(@index_name)
+            else
+              msg = "Failed to build Snap index\n#{runner.stderr}"
+              raise SnapError.new(msg)
+            end
+          end
+        else
+          break
         end
       end
       @index_built = true
     end
+
 
   end # Snap
 
