@@ -45,6 +45,10 @@ module Transrate
       @threads = threads
     end
 
+    def classify_contigs cutoff
+      @assembly.classify_contigs cutoff
+    end
+
     # Run all analyses
     #
     # @param left [String] path to the left reads

@@ -508,6 +508,7 @@ OPTIONS:
 
     prefix = File.basename(assembly)
     optimal, cutoff = transrater.assembly_optimal_score prefix
+    transrater.classify_contigs cutoff
     unless score.nil?
       pretty_print_hash({:TRANSRATE_ASSEMBLY_SCORE => score},
                         @report_width, 4)
