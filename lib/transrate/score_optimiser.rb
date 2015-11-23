@@ -43,6 +43,7 @@ module Transrate
         count -= 1
         score = Math.exp(product / count) * (good/@fragments.to_f)
         cutoffscores[contig.score] = score
+        contig.alt_score
       end
       @optimal = 0
       @cutoff = 0

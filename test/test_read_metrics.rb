@@ -176,6 +176,27 @@ class TestReadMetrics < MiniTest::Test
       assert_equal 100, @read_metrics.read_length
     end
 
+    should "calculate score and alternative score for contigs" do
+      left = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.1.fastq')
+      right = File.join(File.dirname(__FILE__), 'data', 'sorghum_100.2.fastq')
+
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          @read_metrics.run(left, right)
+          @assembly.assembly.each do |name,contig|
+            contig.score
+            contig.alt_score
+          end
+          c1 = @assembly.assembly["Sb05g008360.1"]
+          assert_equal 0.67534, c1.score.round(5), "score"
+          assert_equal 0.78464, c1.score_cov.round(5), "cov"
+          assert_equal 0.68497, c1.score_seg.round(5), "seg"
+          assert_equal 0.80521, c1.score_good .round(5) , "good"
+          assert_equal 0.71173, c1.score_seq.round(5), "seq"
+        end
+      end
+    end
+
   end
 
 end

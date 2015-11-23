@@ -18,6 +18,7 @@ module Transrate
     # reference-based metrics
     attr_accessor :has_crb, :reference_coverage
     attr_accessor :hits
+    attr_accessor :score_cov, :score_seg, :score_good, :score_seq
 
     def initialize(seq, name: nil)
       # fix null bytes in the nucleotide sequence
@@ -243,11 +244,26 @@ module Transrate
       @score = [prod, 0.01].max
     end
 
+    def alt_score
+      hash = {
+        :cov =>  [p_bases_covered, 0.01].max.to_f,
+        :seg =>  [p_not_segmented, 0.01].max.to_f,
+        :good => [p_good, 0.01].max.to_f,
+        :seq =>  [p_seq_true, 0.01].max.to_f
+      }
+      hash.keys.each do |miss|
+        prod = 1
+        hash.each do |key,score|
+          if key!=miss
+            prod *= score
+          end
+        end
+        score_part = ("score_" + miss.to_s).to_sym
+        instance_variable_set("@#{score_part}", prod)
+      end
+    end
+
     # Classify the contig into one of the following classes:
-    # - good (score >= 0.5)
-    # - fragmented (in_bridges > 0) and no other problems
-    # - chimeric (p_not_segmented < 0.25) and no other problems
-    # - bad (score < 0.5 and not in any other category)
     def classify cutoff
       if score >= cutoff
         @classification = :good
