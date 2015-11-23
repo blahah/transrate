@@ -232,6 +232,7 @@ module Transrate
           File.open("#{comp}.#{File.basename(@file)}","w") do |out|
             @assembly.each_pair do |name, contig|
               method = "@score_"+comp
+              contig.alt_score
               if contig.instance_variable_get(method) > cutoff and
                  contig.score < cutoff
                 out.write ">#{name}\n"
