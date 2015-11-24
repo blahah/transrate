@@ -5,7 +5,6 @@ module Transrate
 
   class Snap
 
-    require 'fix-trinity-output'
     require 'bio'
 
     attr_reader :index_name, :bam, :read_count
@@ -50,7 +49,6 @@ module Transrate
       @bam = File.expand_path("#{lbase}.#{rbase}.#{index}.bam")
       @read_count_file = "#{lbase}-#{rbase}-read_count.txt"
 
-      @fixer = Fixer.new # from the fix-trinity-output gem
       unless File.exists? @bam
         snapcmd = build_paired_cmd(left, right, threads)
         runner = Cmd.new snapcmd
@@ -58,10 +56,17 @@ module Transrate
         save_readcount runner.stdout
         save_logs(runner.stdout, runner.stderr)
         unless runner.status.success?
-          if runner.stderr=~/Unmatched\sread\sIDs/
-            logger.warn runner.stderr
-            logger.warn "Unmatched read IDs. Fixing input files..."
-            remap_reads(left, right, threads)
+          if runner.stderr=~/Unmatched\sread\sIDs (.*) and (.*)Use/
+            left = $1
+            right = $2
+            logger.debug runner.stderr
+            msg = "Snap found unmatched read IDs in input fastq files\n"
+            msg << "[ERROR]\nLeft files contained read id\n"
+            msg << "#{left}\n"
+            msg << "and right files contained read id\n"
+            msg << "#{right}\n"
+            msg << "at the same position in the file\n"
+            raise SnapError.new(msg)
           else
             raise SnapError.new("Snap failed\n#{runner.stderr}")
           end
@@ -77,31 +82,6 @@ module Transrate
       File.open('logs/snap.log', 'a') do |f|
         f.write stdout
         f.write stderr
-      end
-    end
-
-    def remap_reads(left, right, threads)
-      fixedleft = []
-      fixedright = []
-      i = 0
-      left.split(",").zip(right.split(",")).each do |l, r|
-        prefix = "reads-#{i}"
-        @fixer.run(l, r, "#{prefix}")
-        fixedleft << "#{prefix}-fixed.1.fastq"
-        fixedright << "#{prefix}-fixed.2.fastq"
-        i+=1
-      end
-      left = fixedleft.join(",")
-      right = fixedright.join(",")
-      File.delete(@bam)
-      logger.info "Fixed input files"
-      snapcmd = build_paired_cmd(left, right, threads)
-      runner = Cmd.new snapcmd
-      runner.run
-      save_readcount runner.stdout
-      save_logs(runner.stdout, runner.stderr)
-      unless runner.status.success?
-        raise SnapError.new("Snap failed\n#{runner.stderr}")
       end
     end
 
@@ -140,21 +120,39 @@ module Transrate
 
     def build_index file, threads
       @index_name = File.basename(file, File.extname(file))
-      unless Dir.exists?(@index_name)
-        cmd = "#{@snap} index #{file} #{@index_name}"
-        cmd << " -s 23"
-        cmd << " -t#{threads}"
-        cmd << " -bSpace" # contig name terminates with space char
-        runner = Cmd.new cmd
-        runner.run
-        if !runner.status.success?
-          err = runner.stderr
-          msg = "Failed to build Snap index\n#{runner.stderr}"
+      n = 4
+      err = ""
+      loop do
+        if n > 8
+          msg = "Failed to build Snap index"
           raise SnapError.new(msg)
+        end
+        unless Dir.exists?(@index_name)
+          cmd = "#{@snap} index #{file} #{@index_name}"
+          cmd << " -s 23"
+          cmd << " -t#{threads}"
+          cmd << " -bSpace" # contig name terminates with space char
+          cmd << " -locationSize #{n}"
+
+          runner = Cmd.new cmd
+          runner.run
+          if !runner.status.success?
+            err = runner.stderr
+            if err =~ /Ran out of overflow table namespace/
+              n += 1
+              Dir.delete(@index_name) if Dir.exist?(@index_name)
+            else
+              msg = "Failed to build Snap index\n#{runner.stderr}"
+              raise SnapError.new(msg)
+            end
+          end
+        else
+          break
         end
       end
       @index_built = true
     end
+
 
   end # Snap
 

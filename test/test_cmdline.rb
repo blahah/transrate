@@ -110,5 +110,58 @@ class TestCmdline < MiniTest::Test
       end
     end
 
+    should "fail when assemblies output already exists" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          Dir.mkdir("test")
+          File.open("test/assemblies.csv", "w") { |out| out.write "test\n" }
+          assembly, reference, left, right = sorghum_data
+          cmd = " --assembly #{assembly}"
+          cmd << " --reference #{reference}"
+          cmd << " --left #{left}"
+          cmd << " --right #{right}"
+          cmd << " --output test"
+          assert_raises Transrate::TransrateArgError do
+            Transrate::Cmdline.new(cmd.split)
+          end
+        end
+      end
+    end
+
+    should "fail when unequal pairing of fastq files provided" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          assembly, reference, left, right = sorghum_data
+          assert_raises Transrate::TransrateArgError do
+            cmd = "--assembly #{assembly} "
+            cmd << "--left #{left},#{left} "
+            cmd << "--right #{right}"
+            Transrate::Cmdline.new(cmd.split)
+          end
+        end
+      end
+    end
+
+    should "fail when fastq files don't exist" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          assembly, reference, left, right = sorghum_data
+          assert_raises Transrate::TransrateIOError do
+            cmd = "--assembly #{assembly} "
+            cmd << "--left left.fq "
+            cmd << "--right #{right}"
+            Transrate::Cmdline.new(cmd.split)
+          end
+          assert_raises Transrate::TransrateIOError do
+            cmd = "--assembly #{assembly} "
+            cmd << "--left #{left} "
+            cmd << "--right right.fq"
+            Transrate::Cmdline.new(cmd.split)
+          end
+        end
+      end
+    end
+
+
   end
 end

@@ -82,6 +82,12 @@ Rake::TestTask.new do |t|
   t.test_files = ['test/test_optimiser.rb']
 end
 
+Rake::TestTask.new do |t|
+  t.name = :cmdline
+  t.libs << 'test'
+  t.test_files = ['test/test_cmdline.rb']
+end
+
 
 
 desc "Run tests"

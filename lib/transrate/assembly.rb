@@ -65,6 +65,10 @@ module Transrate
           logger.error "e.g. `sed 's/\\|/_/' Trinity.fa > Trinity.fixed.fa`"
           raise AssemblyError
         end
+        if contig.name =~ /\,/
+          logger.error "Contig names can't contain commas"
+          raise AssemblyError
+        end
         @assembly[contig.name] = contig
       end
       @contig_metrics = ContigMetrics.new self
@@ -219,6 +223,24 @@ module Transrate
       # close all the file handles
       files.each do |type, handle|
         handle.close
+      end
+      #
+      dir = "single_component_bad"
+      Dir.mkdir(dir) unless Dir.exist?(dir)
+      Dir.chdir(dir) do
+        ["cov", "seg","good", "seq"].each do |comp|
+          File.open("#{comp}.#{File.basename(@file)}","w") do |out|
+            @assembly.each_pair do |name, contig|
+              method = "@score_"+comp
+              contig.alt_score
+              if contig.instance_variable_get(method) > cutoff and
+                 contig.score < cutoff
+                out.write ">#{name}\n"
+                out.write "#{contig.seq.seq}\n"
+              end
+            end
+          end
+        end
       end
     end
 

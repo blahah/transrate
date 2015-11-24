@@ -23,5 +23,24 @@ class TestSnap < MiniTest::Test
       end
     end
 
+    should "fail on input reads with unmatched reads" do
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir(tmpdir) do
+          broken_left = "broken_left.fq"
+          s = "cat #{@left} | tail -n+5 > #{broken_left}"
+          cmd = Transrate::Cmd.new(s)
+          cmd.run
+          assert File.exist?(broken_left), "broken left file doesn't exist"
+          snap = Transrate::Snap.new
+          snap.build_index(@reference, 4)
+          capture_stderr do
+            assert_raises Transrate::SnapError do
+              snap.map_reads(@reference, @left, broken_left)
+            end
+          end
+        end
+      end
+    end
+
   end
 end

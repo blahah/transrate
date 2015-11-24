@@ -14,6 +14,7 @@ class Cmdline
       print_examples
     end
     @report_width = 35
+    @outfile = "assemblies.csv"
     check_arguments
   end
 
@@ -165,6 +166,7 @@ OPTIONS:
     check_assembly
     check_reference
     check_reads
+    check_output
   end
 
   def check_loglevel
@@ -223,6 +225,14 @@ OPTIONS:
           raise TransrateIOError.new "Right read fastq file does not exist: #{right}"
         end
       end
+    end
+  end
+
+  def check_output
+    if File.exist?("#{@opts.output}/#{@outfile}")
+      msg = "assemblies.csv would be overwritten in #{@opts.output}/. "
+      msg << "please choose a different output directory"
+      raise TransrateArgError.new msg
     end
   end
 
@@ -416,10 +426,9 @@ OPTIONS:
   end
 
   def write_assembly_csv results
-    outfile = "assemblies.csv"
-    logger.info "Writing analysis results to #{outfile}"
+    logger.info "Writing analysis results to #{@outfile}"
 
-    CSV.open(outfile, 'wb') do |file|
+    CSV.open(@outfile, 'wb') do |file|
 
       keys = results[0].keys
       keys.delete(:assembly)
@@ -499,6 +508,7 @@ OPTIONS:
 
     prefix = File.basename(assembly)
     optimal, cutoff = transrater.assembly_optimal_score prefix
+    transrater.classify_contigs cutoff
     unless score.nil?
       pretty_print_hash({:TRANSRATE_ASSEMBLY_SCORE => score},
                         @report_width, 4)
