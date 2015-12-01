@@ -1,6 +1,6 @@
 .gitignore
 .travis.yml
-CITATION
+CITATION.md
 Gemfile
 LICENSE
 README.md
