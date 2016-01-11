@@ -366,7 +366,7 @@ OPTIONS:
         out.write "#{seq}\n"
       end
     end
-    merged_file
+    [merged_file]
   end
 
   def analyse_assembly(assembly, r, result_path)
