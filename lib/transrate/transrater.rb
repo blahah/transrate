@@ -74,6 +74,13 @@ module Transrate
       return @score_optimiser.raw_score
     end
 
+    def weighted_score
+      if !@score_optimiser
+        @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)
+      end
+      return @score_optimiser.weighted_score
+    end
+
     def assembly_optimal_score prefix
       if !@score_optimiser
         @score_optimiser = ScoreOptimiser.new(@assembly, @read_metrics)

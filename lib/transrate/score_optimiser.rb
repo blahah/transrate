@@ -1,6 +1,7 @@
 module Transrate
 
-  # This class is used to calculate the basic transrate score.
+  # This class is used to calculate the basic transrate score and the
+  # alternative weighted score.
   # It is also used to automatically optimise the score by
   # calculating a cutoff that maximises the number of reads that map
   # while also minimising the number of low scoring contigs.
@@ -20,6 +21,15 @@ module Transrate
       scores = @assembly.assembly.values.map{ |c| c.score }
       @contig_score = geomean scores
       @contig_score * (@good / @total.to_f)
+    end
+
+    # Modification of the raw score, but where the contig quality
+    # part of the score is the mean of each contig score is
+    # multiplied by its relative expression.
+    def weighted_score
+      scores = @assembly.assembly.values.map{ |c| c.score * c.tpm }
+      @contig_weighted = scores.inject{ |sum, s| sum + s }.to_f / scores.size
+      @contig_weighted * (@good / @total.to_f)
     end
 
     def optimal_score(prefix='assembly')

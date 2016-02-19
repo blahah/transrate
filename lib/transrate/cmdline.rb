@@ -379,7 +379,7 @@ OPTIONS:
     contig_results = {}
     read_results = {}
     comparative_results = {}
-    score, optimal, cutoff = ["NA", "NA", "NA"]
+    score, optimal, cutoff, weighted = ["NA", "NA", "NA", "NA"]
 
     FileUtils.mkdir_p result_path
     Dir.chdir result_path do
@@ -389,7 +389,7 @@ OPTIONS:
       read_results = read_metrics transrater
       comparative_results = comparative_metrics transrater
       if (@opts.left && @opts.right)
-        score, optimal, cutoff = assembly_score(assembly, transrater)
+        score, optimal, cutoff, weighted = assembly_score(assembly, transrater)
       end
 
       write_contig_csv a
@@ -401,6 +401,7 @@ OPTIONS:
                   .merge({ :score => score })
                   .merge({ :optimal_score => optimal })
                   .merge({ :cutoff => cutoff })
+                  .merge({ :weighted => weighted })
 
   end # analyse_assembly
 
@@ -505,7 +506,7 @@ OPTIONS:
 
   def assembly_score(assembly, transrater)
     score = transrater.assembly_score
-
+    weighted = transrater.weighted_score
     prefix = File.basename(assembly)
     optimal, cutoff = transrater.assembly_optimal_score prefix
     transrater.classify_contigs cutoff
@@ -519,7 +520,7 @@ OPTIONS:
                         @report_width, 4)
       pretty_print_hash(transrater.good_contigs, @report_width)
     end
-    [score, optimal, cutoff]
+    [score, optimal, cutoff, weighted]
   end
 
   def write_contig_csv a
