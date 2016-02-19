@@ -15,10 +15,10 @@ class TestOptimiser < MiniTest::Test
           @readmetrics = Transrate::ReadMetrics.new @assembly
           @readmetrics.run(left, right)
           optimiser = Transrate::ScoreOptimiser.new(@assembly, @readmetrics)
-          assert_in_delta 0.1507, optimiser.raw_score.round(4), 0.005
+          assert_in_delta 0.1507, optimiser.raw_score.round(4), 0.05
           optimal, cutoff = optimiser.optimal_score
           assert_in_delta 0.4529, optimal.round(4), 0.05
-          assert_in_delta 0.5638, cutoff.round(4), 0.04
+          assert_in_delta 0.5638, cutoff.round(4), 0.05
         end
       end
     end
