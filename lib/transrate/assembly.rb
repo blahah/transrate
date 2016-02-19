@@ -62,7 +62,11 @@ module Transrate
           logger.error "If you used Trinity, there is a known bug that breaks" +
                        "contig names to make them non-unique."
           logger.error "You can fix your Trinity assembly by replacing | with _"
-          logger.error "e.g. `sed 's/\\|/_/' Trinity.fa > Trinity.fixed.fa`"
+          logger.error "Example commands to achieve this:"
+          logger.error "On OSX:"
+          logger.error "`sed 's/\\|/_/' Trinity.fasta > Trinity.fixed.fa`"
+          logger.error "On Linux:"
+          logger.error "`sed 's_|_-_g' Trinity.fasta > Trinity.fixed.fa`"
           raise AssemblyError
         end
         if contig.name =~ /\,/
