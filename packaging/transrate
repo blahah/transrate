@@ -2,7 +2,22 @@
 set -e
 
 # Figure out where this script is located.
-SELFSCRIPT="`readlink -f \"$0\"`"
+THIS_FILE=$0
+
+cd `dirname $THIS_FILE`
+THIS_FILE=`basename $THIS_FILE`
+
+# Iterate down a (possible) chain of symlinks
+# Compute the canonicalized name by finding the physical path
+# for the directory we're in and appending the target file.
+while [ -L "$THIS_FILE" ]
+do
+    THIS_FILE=`readlink $THIS_FILE`
+    cd `dirname $THIS_FILE`
+    THIS_FILE=`basename $THIS_FILE`
+done
+
+SELFSCRIPT=$PHYS_DIR/$THIS_FILE
 SELFDIR="`dirname \"$SELFSCRIPT\"`"
 SELFDIR="`cd \"$SELFDIR\" && pwd`"
 
