@@ -74,7 +74,11 @@ module Transrate
         :eff_length => eff_length,
         :eff_count => eff_count,
         :tpm => tpm,
-        :coverage => coverage
+        :coverage => coverage,
+        :sCnuc => p_seq_true,
+        :sCcov => p_bases_covered,
+        :sCord => p_good,
+        :sCseg => p_not_segmented
       }
     end
 
