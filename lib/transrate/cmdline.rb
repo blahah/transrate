@@ -321,13 +321,28 @@ OPTIONS:
         puts "  - #{dep.name} (#{dep.version})"
       end
 
-      puts "To install all missing dependencies, run:"
-      puts "  transrate --install-deps all"
-      puts "If you only want the read-metrics dependencies:"
-      puts "  transrate --install-deps read"
-      puts "Or if you only want the reference-metrics dependencies: "
-      puts "  transrate --install-deps ref"
+      deps_help = {}
 
+      deps_help[:all] =
+        "To install all missing dependencies, run:\n" +
+        "  transrate --install-deps all"
+
+      deps_help[:read] =
+        "To install only the read-metrics dependencies:\n" +
+        "  transrate --install-deps read"
+
+      deps_help[:read] =
+        "To install only the reference-metrics dependencies:\n"
+        "  transrate --install-deps ref"
+
+      binkey = 'TRANSRATE_PACKAGED_BINARY'
+      if ENV.has_key?(binkey) && ENV[binkey] == 'true'
+        puts "You are running the packaged version of transrate"
+        puts "This comes with the read-metrics dependencies pre-installed"
+        puts ""
+      end
+
+      allowed_deps.each { |dep| puts deps_help[dep.to_sym] }
       exit 1
     end
   end
