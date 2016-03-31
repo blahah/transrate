@@ -4,6 +4,7 @@ set -e
 # Figure out where this script is located.
 THIS_FILE=$0
 
+ORIG_DIR=`pwd`
 cd `dirname $THIS_FILE`
 THIS_FILE=`basename $THIS_FILE`
 
@@ -17,7 +18,7 @@ do
     THIS_FILE=`basename $THIS_FILE`
 done
 
-SELFSCRIPT=$PHYS_DIR/$THIS_FILE
+SELFSCRIPT=$THIS_FILE
 SELFDIR="`dirname \"$SELFSCRIPT\"`"
 SELFDIR="`cd \"$SELFDIR\" && pwd`"
 
@@ -25,6 +26,7 @@ SELFDIR="`cd \"$SELFDIR\" && pwd`"
 export PATH=$SELFDIR/bin:$PATH
 export LD_LIBRARY_PATH=$SELFDIR/lib:$LD_LIBRARY_PATH
 export DYLD_FALLBACK_LIBRARY_PATH=$SELFDIR/lib:$DYLD_FALLBACK_LIBRARY_PATH
+
 # Tell Bundler where the Gemfile and gems are.
 export BUNDLE_GEMFILE="$SELFDIR/lib/app/Gemfile"
 unset BUNDLE_IGNORE_CONFIG
@@ -33,4 +35,5 @@ unset BUNDLE_IGNORE_CONFIG
 export TRANSRATE_PACKAGED_BINARY=true
 
 # Run the actual app using the bundled Ruby interpreter, with Bundler activated.
+cd $ORIG_DIR
 exec "$SELFDIR/lib/app/ruby/bin/ruby" -rbundler/setup "$SELFDIR/lib/app/bin/transrate" $@
