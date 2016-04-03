@@ -1,30 +1,19 @@
-# salmon (alignment-based) v0.2.2
-# [ program ] => salmon 
-# [ command ] => quant 
-# [ libtype ] => { IU }
-# [ alignments ] => { /local_data/cmb211/salmon/SRR037735_1.fastq.SRR037735_2.fastq.transcripts.bam }
-# [ targets ] => { /local_data/cmb211/salmon/transcripts.fa }
-# [ threads ] => { 8 }
-# [ output ] => { rice-salmon }
-# [ sampleOut ] => { }
-# [ useFragLenDist ] => { }
-# [ sampleUnaligned ] => { }
-# Name	Length	TPM	NumReads
-scaffold1	1016	549.279	20690
-scaffold2	1439	598.782	31945
-scaffold3	783	408.072	11846
-scaffold4	893	441.382	14613
-scaffold5	622	494.487	11403
-scaffold6	2073	4.77214	366.764
-scaffold7	1291	4.288	205.236
-scaffold8	1355	17.9155	900
-scaffold9	258	15.891	152
-scaffold10	1934	104.823	7516
-scaffold11	1922	23.9916	1709.57
-scaffold12	1651	136.498	8355
-scaffold13	1834	360.757	24529.4
-scaffold14	580	6.13864	132
-scaffold15	1539	4.8197	275
-scaffold16	2302	26.1878	2235
-scaffold17	543	1.98695	40
-scaffold18	4121	25.4151	3883
+Name	Length	EffectiveLength	TPM	NumReads
+scaffold1	1016	1016	549.279	20690
+scaffold2	1439	1439	598.782	31945
+scaffold3	783	783	408.072	11846
+scaffold4	893	893	441.382	14613
+scaffold5	622	622	494.487	11403
+scaffold6	2073	2073	4.77214	366.764
+scaffold7	1291	1291	4.288	205.236
+scaffold8	1355	1355	17.9155	900
+scaffold9	258	258	15.891	152
+scaffold10	1934	1934	104.823	7516
+scaffold11	1922	1922	23.9916	1709.57
+scaffold12	1651	1651	136.498	8355
+scaffold13	1834	1834	360.757	24529.4
+scaffold14	580	580	6.13864	132
+scaffold15	1539	1539	4.8197	275
+scaffold16	2302	2302	26.1878	2235
+scaffold17	543	543	1.98695	40
+scaffold18	4121	4121	25.4151	3883

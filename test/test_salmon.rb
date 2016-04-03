@@ -36,7 +36,8 @@ class TestSalmon < MiniTest::Test
       cmd = cmd.split(" ")[1..-1].join(" ") # remove command so test is portabl
       test = "quant --libType IU --alignments alignments.bam "
       test << "--targets assembly.fa --threads 4 --sampleOut "
-      test << "--sampleUnaligned --output . --useVBOpt --useErrorModel"
+      test << "--sampleUnaligned --output . --useErrorModel "
+      test << "--biasCorrect --noEffectiveLengthCorrection --useFSPD"
       assert_equal test, cmd, "cmd is wrong"
     end
 
