@@ -420,11 +420,34 @@ OPTIONS:
 
   end # analyse_assembly
 
+  # if the user provides the same assembly multiple times it messes
+  # with various conventions we use to name output files and directories
+  # so we check for duplicates
+  def check_assemblies_unique assembly_paths
+    if assembly_paths.uniq.length != assembly_paths.length
+      # find duplicates
+      dupes = assembly_paths
+      dupes.uniq.each do |d|
+        i = dupes.index(d)
+        dupes.delete_at(i) unless i.nil?
+      end
+      dupes.uniq!
+
+      logger.error "There following paths were supplied more than once to --assembly:"
+      dupes.each{ |d| puts "  - #{d}"}
+      logger.error "Transrate uses the assembly path to set the output path"
+      logger.error "so duplicates can lead to unexpected behaviour."
+      logger.error "Please provide each assembly once only."
+      exit 1
+    end
+  end
+
   def assembly_result_paths assemblies
     if (assemblies.length == 1)
       return [File.basename(assemblies.first, File.extname(assemblies.first))]
     end
     paths = assemblies.map { |a| File.expand_path a }
+    check_assemblies_unique paths
     common_prefix = common_directory_path paths
     paths.map! { |p| p.to_path.gsub(common_prefix, "").gsub(/^\//, "") }
     paths.map { |p| assembly_result_path p }
