@@ -21,21 +21,6 @@ class TestContigMetrics < MiniTest::Test
       assert_equal 0.37672, @contig_metrics.gc_prop.round(5)
     end
 
-    should "get gc skew" do
-      @contig_metrics.run
-      assert_equal 0.00440, @contig_metrics.gc_skew.round(5)
-    end
-
-    should "get at skew" do
-      @contig_metrics.run
-      assert_equal -0.00718, @contig_metrics.at_skew.round(5)
-    end
-
-    should "get CpG density" do
-      @contig_metrics.run
-      assert_equal 1.51939, @contig_metrics.cpg_ratio.round(5)
-    end
-
     should "get linguistic complexity" do
       @contig_metrics.run
       assert_equal 0.26526, @contig_metrics.linguistic_complexity.round(5)

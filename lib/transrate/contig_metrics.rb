@@ -51,9 +51,6 @@ module Transrate
         lc += contig.linguistic_complexity k
       end
       @gc_prop = (g + c) / (a + c + g + t).to_f
-      @gc_skew = (g - c) / (g + c).to_f
-      @at_skew = (a - t) / (a + t).to_f
-      @cpg_ratio = cpg_count.to_f / (c * g) * total
       @linguistic_complexity = lc / @assembly.assembly.size.to_f
       @proportion_n = @bases_n / total.to_f
     end
