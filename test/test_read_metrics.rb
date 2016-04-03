@@ -129,16 +129,9 @@ class TestReadMetrics < MiniTest::Test
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           @read_metrics.run(left, right)
-          contigs = []
-          @assembly.each do |name, contig|
-            if contig.in_bridges > 0
-              contigs << contig
-            end
-          end
           stats = @read_metrics.read_stats
           assert @read_metrics.has_run, "has run"
-          assert_equal 1,  stats[:potential_bridges], "bridges"
-          assert_in_delta 2, contigs.length, 1, "number of bridging contigs found"
+          assert_equal 1,  stats[:potential_bridges], "number of bridges"
           assert_equal "Sb01g002430.1", contigs[0].name
         end
       end
