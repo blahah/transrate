@@ -2,12 +2,12 @@ snap:
   binaries:
     - snap-aligner
   version:
-    number: '1.0beta.18'
+    number: '1.0dev.96'
     command: 'snap-aligner'
   url:
     64bit:
-      linux: https://github.com/Blahah/snap/releases/download/v1.0beta.18/snap_v1.0beta.18_linux.tar.gz
-      macosx: https://github.com/Blahah/snap/releases/download/v1.0beta.18/snap_v1.0beta.18_osx.tar.gz
+      linux: https://github.com/Blahah/snap/releases/download/1.0dev.96/snap_v1.0dev.96_linux.tar.gz
+      macosx: https://github.com/Blahah/snap/releases/download/1.0dev.96/snap_v1.0dev.96_osx.tar.gz
 bam-read:
   binaries:
    - bam-read
@@ -34,16 +34,13 @@ salmon:
     - libtbbmalloc.so.2
     - libtbbmalloc_proxy.so
     - libtbbmalloc_proxy.so.2
-    - libcmph.0.dylib
-    - libcmph.dylib
     - libtbb.dylib
     - libtbbmalloc.dylib
     - libtbbmalloc_proxy.dylib
-    - libsalmon_core.a
   version:
-    number: '0.4'
+    number: '0.6.0'
     command: 'salmon -v'
   url:
     64bit:
-      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.2/SalmonBeta-0.4.2_DebianSqueeze.tar.gz
-      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.4.2/SalmonBeta-0.4.2_OSX-10.10.tar.gz
+      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.6.0/SalmonBeta-0.6.0_DebianSqueeze.tar.gz
+      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.6.0/SalmonBeta-0.6.0_OSX_10.11.tar.gz

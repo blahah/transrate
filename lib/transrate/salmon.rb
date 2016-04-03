@@ -44,31 +44,38 @@ module Transrate
       cmd << " --sampleOut"
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."
-      cmd << " --useVBOpt"
       cmd << " --useErrorModel"
+      cmd << " --biasCorrect"
+      cmd << " --noEffectiveLengthCorrection"
+      cmd << " --useFSPD"
       cmd
     end
 
     def load_expression file
       expression = {}
+      first = true
       File.open(file).each do |line|
-        if line !~ /^#/
-          line = line.chomp.split("\t")
-          unless line.length == 4
-            raise SalmonError.new("Salmon output file should have 4 columns " +
-              "but it had #{line.length}\n" +
-              "Please check you are using the correct version of Salmon")
-          end
-          target = line[0]
-          effective_length = line[1]
-          effective_count = line[3]
-          tpm = line[2]
-          expression[target] = {
-            :eff_len => effective_length.to_i,
-            :eff_count => effective_count.to_f,
-            :tpm => tpm.to_f
-          }
+        if first
+          first = false
+          next
         end
+        line = line.chomp.split("\t")
+        unless line.length == 5
+          raise SalmonError.new("Salmon output file should have 5 columns " +
+            "but it had #{line.length}\n" +
+            "Please check you are using the correct version of Salmon")
+        end
+        target = line[0]
+        # we ignore length in the second column - we already know it
+        effective_length = line[2]
+        tpm = line[3]
+        effective_count = line[4]
+
+        expression[target] = {
+          :eff_len => effective_length.to_i,
+          :eff_count => effective_count.to_f,
+          :tpm => tpm.to_f
+        }
       end
       expression
     end
