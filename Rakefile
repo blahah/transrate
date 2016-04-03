@@ -1,6 +1,8 @@
 require 'rake/testtask'
 require 'rake/extensiontask'
 require 'bundler/setup'
+require 'bindeps'
+require 'rbconfig'
 
 Rake::ExtensionTask.new('transrate') do |ext|
   ext.lib_dir = "lib/transrate"
@@ -96,7 +98,7 @@ task :default => :test
 # PACKAGING
 
 PACKAGE_NAME = "transrate"
-VERSION = "1.0.2"
+VERSION = `bundle exec bin/transrate -v`.chomp
 TRAVELING_RUBY_VERSION = "20150210-2.2.0"
 
 desc "Package your app"
@@ -156,13 +158,17 @@ def create_package(target)
   sh "rm -rf #{package_dir}/lib/vendor"
   sh "rm -rf #{package_dir}/lib/app/ruby/*/gems/*/test"
   # install binary dependencies
-  sh "mkdir -p packaging/bindeps/#{target}"
+  bindest = File.expand_path "packaging/bindeps/#{target}"
+  sh "mkdir -p #{bindest}"
   sh "rm -rf packaging/bindeps/#{target}/*"
-  sh "cp test/vagrant/#{target}/*.tar.gz packaging/bindeps/#{target}"
-  sh "mkdir packaging/bindeps/#{target}/{bin,lib}"
-  sh "cd packaging/bindeps/#{target} && " +
-     "find . -maxdepth 1 -name '*.tar.gz' -exec tar -xzf '{}' \\; && " +
-     "mv snap-aligner bam-read bin/ && cp -r ./*/{bin,lib} ."
+  real_os = RbConfig::CONFIG['host_os']
+  real_path = ENV['PATH']
+  RbConfig::CONFIG['host_os'] = target == 'osx' ? 'darwin' : target
+  ENV['PATH'] = "/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+  bindeps_file = File.join(File.dirname(__FILE__), 'deps/deps.yaml')
+  Bindeps.require(bindeps_file, bindest)
+  RbConfig::CONFIG['host_os'] = real_os
+  ENV['PATH'] = real_path
   sh "cp -r packaging/bindeps/#{target}/{bin,lib} #{package_dir}/"
   # install c extension
   sh "cp test/vagrant/#{target}/libruby.* #{package_dir}/lib/"

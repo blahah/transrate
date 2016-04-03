@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'yell', '~> 2.0', '>= 2.0.4'
   gem.add_dependency 'trollop', '~> 2.0', '>= 2.0.0'
-  gem.add_dependency 'bindeps', '~> 1.1', '>= 1.1.2'
+  gem.add_dependency 'bindeps', '~> 1.2', '>= 1.2.1'
   gem.add_dependency 'bio', '~> 1.4', '>= 1.4.3'
   gem.add_dependency 'crb-blast', '~> 0.6', '>= 0.6.4'
   gem.add_dependency 'colorize', '~> 0.7', '>= 0.7.7'
@@ -32,4 +32,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov', '~> 0.8', '>= 0.8.2'
   gem.add_development_dependency 'shoulda', '~> 3.5', '>= 3.5.0'
   gem.add_development_dependency 'coveralls', '~> 0.7', '>= 0.7.2'
+  gem.add_development_dependency 'bindeps', '~> 1.2', '>= 1.2.1'
 end
