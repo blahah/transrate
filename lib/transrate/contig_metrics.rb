@@ -46,10 +46,11 @@ module Transrate
 
     def results
       return if !@has_run
-      return {'gc' => @gc_prop,
-              'bases_n' => @bases_n,
-              'proportion_n' => @proportion_n,
-             }
+      return {
+        'gc' => @gc_prop,
+        'bases_n' => @bases_n,
+        'proportion_n' => @proportion_n,
+       }
     end
 
   end

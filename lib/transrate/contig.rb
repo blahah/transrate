@@ -54,12 +54,7 @@ module Transrate
       basic = {
         :length => length,
         :prop_gc => prop_gc,
-        :gc_skew => gc_skew,
-        :at_skew => at_skew,
-        :cpg_count => cpg_count,
-        :cpg_ratio => cpg_ratio,
-        :orf_length => orf_length,
-        :linguistic_complexity_6 => linguistic_complexity(6),
+        :orf_length => orf_length
       }
     end
 
@@ -194,38 +189,11 @@ module Transrate
       prop_g + prop_c
     end
 
-    # GC skew
-    def gc_skew
-      (bases_g - bases_c) / (bases_g + bases_c).to_f
-    end
-
-    # AT skew
-    def at_skew
-      (bases_a - bases_t) / (bases_a + bases_t).to_f
-    end
-
-    # CpG count
-    def cpg_count
-      dibase_composition[:cg] + dibase_composition[:gc]
-    end
-
-    # observed-to-expected CpG (C-phosphate-G) ratio
-    def cpg_ratio
-      r = dibase_composition[:cg] + dibase_composition[:gc]
-      r /= (bases_c * bases_g).to_f
-      r *= (length - bases_n)
-      return r
-    end
-
     # Find the longest orf in the contig
     def orf_length
       return @orf_length if @orf_length
       @orf_length = longest_orf(@seq.seq) # call to C
       return @orf_length
-    end
-
-    def linguistic_complexity k
-      return kmer_count(k, @seq.seq)/(4**k).to_f # call to C
     end
 
     def p_bases_covered
