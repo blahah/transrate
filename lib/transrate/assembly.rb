@@ -8,12 +8,6 @@ module Transrate
 
   # Container for a transcriptome assembly and its associated
   # metadata.
-  #
-  # @!attribute [rw] ublast_db
-  #   @return [String] path to a ublast database generated from this assembly
-  # @!attribute [rw] orss_ublast_db
-  #   @return [String] path to a ublast database generated from the orfs
-  #     extracted from this assembly
   # @!attribute [r] assembly
   #   @return [Array<Bio::FastaFormat>] the assembly
   # @!attribute [r] has_run
