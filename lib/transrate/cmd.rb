@@ -11,6 +11,8 @@ module Transrate
     end
 
     def run
+      logger.debug 'running command:'
+      logger.debug @cmd
       @stdout, @stderr, @status = Open3.capture3 @cmd
     end
 
