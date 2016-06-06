@@ -13,15 +13,15 @@ Need help? Chat to us live: [![Gitter](https://badges.gitter.im/Join Chat.svg)](
 ![Downloads](http://img.shields.io/gem/dtv/transrate.svg)
 ![Total Downloads](http://img.shields.io/gem/dt/transrate.svg)
 [![Build Status](http://img.shields.io/travis/blahah/transrate/master.svg)][travis]
-[![Dependency Status](http://img.shields.io/gemnasium/blahah/transrate.svg)][gemnasium]
-[![Code Climate](http://img.shields.io/codeclimate/github/blahah/transrate.svg)][codeclimate]
-[![Coverage Status](http://img.shields.io/coveralls/blahah/transrate.svg)][coveralls]
+[![Dependency Status](http://img.shields.io/gemnasium/Blahah/transrate.svg)][gemnasium]
+[![Code Climate](http://img.shields.io/codeclimate/github/Blahah/transrate.svg)][codeclimate]
+[![Coverage Status](http://img.shields.io/coveralls/Blahah/transrate.svg)][coveralls]
 
 [gem]: https://badge.fury.io/rb/transrate
 [travis]: https://travis-ci.org/blahah/transrate
-[gemnasium]: https://gemnasium.com/blahah/transrate
-[codeclimate]: https://codeclimate.com/github/blahah/transrate
-[coveralls]: https://coveralls.io/r/blahah/transrate
+[gemnasium]: https://gemnasium.com/Blahah/transrate
+[codeclimate]: https://codeclimate.com/github/Blahah/transrate
+[coveralls]: https://coveralls.io/r/Blahah/transrate
 [bintray]: https://bintray.com/blahah/generic/transrate/_latestVersion
 
 This software is being actively developed. Please be aware that there may be bugs. If you find any, please report them on the [issue tracker](https://github.com/blahah/transrate/issues).
