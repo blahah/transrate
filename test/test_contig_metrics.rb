@@ -21,11 +21,6 @@ class TestContigMetrics < MiniTest::Test
       assert_equal 0.37672, @contig_metrics.gc_prop.round(5)
     end
 
-    should "get linguistic complexity" do
-      @contig_metrics.run
-      assert_equal 0.26526, @contig_metrics.linguistic_complexity.round(5)
-    end
-
     should "get the number and proportion of Ns" do
       @contig_metrics.run
       assert_equal 2, @contig_metrics.bases_n

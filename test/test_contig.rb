@@ -44,22 +44,6 @@ class TestContig < MiniTest::Test
                    "proportion of bases that are c or g"
     end
 
-    should "know its own base-pair skew" do
-      assert_equal 0.33, @contig.gc_skew.round(2), "gc skew"
-      assert_equal -0.09, @contig.at_skew.round(2), "at skew"
-    end
-
-    should "know its own CpG count and ratio" do
-      assert_equal 5, @contig.cpg_count, "cpg count"
-      assert_equal 5.56, @contig.cpg_ratio.round(2), "cpg ratio"
-    end
-
-    should "calculate the CpG ratio" do
-      seq = Bio::FastaFormat.new ">test\nAAACGAAA"
-      contig = Transrate::Contig.new seq
-      assert_equal 8, contig.cpg_ratio, "cpg ratio"
-    end
-
     should "know the length of its own longest orf" do
       assert_equal 6, @contig.orf_length, "orf length"
     end
@@ -99,13 +83,6 @@ class TestContig < MiniTest::Test
       seq = Bio::FastaFormat.new ">test\n"+seq
       contig = Transrate::Contig.new seq
       assert contig.linguistic_complexity(6) > 0.98, "linguistic complexity"
-    end
-
-    should "know its own linguistic complexity" do
-      assert_equal 0.0586, @contig.linguistic_complexity(4).round(4),
-                   "linguistic complexity k=4"
-      assert_equal 0.0037, @contig.linguistic_complexity(6).round(4),
-                   "linguistic complexity k=6"
     end
 
     should "classify contig" do
