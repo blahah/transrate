@@ -23,7 +23,7 @@ test_files << File.join(File.dirname(__FILE__), "data", "sorghum_100.1.fastq")
 test_files << File.join(File.dirname(__FILE__), "data", "sorghum_100.2.fastq")
 test_files.each do |file|
   if !File.exist?(file)
-    wget_cmd = "wget #{path}/#{File.basename(file)} --output-document #{file}"
+    wget_cmd = "wget #{path}/#{File.basename(file)} -O #{file}"
     cmd = Transrate::Cmd.new(wget_cmd)
     cmd.run
   end
