@@ -1,11 +1,13 @@
+TransRate is described in our paper: http://dx.doi.org/10.1101/gr.196469.115. 
+
 To cite transrate in publications, please use:
 
 ## Plaintext
 
 ```
 TransRate: reference free quality assessment of de-novo transcriptome assemblies (2016)
-Richard D Smith-Unna, Chris Boursnell, Rob Patro, Julian M Hibberd, Steven Kelly
-Genome Research doi: http://dx.doi.org/10.1101/gr.196469.115
+Richard D Smith-Unna, Chris Boursnell, Rob Patro, Julian M Hibberd, Steven Kelly.
+Genome Research. doi: http://dx.doi.org/10.1101/gr.196469.115
 ```
 
 ## Bibtex 
