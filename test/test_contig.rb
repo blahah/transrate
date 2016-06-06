@@ -74,17 +74,6 @@ class TestContig < MiniTest::Test
       assert_equal 0, contig.kmer_count(6, "RRRRRRRRRRRRRRRR")
     end
 
-    should "calculate linguistic complexity for a long sequence" do
-      alphabet = ["A", "C", "G", "T"]
-      seq = ""
-      50000.times do
-        seq << alphabet.sample
-      end
-      seq = Bio::FastaFormat.new ">test\n"+seq
-      contig = Transrate::Contig.new seq
-      assert contig.linguistic_complexity(6) > 0.98, "linguistic complexity"
-    end
-
     should "classify contig" do
       assert_equal :bad, @contig.classify(0.5), "contig is not bad"
     end
