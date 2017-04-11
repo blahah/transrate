@@ -3,18 +3,16 @@
 </p>
 
 <div align="center">
-  <span>
-    Download latest binaries:
-    <a href="https://bintray.com/blahah/generic/transrate/_latestVersion" alt="download latest binaries">
-      <img src="https://api.bintray.com/packages/blahah/generic/transrate/images/download.svg" />
-    </a>
-  </span>
-  <span>
-    Need help? Chat to us live:
-    <a href="https://gitter.im/Blahah/transrate" alt="chat to us">
-      <img src="https://img.shields.io/gitter/room/blahah/transrate.svg" />
-    </a>
-  </span>
+  Download latest binaries:
+  <a href="https://bintray.com/blahah/generic/transrate/_latestVersion" alt="download latest binaries">
+    <img src="https://api.bintray.com/packages/blahah/generic/transrate/images/download.svg" />
+  </a>
+</div>
+<div align="center">
+  Need help? Chat to us live:
+  <a href="https://gitter.im/Blahah/transrate" alt="chat to us">
+    <img src="https://img.shields.io/gitter/room/blahah/transrate.svg" />
+  </a>
 </div>
 
 ----
