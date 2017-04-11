@@ -2,12 +2,24 @@
   <img alt="Transrate - understand your transcriptome assembly" src="https://github.com/Blahah/transrate/raw/master/docs/transrate_logo_full.png">
 </p>
 
-Download latest binaries: [![Download](https://api.bintray.com/packages/blahah/generic/transrate/images/download.svg)][bintray]
+<div align="center">
+  <span>
+    Download latest binaries:
+    <a href="https://bintray.com/blahah/generic/transrate/_latestVersion" alt="download latest binaries">
+      <img src="https://api.bintray.com/packages/blahah/generic/transrate/images/download.svg" />
+    </a>
+  </span>
+  <span>
+    Need help? Chat to us live:
+    <a href="https://gitter.im/Blahah/transrate" alt="chat to us">
+      <img src="https://img.shields.io/gitter/room/blahah/transrate.svg" />
+    </a>
+  </span>
+</div>
 
-Need help? Chat to us live: [![Gitter](https://img.shields.io/gitter/room/blahah/transrate.svg)](https://gitter.im/Blahah/transrate)
+----
 
-
-## Development status
+<div align="center"><h2>Development status</h2></div>
 
 [![Gem Version](http://img.shields.io/gem/v/transrate.svg)][gem]
 ![Downloads](http://img.shields.io/gem/dtv/transrate.svg)
@@ -25,6 +37,8 @@ Need help? Chat to us live: [![Gitter](https://img.shields.io/gitter/room/blahah
 [bintray]: https://bintray.com/blahah/generic/transrate/_latestVersion
 
 This software is being actively developed. Please be aware that there may be bugs. If you find any, please report them on the [issue tracker](https://github.com/blahah/transrate/issues).
+
+----
 
 ## Citation
 
