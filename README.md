@@ -4,7 +4,7 @@
 
 Download latest binaries: [![Download](https://api.bintray.com/packages/blahah/generic/transrate/images/download.svg)][bintray]
 
-Need help? Chat to us live: [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Blahah/transrate?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Need help? Chat to us live: [![Gitter](https://img.shields.io/gitter/room/blahah/transrate.svg)](https://gitter.im/Blahah/transrate)
 
 
 ## Development status
