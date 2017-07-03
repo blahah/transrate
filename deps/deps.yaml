@@ -42,5 +42,5 @@ salmon:
     command: 'salmon -v'
   url:
     64bit:
-      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.6.0/SalmonBeta-0.6.0_DebianSqueeze.tar.gz
-      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.6.0/SalmonBeta-0.6.0_OSX_10.11.tar.gz
+      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.8.2/Salmon-0.8.2_linux_x86_64.tar.gz
+      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.8.2/Salmon-0.8.2_macOS_10.12.tar.gz
