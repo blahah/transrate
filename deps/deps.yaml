@@ -38,7 +38,7 @@ salmon:
     - libtbbmalloc.dylib
     - libtbbmalloc_proxy.dylib
   version:
-    number: '0.6.0'
+    number: '0.8.2'
     command: 'salmon -v'
   url:
     64bit:

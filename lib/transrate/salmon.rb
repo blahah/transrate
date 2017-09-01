@@ -37,17 +37,16 @@ module Transrate
 
     def build_command assembly, bamfile, threads=4
       cmd = "#{@salmon} quant"
-      cmd << " --libType IU"
       cmd << " --alignments #{bamfile}"
       cmd << " --targets #{assembly}"
       cmd << " --threads #{threads}"
       cmd << " --sampleOut"
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."
+      cmd << " --seqBias"
       cmd << " --useErrorModel"
-      cmd << " --biasCorrect"
-      cmd << " --noEffectiveLengthCorrection"
-      cmd << " --useFSPD"
+      cmd << " --gcBias"
+      cmd << " --libType a"
       cmd
     end
 

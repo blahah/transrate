@@ -37,6 +37,7 @@ module Transrate
       cmd << " -D 5" # extra edit distance to search. needed for -om
       cmd << " -om 5" # Output multiple alignments. extra edit distance
       cmd << " -omax 10" # max alignments per pair/read
+      cmd << " -mcp 10000000000000" # increase mcp to silly high value to dec incidence of common SNAP fail. 
       cmd
     end
 
