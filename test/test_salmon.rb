@@ -37,7 +37,7 @@ class TestSalmon < MiniTest::Test
       test = "quant --libType IU --alignments alignments.bam "
       test << "--targets assembly.fa --threads 4 --sampleOut "
       test << "--sampleUnaligned --output . --useErrorModel "
-      test << "--biasCorrect --noEffectiveLengthCorrection --useFSPD"
+      test << "--seqBias --gcBias --noEffectiveLengthCorrection --useFSPD"
       assert_equal test, cmd, "cmd is wrong"
     end
 

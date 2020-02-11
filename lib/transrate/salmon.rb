@@ -45,7 +45,8 @@ module Transrate
       cmd << " --sampleUnaligned" # thanks Rob!
       cmd << " --output ."
       cmd << " --useErrorModel"
-      cmd << " --biasCorrect"
+      cmd << " --seqBias"
+      cmd << " --gcBias"
       cmd << " --noEffectiveLengthCorrection"
       cmd << " --useFSPD"
       cmd
