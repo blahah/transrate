@@ -25,22 +25,19 @@ salmon:
   libraries:
     - libgcc_s.so.1
     - libgomp.so.1
+    - liblzma.so.0
     - libm.so.6
     - librt.so.1
-    - libstdc++.so.6
     - libtbb.so
     - libtbb.so.2
     - libtbbmalloc.so
     - libtbbmalloc.so.2
     - libtbbmalloc_proxy.so
     - libtbbmalloc_proxy.so.2
-    - libtbb.dylib
-    - libtbbmalloc.dylib
-    - libtbbmalloc_proxy.dylib
   version:
-    number: '0.6.0'
+    number: '0.7.2'
     command: 'salmon -v'
   url:
     64bit:
-      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.6.0/SalmonBeta-0.6.0_DebianSqueeze.tar.gz
-      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.6.0/SalmonBeta-0.6.0_OSX_10.11.tar.gz
+      linux: https://github.com/COMBINE-lab/salmon/releases/download/v0.7.2/Salmon-0.7.2_linux_x86_64.tar.gz
+      macosx: https://github.com/COMBINE-lab/salmon/releases/download/v0.7.2/Salmon-0.7.2_OSX_10.11.tar.gz
