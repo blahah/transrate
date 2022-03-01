@@ -1,60 +1,45 @@
-<p align="center">
-  <img alt="Transrate - understand your transcriptome assembly" src="https://github.com/Blahah/transrate/raw/master/docs/transrate_logo_full.png">
-</p>
+This is a forked branch of Transrate 1.0.4 that should work with the newest versions of Salmon (v1.7.0 , 01/03/2022) and snap (v2.0.1, 01/03/2022). 
+***(Important note: I'm running the program on linux and was unsure regarding the macOS version of snap currently in use and as such there is no download link for the macOS version of snap on the deps.yaml file)***
 
-<div align="center">
-  Download latest binaries:
-  <a href="https://bintray.com/blahah/generic/transrate/_latestVersion" alt="download latest binaries">
-    <img src="https://api.bintray.com/packages/blahah/generic/transrate/images/download.svg" />
-  </a>
-</div>
-<div align="center">
-  Need help? Chat to us live:
-  <a href="https://gitter.im/Blahah/transrate" alt="chat to us">
-    <img src="https://img.shields.io/gitter/room/blahah/transrate.svg" />
-  </a>
-</div>
+This forked brach was created after issues in read mapping between RNA samples and a de novo built transcriptome built with those same samples. Mapping values on available recent versions of transrate would be much lower than expected and when compared to older versions of transrate. Also, potential brigdes would always be 0 when running the current version transrate.
 
-----
+With the changes made in this branch, transrate ran as expected and mapping values were comparable to that of older versions as well and potential bridges are calculate once again.
 
-<div align="center"><h2>Development status</h2></div>
+This is fork is mostly based on the v1.0.4 fork by [dfmoralesb](https://github.com/dfmoralesb/transrate) and builds upon changes already present there. Instalation instructions are also similar
 
-[![Gem Version](http://img.shields.io/gem/v/transrate.svg)][gem]
-![Downloads](http://img.shields.io/gem/dtv/transrate.svg)
-![Total Downloads](http://img.shields.io/gem/dt/transrate.svg)
-[![Build Status](http://img.shields.io/travis/blahah/transrate/master.svg)][travis]
-[![Dependency Status](http://img.shields.io/gemnasium/Blahah/transrate.svg)][gemnasium]
-[![Code Climate](http://img.shields.io/codeclimate/github/Blahah/transrate.svg)][codeclimate]
-[![Coverage Status](http://img.shields.io/coveralls/Blahah/transrate.svg)][coveralls]
+To install this unofficial version of transrate v1.0.4.1:
+```
+$ git clone https://github.com/pmomadeira/transrate.git
 
-[gem]: https://badge.fury.io/rb/transrate
-[travis]: https://travis-ci.org/blahah/transrate
-[gemnasium]: https://gemnasium.com/Blahah/transrate
-[codeclimate]: https://codeclimate.com/github/Blahah/transrate
-[coveralls]: https://coveralls.io/r/Blahah/transrate
-[bintray]: https://bintray.com/blahah/generic/transrate/_latestVersion
+$ cd transrate
 
-This software is being actively developed. Please be aware that there may be bugs. If you find any, please report them on the [issue tracker](https://github.com/blahah/transrate/issues).
+$ gem build transrate.gemspec
 
-----
+$ sudo gem install transrate-1.0.3.gem
+```
 
-## Citation
+To run this installation of transrate with conda installations of salmon and snap you do the following [vhfsantos response](adapted from https://github.com/blahah/transrate/issues/202#issuecomment-457245624):
+ ```
+ #Create a new conda environment
+ $conda create --name myTransrateEnv
+ 
+ #Activate the environment
+ $conda activate myTransrateEnv
+ 
+ #Install salmon and snap in the selected environment
+ $conda install -c bioconda salmon
+ $conda install -c bioconda snap-aligner
+ 
+ #List the path to both salmon and snap
+ $whereis salmon
+/home/user/miniconda3/envs/myTransrateEnv/bin/salmon
+$whereis snap-aligner
+/home/user/miniconda3/envs/myTransrateEnv/bin/snap-aligner
 
-Transrate is academic software. If you use it for work leading to a publication, you should cite [the paper](https://github.com/blahah/transrate/blob/master/CITATION.md).
+#Go into the bin directory of you transrate installation and create paths to conda's salmon and snap
+$cd /path/to/transrate/bin/
+$ln -s /home/user/miniconda3/envs/myTransrateEnv/bin/salmon
+$ln -s /home/user/miniconda3/envs/myTransrateEnv/bin/snap-aligner
 
-## Documentation
-
-**transrate** is documented [on the website](http://hibberdlab.com/transrate).
-
-## Contributing
-
-Interested in helping? Great! We particularly would like help with the following:
-
-- code review
-- documentation review
-- adding features that are already discussed and approved on the issue tracker
-- tackling bugs
-
-For any of these, please just pick an appropriate issue [on the tracker](https://github.com/blahah/transrate/issues) and make a pull request.
-
-If you want to suggest, and maybe implement, a new feature, please suggest it on the tracker first. This allows us to give feedback on whether it makes sense given the scope of the software, and for the community to discuss requirements for the feature. *Don't* just implement the feature and make a pull request before dicussing it, because you'll probably find your PR waiting a very long time for review.
+```
+After this transrate should run without issues. Other than using different dependencies, this version should work like the original transrate, so follow general guidelines as instructed in [Transrate](http://hibberdlab.com/transrate/)
