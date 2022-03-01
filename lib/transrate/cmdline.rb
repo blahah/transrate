@@ -2,7 +2,7 @@ module Transrate
 
 class Cmdline
 
-  require 'trollop'
+  require 'optimist'
   require 'csv'
   require 'bindeps'
   require 'colorize'
@@ -44,10 +44,10 @@ class Cmdline
   end
 
   def parse_arguments args
-    Trollop::with_standard_exception_handling argument_parser do
+    Optimist::with_standard_exception_handling argument_parser do
       if args.empty? || args.include?("-h") || args.include?("--help")
         transrate_banner
-        raise Trollop::HelpNeeded
+        raise Optimist::HelpNeeded
       end
 
       argument_parser.parse args
@@ -56,7 +56,7 @@ class Cmdline
 
   def argument_parser
     cmdline = self
-    Trollop::Parser.new do
+    Optimist::Parser.new do
       version Transrate::VERSION::STRING.dup
       banner cmdline.help_message
       opt :assembly, "Assembly file(s) in FASTA format, comma-separated",

@@ -18,23 +18,23 @@ tar zcvf bam-read_v1.0.0.beta4_linux.tar.gz bam-read
 cp bam-read_v1.0.0.beta4_linux.tar.gz /vagrant/
 
 # snap
-git clone https://github.com/Blahah/snap.git
+git clone https://github.com/amplab/snap.git
 cd snap
 git fetch
 git checkout dev
 make
 # package it up
-tar zcvf snap_v1.0dev.67.trfix1.tar.gz snap
-cp snap_v1.0dev.67.trfix1.tar.gz /vagrant/
+tar zcvf snap_v2.0.1.tar.gz snap
+cp snap_v2.0.1.tar.gz /vagrant/
 
 # salmon
-git clone https://github.com/kingsfordgroup/sailfish.git
-cd sailfish
+git clone https://github.com/COMBINE-lab/salmon.git
+cd salmon
 git fetch
 git checkout develop
 mkdir build
 cd build
-cmake -DFETCH_BOOST=TRUE -DCMAKE_INSTALL_PREFIX=~/sailfish/ ..
+cmake -DFETCH_BOOST=TRUE -DCMAKE_INSTALL_PREFIX=~/salmon/ ..
 make
 make install
 # collect libs for packaging
@@ -48,8 +48,8 @@ rm lib/libgcc_s.so.1
 rm lib/libpthread.so.0
 
 # package it up
-tar zcvf salmon_v0.3.0.tar.gz bin/salmon lib/
-cp salmon_v0.3.0.tar.gz /vagrant/
+tar zcvf salmon_v1.7.0.tar.gz bin/salmon lib/
+cp salmon_v1.7.0.tar.gz /vagrant/
 
 # ruby 2.2 (for libruby)
 

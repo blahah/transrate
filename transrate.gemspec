@@ -16,9 +16,9 @@ Gem::Specification.new do |gem|
   gem.executables = ["transrate"]
   gem.require_paths = %w( lib ext )
   gem.extensions  = ["ext/transrate/extconf.rb"]
-
+  
+  gem.add_dependency 'optimist', '~> 3.0', '>= 3.0.1'
   gem.add_dependency 'yell', '~> 2.0', '>= 2.0.4'
-  gem.add_dependency 'trollop', '~> 2.0', '>= 2.0.0'
   gem.add_dependency 'bindeps', '~> 1.2', '>= 1.2.1'
   gem.add_dependency 'bio', '~> 1.4', '>= 1.4.3'
   gem.add_dependency 'crb-blast', '~> 0.6', '>= 0.6.4'
