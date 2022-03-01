@@ -18,7 +18,7 @@ $ gem build transrate.gemspec
 $ sudo gem install transrate-1.0.3.gem
 ```
 
-To run this installation of transrate with conda installations of salmon and snap you do the following [vhfsantos response](adapted from https://github.com/blahah/transrate/issues/202#issuecomment-457245624):
+This installation of transrate should run with conda installations of salmon and snap, as long as you run it in the proper environment. If issues arise try the following [adapted from vhfsantos response](https://github.com/blahah/transrate/issues/202#issuecomment-457245624):
  ```
  #Create a new conda environment
  $conda create --name myTransrateEnv
