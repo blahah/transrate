@@ -138,7 +138,7 @@ module Transrate
           runner.run
           if !runner.status.success?
             err = runner.stderr
-            if err =~ /Ran out of overflow table namespace/ || err =~ /Trying to use too many overflow entries/
+            if err =~ /Ran out of overflow table namespace/ || err =~ /Trying to use too many overflow entries/ || err =~ /Genome is too big for 4 byte genome locations/
               logger.warn "Snap index build failed with n = #{n} , increasing +1"
               n += 1
               Dir.delete(@index_name) if Dir.exist?(@index_name)
