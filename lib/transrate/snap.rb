@@ -6,6 +6,7 @@ module Transrate
   class Snap
 
     require 'bio'
+    require 'fileutils'
 
     attr_reader :index_name, :bam, :read_count
 
@@ -141,7 +142,7 @@ module Transrate
             if err =~ /Ran out of overflow table namespace/ || err =~ /Trying to use too many overflow entries/ || err =~ /Genome is too big for 4 byte genome locations/
               logger.warn "Snap index build failed with n = #{n} , increasing +1"
               n += 1
-              Dir.delete(@index_name) if Dir.exist?(@index_name)
+              FileUtils.rm_rf(@index_name) if Dir.exist?(@index_name)
             else
               msg = "Failed to build Snap index\n#{runner.stderr}"
               raise SnapError.new(msg)
