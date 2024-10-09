@@ -6,12 +6,17 @@ module Transrate
   class Salmon
 
     def initialize
-      which = Cmd.new('which salmon')
-      which.run
-      if !which.status.success?
-        raise SalmonError.new("could not find salmon in the path")
+      active_env_path = ENV['CONDA_PREFIX']
+      if active_env_path
+        salmon_path = File.join(active_env_path, "bin", "salmon")
+        if File.exist?(salmon_path)
+          @salmon = salmon_path
+        else
+          raise SalmonError.new("Salmon not found in active environment path")
+        end
+      else
+        raise SalmonError.new("No active environment found")
       end
-      @salmon = which.stdout.split("\n").first
     end
 
     def run assembly, bamfile, threads=8

@@ -1,5 +1,4 @@
 require 'set'
-require 'crb-blast'
 
 module Transrate
 
@@ -12,37 +11,42 @@ module Transrate
     attr_reader :reference_coverage
     attr_reader :comp_stats
 
-    def initialize assembly, reference, threads
+    def initialize(assembly, reference, threads)
       @assembly = assembly
       @reference = reference
       @threads = threads
       @comp_stats = Hash.new
+      @crb_blast_path = File.join(ENV['CONDA_PREFIX'],'bin','crb-blast')
+      
+      unless File.exist?(@crb_blast_path)
+        raise TransrateError.new("Could not find crb-blast in the active environment.")
+      end
     end
 
     def run
       crbblast = run_crb_blast
-      calculate_reference_coverage crbblast
+      calculate_reference_coverage(crbblast()
       @has_run = true
     end
 
-    def calculate_reference_coverage crbblast
+    def calculate_reference_coverage(crbblast)
       # The reciprocals hash in crb blast has contig names as the key.
       # In order to look up by the reference name we need to reverse this.
       # Scan through the reciprocals and get this Hit objects and add them to
       #   the @reference object for each reference sequence
-      get_reference_hits crbblast
+      get_reference_hits(crbblast)
       per_query_contig_reference_coverage
-      per_target_contig_reference_coverage crbblast
+      per_target_contig_reference_coverage(crbblast)
     end
 
-    def get_reference_hits crbblast
+    def get_reference_hits(crbblast)
       @reference.each do |name, contig|
         contig.hits = []
       end
       crbblast.reciprocals.each do |query_id, list|
         list.each do |hit|
           unless @reference.assembly.key? hit.target
-            raise TransrateError.new "#{hit.target} not in reference"
+            raise TransrateError.new("#{hit.target} not in reference")
           end
           @reference[hit.target].hits << hit
         end
@@ -61,11 +65,11 @@ module Transrate
         ref_contig.hits.each do |hit| # a Hit from query to target
           query_contig_name = hit.query
           unless @assembly.assembly.key? query_contig_name
-            raise TransrateError.new "#{query_contig_name} not in assembly"
+            raise TransrateError.new("#{query_contig_name} not in assembly")
           end
           @assembly[query_contig_name].has_crb = true
           @assembly[query_contig_name].hits << hit
-          raise TransrateError.new "query should not be protein" if hit.qprot
+          raise TransrateError.new("query should not be protein") if hit.qprot
           if hit.tprot
             coverage = 3*hit.alnlen+2 - 3*hit.mismatches - 3*hit.gaps
             coverage /= 3.0*hit.tlen
@@ -86,7 +90,7 @@ module Transrate
       @comp_stats[:p_refs_with_CRBB] = n_refs_with_recip / @reference.size.to_f
     end
 
-    def per_target_contig_reference_coverage crbblast
+    def per_target_contig_reference_coverage(crbblast)
       # each target sequence in the reference can have multiple query contigs
       # hit it. to calculate the reference coverage you can't just add up the
       # alignment lengths. you have to make sure that overlaps are taken into
